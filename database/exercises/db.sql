@@ -100,10 +100,10 @@ COPY public.exercises (id, exercise_id, name, description, tags, status, templat
 14	laser_mapping	Laser Mapping	Build a map based on sensor readings	{"tags": "ROS2"}	ACTIVE	RoboticsAcademy/exercises/static/exercises/laser_mapping/python_template/
 15	basic_computer_vision	Basic Computer Vision	Basic Computer Vision exercise using React and RAM	{"tags": "ROS2"}	ACTIVE	RoboticsAcademy/exercises/static/exercises/basic_computer_vision/python_template/
 16	follow_road	Follow Road	Follow Road exercise	{"tags": "ROS2"}	ACTIVE	RoboticsAcademy/exercises/static/exercises/follow_road/python_template/
-17	pick_place	Pick and Place	Pick and Place exercise	{"tags": "ROS2"}	PROTOTYPE	RoboticsAcademy/exercises/static/exercises/pick_place/python_template/
+17	teste_01	Teste01	teste exercise	{"tags": "ROS2"}	ACTIVE	RoboticsAcademy/exercises/static/exercises/teste_01/python_template/
 \.
 -- 16	rescue_people_classic	Rescue People Old	Rescue People exercise With Gazebo Classic	{"tags": "ROS2"}	ACTIVE	RoboticsAcademy/exercises/static/exercises/rescue_people_classic/python_template/
-
+-- 17	teste_01	Teste01	teste exercise	{"tags": "ROS2"}	ACTIVE	RoboticsAcademy/exercises/static/exercises/teste_01/python_template/
 
 --
 -- Data for Name: exercises_universes; Type: TABLE DATA; Schema: public; Owner: user-dev
@@ -141,7 +141,7 @@ COPY public.exercises_universes (id, exercise_id, universe_id) FROM stdin;
 29	14	30
 30	16	32
 31	14	33
-32	17	34
+32	17	33
 \.
 -- 30  16  3
 
