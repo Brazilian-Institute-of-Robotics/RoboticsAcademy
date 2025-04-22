@@ -4,44 +4,72 @@ import threading
 import time
 
 from hal_interfaces.general.motors import MotorsNode
-from hal_interfaces.general.camera import CameraNode
+from hal_interfaces.general.odometry import OdometryNode
+from hal_interfaces.general.laser import LaserNode
+from hal_interfaces.general.bumper import BumperNode
 
 
-IMG_WIDTH = 320
-IMG_HEIGHT = 240
+freq = 30.0
 
-freq = 90.0 # Less than this wont work
-
-def __auto_spin() -> None:
-    while rclpy.ok():
-        executor.spin_once(timeout_sec=0)
-        time.sleep(1/freq)
-
-# ROS2 init
+print("HAL initializing", flush=True)
 if not rclpy.ok():
     rclpy.init(args=sys.argv)
 
-# ROS2 Topics
-motor_node = MotorsNode("/cmd_vel", 4, 0.3)
-camera_node = CameraNode("/cam_f1_left/image_raw")
+    ### HAL INIT ###
+    motor_node = MotorsNode("/cmd_vel", 4, 0.3)
+    odometry_node = OdometryNode("/odom")
+    laser_node = LaserNode("/roombaROS/laser/scan")
+    bumper_node = BumperNode(
+        [
+            "/roombaROS/events/right_bumper",
+            "/roombaROS/events/center_bumper",
+            "/roombaROS/events/left_bumper",
+        ]
+    )
 
-# Spin nodes so that subscription callbacks load topic data
-executor = rclpy.executors.MultiThreadedExecutor()
-executor.add_node(camera_node)
-executor_thread = threading.Thread(target=__auto_spin, daemon=True)
-executor_thread.start()
+    # Spin nodes so that subscription callbacks load topic data
+    executor = rclpy.executors.MultiThreadedExecutor()
+    executor.add_node(odometry_node)
+    executor.add_node(laser_node)
+    executor.add_node(bumper_node) 
+    def __auto_spin() -> None:
+        while rclpy.ok():
+            executor.spin_once(timeout_sec=0)
+            time.sleep(1/freq)
+    executor_thread = threading.Thread(target=__auto_spin, daemon=True)
+    executor_thread.start()
 
-# Get Image from ROS Driver Camera
-def getImage():
-    image = camera_node.getImage()
-    while image == None:
-        image = camera_node.getImage()
-    return image.data
 
-# Set the velocity
-def setV(velocity):
-    motor_node.sendV(float(velocity))
+### GETTERS ###
 
-# Set the angular velocity
-def setW(velocity):
-    motor_node.sendW(float(velocity))
+# Laser
+def getLaserData():
+    try:
+        return laser_node.getLaserData()
+    except Exception as e:
+        print(f"Exception in hal getLaserData {repr(e)}")
+
+# Pose
+def getPose3d():
+    try:
+        return odometry_node.getPose3d()
+    except Exception as e:
+        print(f"Exception in hal getPose3d {repr(e)}")        
+
+# Bumper
+def getBumperData():
+    try:
+        return bumper_node.getBumperData()
+    except Exception as e:
+        print(f"Exception in hal getBumper {repr(e)}")
+
+
+### SETTERS ###
+
+# Linear speed
+def setV(v):
+    motor_node.sendV(float(v))
+
+# Angular speed
+def setW(w):
+    motor_node.sendW(float(w))
