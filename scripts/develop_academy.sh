@@ -32,10 +32,10 @@ cleanup() {
   exit 0
 }
 
-# Function that verify if the containers "developer-container" 
-# and "universe_db" exists
+# Function that verify if the containers "developer-webapp" 
+# "developer-manager"  and "universe_db" exists
 containers_exist() {
-  docker ps -a --format '{{.Names}}' | grep -E 'developer-container|universe_db' > /dev/null
+  docker ps -a --format '{{.Names}}' | grep -E 'developer-webapp|developer-manager|universe_db' > /dev/null
 }
 
 while getopts ":r:b:i:g:n:t:h" opt; do
@@ -143,7 +143,7 @@ if [ "$nvidia" = "true" ]; then
 fi
 cp compose_cfg/$compose_file.yaml docker-compose.yaml
 
-# Containers "developer-container" and "universe_db" exists
+# Containers "developer-manager", "developer-webapp" and "universe_db" exists
 # and just need to restart
 if containers_exist; then
   docker compose start
