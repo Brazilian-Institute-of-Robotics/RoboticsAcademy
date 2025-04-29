@@ -10,6 +10,9 @@ var ros_version = 2;
 
 export default function MapSelectorFollow(props) {
 
+  //LocalStorage variable
+  const appConfig = JSON.parse(localStorage.getItem('appConfig'));
+
   const handleCircuitChange = (e) => {
     context.mapSelected = e.name
     setSelectedCircuit(e);
@@ -70,7 +73,8 @@ export default function MapSelectorFollow(props) {
   }, []);
 
   useEffect(() => {
-    const serverBase = `${document.location.protocol}//${document.location.hostname}:7164`;
+    const serverBase = `${document.location.protocol}//${document.location.hostname}:${appConfig?.SERVER_PORT}`;
+    
     let requestUrl = `${serverBase}/exercises/exercise/${exerciseId}/launch_files`;
     const request = new Request(requestUrl, {
       method: "POST",

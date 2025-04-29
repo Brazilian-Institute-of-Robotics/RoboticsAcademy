@@ -1,3 +1,9 @@
+from dotenv import load_dotenv
+import os
+
+# Carrega as variáveis do .env
+load_dotenv()
+
 """
 Django settings for academy project.
 
@@ -93,11 +99,11 @@ WSGI_APPLICATION = 'academy.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'academy_db' ,
-        'USER': 'user-dev',
-        'PASSWORD': 'robotics-academy-dev',
-        'HOST': 'my-postgres',
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'), #my-postgres
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 

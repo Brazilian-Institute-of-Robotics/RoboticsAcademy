@@ -3,8 +3,7 @@ import "../styles/ExerciseList.css";
 import { ExerciseCardV2 } from "./ExerciseCard";
 import React from "react";
 import HomepageContext from "../contexts/HomepageContext";
-
-const serverBase = `${document.location.protocol}//${document.location.hostname}:7164`;
+import { useConfig } from '../contexts/ConfigContext';
 
 let ros_version;
 
@@ -16,7 +15,11 @@ const ExerciseList = () => {
   // });
   const [loading, setLoading] = useState(true);
   const [exerciseList, setExerciseList] = useState();
+  const [serverBase, setServerBase] = useState("");
+
   const filterText = getSearchBarText();
+  
+  const { config, loading: configLoading } = useConfig();
 
   const filterByVersion = (data) => {
     // Requests ROS version and filters exercises by ROS tag
@@ -46,15 +49,21 @@ const ExerciseList = () => {
   };
 
   useEffect(() => {
+
+    if (configLoading || !config?.SERVER_PORT) return;
+
+    const serverB = `${document.location.protocol}//${document.location.hostname}:${config?.SERVER_PORT}`;
+
     // setListState({ loading: true, exercises: null });
-    const apiURL = `${serverBase}/api/v1/exercises/`;
+    const apiURL = `${serverB}/api/v1/exercises/`;
     fetch(apiURL)
       .then((res) => res.json())
       .then((exercises) => {
+        setServerBase(serverB)
         filterByVersion(exercises);
         // setListState({ loading: false, exercises: exercises });
       });
-  }, [setExerciseList]);
+  }, [configLoading, config, setExerciseList]);
 
   if (loading) {
     return <div className="loading-list-message">Loading exercises</div>;

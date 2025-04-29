@@ -17,6 +17,9 @@ const PlayPause = (props) => {
     document.getElementById("exercise-config").textContent
   );
 
+  //LocalStorage variable
+  const appConfig = JSON.parse(localStorage.getItem('appConfig'));
+
   useEffect(() => {
     const callback = (message) => {
       const state = message.data.state;
@@ -66,7 +69,10 @@ const PlayPause = (props) => {
     const errorMessage =
       "Syntax or dependency error, check details on the console.\n";
 
-    const serverBase = `${document.location.protocol}//${document.location.hostname}:7164`;
+    console.log("HELLO!!!!")
+    console.log(appConfig.SERVER_PORT)
+    const serverBase = `${document.location.protocol}//${document.location.hostname}:${appConfig?.SERVER_PORT}`;
+
     let requestUrl = `${serverBase}/exercises/exercise/${config[0].exercise_id}/user_code_zip`;
 
     var zip = new JSZip();
