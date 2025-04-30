@@ -243,6 +243,11 @@ ALTER TABLE ONLY public.exercises_universes
 ALTER TABLE ONLY public.exercises_universes
     ADD CONSTRAINT exercises_w_exercise_id_e4e984bc_fk_exercises FOREIGN KEY (exercise_id) REFERENCES public.exercises(id) DEFERRABLE INITIALLY DEFERRED;
 
+DO $$
+BEGIN
+  PERFORM setval('public.exercises_id_seq', COALESCE((SELECT MAX(id) FROM public.exercises), 1) + 1);
+  PERFORM setval('public.exercises_universes_id_seq', COALESCE((SELECT MAX(id) FROM public.exercises_universes), 1) + 1);
+END $$;
 
 --
 -- PostgreSQL database dump complete

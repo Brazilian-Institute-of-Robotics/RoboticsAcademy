@@ -821,6 +821,16 @@ ALTER TABLE ONLY public.django_admin_log
     ADD CONSTRAINT django_admin_log_user_id_c564eba6_fk_auth_user_id FOREIGN KEY (user_id) REFERENCES public.auth_user(id) DEFERRABLE INITIALLY DEFERRED;
 
 
+--CORRIGIR PROBLEMA DO DJANGO PARA AS TABELA QUE ESTÃO SENDO POPULADAS NESTE SCRIPT
+DO $$
+BEGIN
+  PERFORM setval('public.auth_permission_id_seq', COALESCE((SELECT MAX(id) FROM public.auth_permission), 1) + 1);
+  PERFORM setval('public.auth_user_id_seq', COALESCE((SELECT MAX(id) FROM public.auth_user), 1) + 1);
+  PERFORM setval('public.django_content_type_id_seq', COALESCE((SELECT MAX(id) FROM public.django_content_type), 1) + 1);
+  PERFORM setval('public.django_migrations_id_seq', COALESCE((SELECT MAX(id) FROM public.django_migrations), 1) + 1);
+END $$;
+
+
 --
 -- PostgreSQL database dump complete
 --
