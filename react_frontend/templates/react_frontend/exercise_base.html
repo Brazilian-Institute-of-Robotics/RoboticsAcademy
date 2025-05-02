@@ -15,6 +15,9 @@
 
 
 {% block before_end_body %}
+    <script>
+        window.DJANGO_ENV = JSON.parse('{{ django_env_json|escapejs }}');
+    </script>
     {% render_bundle 'exercise' 'js' %}
     {% react_components_render %}
 {% endblock %}

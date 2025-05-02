@@ -69,7 +69,7 @@ export default function SpecificLocVacuumCleaner() {
 
   React.useEffect(() => {
     const callback = (message) => {
-      console.log(message);
+      //console.log(message);
       if (message.data.state === "visualization_ready") {
         try {
           setPath("")

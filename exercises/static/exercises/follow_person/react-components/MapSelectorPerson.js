@@ -10,8 +10,7 @@ var ros_version = 2;
 
 export default function MapSelectorFollow(props) {
 
-  //LocalStorage variable
-  const appConfig = JSON.parse(localStorage.getItem('appConfig'));
+  const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
 
   const handleCircuitChange = (e) => {
     context.mapSelected = e.name
@@ -73,7 +72,7 @@ export default function MapSelectorFollow(props) {
   }, []);
 
   useEffect(() => {
-    const serverBase = `${document.location.protocol}//${document.location.hostname}:${appConfig?.SERVER_PORT}`;
+    const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
     
     let requestUrl = `${serverBase}/exercises/exercise/${exerciseId}/launch_files`;
     const request = new Request(requestUrl, {

@@ -9,5 +9,4 @@ router = routers.SimpleRouter()
 router.register(r'exercises', ExerciseViewSet)
 
 urlpatterns = router.urls +[
-    path('config/', function_views.frontend_config),
 ]

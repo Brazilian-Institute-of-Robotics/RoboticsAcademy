@@ -17,8 +17,7 @@ const PlayPause = (props) => {
     document.getElementById("exercise-config").textContent
   );
 
-  //LocalStorage variable
-  const appConfig = JSON.parse(localStorage.getItem('appConfig'));
+  const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
 
   useEffect(() => {
     const callback = (message) => {
@@ -69,9 +68,7 @@ const PlayPause = (props) => {
     const errorMessage =
       "Syntax or dependency error, check details on the console.\n";
 
-    console.log("HELLO!!!!")
-    console.log(appConfig.SERVER_PORT)
-    const serverBase = `${document.location.protocol}//${document.location.hostname}:${appConfig?.SERVER_PORT}`;
+    const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
 
     let requestUrl = `${serverBase}/exercises/exercise/${config[0].exercise_id}/user_code_zip`;
 

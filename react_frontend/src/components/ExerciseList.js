@@ -3,7 +3,6 @@ import "../styles/ExerciseList.css";
 import { ExerciseCardV2 } from "./ExerciseCard";
 import React from "react";
 import HomepageContext from "../contexts/HomepageContext";
-import { useConfig } from '../contexts/ConfigContext';
 
 let ros_version;
 
@@ -18,8 +17,8 @@ const ExerciseList = () => {
   const [serverBase, setServerBase] = useState("");
 
   const filterText = getSearchBarText();
-  
-  const { config, loading: configLoading } = useConfig();
+
+  const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
 
   const filterByVersion = (data) => {
     // Requests ROS version and filters exercises by ROS tag
@@ -49,10 +48,7 @@ const ExerciseList = () => {
   };
 
   useEffect(() => {
-
-    if (configLoading || !config?.SERVER_PORT) return;
-
-    const serverB = `${document.location.protocol}//${document.location.hostname}:${config?.SERVER_PORT}`;
+    const serverB = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
 
     // setListState({ loading: true, exercises: null });
     const apiURL = `${serverB}/api/v1/exercises/`;
@@ -63,7 +59,7 @@ const ExerciseList = () => {
         filterByVersion(exercises);
         // setListState({ loading: false, exercises: exercises });
       });
-  }, [configLoading, config, setExerciseList]);
+  }, [setExerciseList]);
 
   if (loading) {
     return <div className="loading-list-message">Loading exercises</div>;

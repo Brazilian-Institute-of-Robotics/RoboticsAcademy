@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% load render_bundle from webpack_loader %}
+
+{% block content %}
+  <div id="login-root">{% csrf_token %}</div>
+  {% render_bundle 'login' 'js' %}
+{% endblock %}

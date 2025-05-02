@@ -9,8 +9,6 @@ const container = document.getElementById('app');
 const root = createRoot(container);
 root.render(
   <React.StrictMode>
-    <ConfigProvider>
-      <App />
-    </ConfigProvider>
+    <App />
   </React.StrictMode>
 );

@@ -56,8 +56,16 @@ def index(request):
 
 
 def load_exercise(request, exercise_id):
+    
+    data = {
+        'django_env_json': json.dumps({
+            'SERVER_PORT': settings.SERVER_PORT,
+        })
+    }
     exercise = Exercise.objects.get(exercise_id=exercise_id)
-    return render(request, 'exercises/' + exercise_id + '/exercise.html', exercise.context)
+    data.update(exercise.context)
+
+    return render(request, 'exercises/' + exercise_id + '/exercise.html', data)
 
 
 def request_code(request, exercise_id):

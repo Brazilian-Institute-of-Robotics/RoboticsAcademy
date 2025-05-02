@@ -4,5 +4,6 @@ from react_frontend import views
 
 urlpatterns = [
     # path('', views.exercises, name='exercises'),
-    path('', views.exercises, name='exercises')
+    path('exercises/', views.exercises, name='exercises'),
+    path('login/', views.login, name='login')
 ]
