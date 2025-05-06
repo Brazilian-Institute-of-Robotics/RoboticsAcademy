@@ -2,6 +2,14 @@
 {% load render_bundle from webpack_loader %}
 
 {% block content %}
-  <div id="login-root">{% csrf_token %}</div>
+  {% csrf_token %}
+  <div id="login-root"></div>
   {% render_bundle 'login' 'js' %}
+{% endblock %}
+
+{% block before_end_body %}
+    <script>
+        window.DJANGO_ENV = JSON.parse('{{ django_env_json|escapejs }}');
+    </script>
+    {% render_bundle 'login' 'js' %}
 {% endblock %}
