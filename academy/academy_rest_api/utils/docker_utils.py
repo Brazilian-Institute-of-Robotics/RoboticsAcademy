@@ -67,9 +67,9 @@ def startUserContainer(user_id):
         
         # Extrai as portas externas
         assigned_ports = {
-            'manager': port_bindings['7163/tcp'][0]['HostPort'],
-            'gazebo': port_bindings['6080/tcp'][0]['HostPort'],
-            'console': port_bindings['1108/tcp'][0]['HostPort'],
+            'manager': int(port_bindings['7163/tcp'][0]['HostPort']),
+            'gazebo': int(port_bindings['6080/tcp'][0]['HostPort']),
+            'console': int(port_bindings['1108/tcp'][0]['HostPort']),
         }
         
         return {

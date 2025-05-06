@@ -30,7 +30,7 @@ def user_login(request):
          return JsonResponse({'status': 'error', 'message':message}, status=500)
       
       login(request, user)
-      return JsonResponse({'status': 'success', 'container-data':create_container})
+      return JsonResponse({'status': 'success', 'container-ports':create_container["ports"]})
     
   return JsonResponse({'status': 'error'}, status=400)
 
