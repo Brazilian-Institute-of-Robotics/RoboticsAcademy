@@ -15,11 +15,12 @@ from rest_framework.decorators import api_view
 from .models import Exercise
 from rest_framework.response import Response
 from rest_framework import status
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def get_python_code(request):
     python_code = request.GET.get('python_code', None)
-    print("A", python_code)
     if not python_code:
         body_unicode = request.body.decode('utf-8')
         body_unicode = body_unicode[0:18] + body_unicode[18: len(body_unicode) - 2].replace('"',
@@ -35,6 +36,7 @@ def get_python_code(request):
     python_code = python_code.replace('\\"', '"').replace("\\'", "'")
     return python_code
 
+@login_required
 @csrf_exempt
 def ros_version(request):    
     output = subprocess.check_output(['bash', '-c', 'echo $ROS_VERSION'])
@@ -43,6 +45,7 @@ def ros_version(request):
     data = {'version': version}
     return JsonResponse(data)
 
+@login_required
 @csrf_exempt
 def launch_files(request, exercise_id):
     exercise = Exercise.objects.get(exercise_id=exercise_id)
@@ -54,7 +57,7 @@ def index(request):
     context = {"exercises": exercises}
     return render(request, 'exercises/RoboticsAcademy.html', context)
 
-
+@login_required
 def load_exercise(request, exercise_id):
     
     data = {
@@ -67,7 +70,7 @@ def load_exercise(request, exercise_id):
 
     return render(request, 'exercises/' + exercise_id + '/exercise.html', data)
 
-
+@login_required
 def request_code(request, exercise_id):
     difficulty = request.GET.get('diff')
     path = f'/exercises/static/exercises/{exercise_id}/assets/{difficulty}.py'
@@ -82,6 +85,7 @@ def request_code(request, exercise_id):
         print('EXERCISE: ', exercise_id, 'DIFFICULTY: ', difficulty)
         return HttpResponse(data, content_type="text/plain")
 
+@login_required
 @csrf_exempt
 @api_view(["POST"])
 def user_code_zip(request, exercise_id):
