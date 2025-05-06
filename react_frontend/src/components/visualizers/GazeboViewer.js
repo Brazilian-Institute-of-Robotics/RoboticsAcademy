@@ -2,6 +2,9 @@ import * as React from "react";
 import PropTypes from "prop-types";
 import { Box } from "@mui/system";
 import { CircularProgress, Typography } from "@mui/material";
+import {getContainerManagerPorts } from  '../../helpers/storeManager'
+
+const port = getContainerManagerPorts()?.gazebo
 
 function GazeboViewer(props) {
   const [enableGazebo, handleEnableGazebo] = React.useState(false);
@@ -45,7 +48,7 @@ function GazeboViewer(props) {
               height: "100%",
             }}
             src={
-              "http://127.0.0.1:6080/vnc.html?resize=remote&autoconnect=true&reconnect=true"
+              `http://127.0.0.1:${port}/vnc.html?resize=remote&autoconnect=true&reconnect=true`
             }
           />
         </Box>

@@ -2,6 +2,9 @@ import * as React from "react";
 import PropTypes from "prop-types";
 import { Box } from "@mui/system";
 import { CircularProgress, Typography } from "@mui/material";
+import {getContainerManagerPorts } from  '../../helpers/storeManager'
+
+const port = getContainerManagerPorts()?.console
 
 function VncConsoleViewer() {
   const [active, setActive] = React.useState(false);
@@ -31,7 +34,7 @@ function VncConsoleViewer() {
           <iframe
             id={"iframe-console"}
             src={
-              "http://127.0.0.1:1108/vnc.html?resize=remote&autoconnect=true&reconnect=true"
+              `http://127.0.0.1:${port}/vnc.html?resize=remote&autoconnect=true&reconnect=true`
             }
             style={{
               height: "100%",

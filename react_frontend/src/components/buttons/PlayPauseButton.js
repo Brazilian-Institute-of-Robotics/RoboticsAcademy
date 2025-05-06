@@ -71,16 +71,18 @@ const PlayPause = (props) => {
     const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
 
     let requestUrl = `${serverBase}/exercises/exercise/${config[0].exercise_id}/user_code_zip`;
+   
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     var zip = new JSZip();
     const commonsZip = await zip.loadAsync(commons);
-    console.log(commonsZip)
 
     try {
       const response = await fetch(requestUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          'X-CSRFToken': csrfToken,
         },
       });
 

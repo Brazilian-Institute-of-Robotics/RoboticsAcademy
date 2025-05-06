@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import "./libs/tools.js";
 import { flushSync } from "react-dom";
 import CommsManager from "./libs/comms_manager";
+import {getContainerManagerPorts } from  './helpers/storeManager.js'
 
 import "./styles/tailwindcss_base.css";
 
@@ -111,7 +112,7 @@ window.RoboticsExerciseComponents = (function () {
   const onLoadSuscribers = [];
 
   const ramHost = window.location.hostname;
-  const ramPort = 7163;
+  const ramPort = getContainerManagerPorts()?.manager //7163
   const ramManager = CommsManager(`ws://${ramHost}:${ramPort}`);
 
   return {
