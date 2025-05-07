@@ -12,7 +12,9 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import ForumIcon from "@mui/icons-material/Forum";
 import { useState } from "react";
+import LogoutIcon from '@mui/icons-material/Logout';
 import SearchBar from "./SearchBar";
+import { deleteContainerManagerPorts } from  '../helpers/storeManager'
 
 const drawerWidth = 240;
 
@@ -28,6 +30,36 @@ export default function DrawerAppBar(props) {
     const url = "https://forum.unibotics.org/";
     window.open(url, "_blank");
   };
+
+   const handleLogout = async (e) => {
+        try {
+            //Use component ./message_system/Loading.js imported on App.js
+            window.RoboticsReactComponents.MessageSystem.Loading.showLoading(
+              "Logout user..."
+            );
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const response = await fetch(`${serverBase}/api/v1/logout/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+            });
+            if (response.ok) {
+                //Delete localStorage
+                deleteContainerManagerPorts()
+                window.location.href = '/login';
+            } else {
+                alert('Erro na resposta da API');
+            }
+        } catch (err) {
+            console.log("Error: "+err)
+            alert('Erro no local');
+        }finally{
+          window.RoboticsReactComponents.MessageSystem.Loading.hideLoading();
+        }
+    }
+  
 
   const drawer = (
     <Box sx={{ textAlign: "center" }}>
@@ -79,6 +111,14 @@ export default function DrawerAppBar(props) {
           >
             Forum
           </Button>
+          <Button
+            variant="outlined"
+            sx={{ display: { xs: "none", sm: "block" }, color: "#fff" }}
+            startIcon={<LogoutIcon />}
+            onClick={handleLogout}
+          >
+            Logout
+          </Button>
         </Toolbar>
       </AppBar>
       <Box component="nav">
@@ -102,5 +142,6 @@ export default function DrawerAppBar(props) {
         </Drawer>
       </Box>
     </Box>
+    
   );
 }

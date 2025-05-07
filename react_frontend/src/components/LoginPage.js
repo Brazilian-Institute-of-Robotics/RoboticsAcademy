@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Typography, Alert } from '@mui/material';
 import { saveContainerManagerPorts, deleteContainerManagerPorts } from  '../helpers/storeManager'
+import Loading from './message_system/Loading';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
@@ -14,6 +15,10 @@ const LoginPage = () => {
         e.preventDefault();
         
         try {
+            //Use component ./message_system/Loading.js
+            window.RoboticsReactComponents.MessageSystem.Loading.showLoading(
+                "Login user..."
+            );
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
             const response = await fetch(`${serverBase}/api/v1/login/`, {
                 method: 'POST',
@@ -34,33 +39,17 @@ const LoginPage = () => {
             }
             else setError('Credenciais inválidas');
         } catch (err) {
-            setError('Erro local: '+err);
+            console.log("ERROR: "+err)
+            setError('Erro local');
+        }finally{
+            window.RoboticsReactComponents.MessageSystem.Loading.hideLoading();
         }
     };
-    const handleLogout = async (e) => {
-        try {
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            const response = await fetch(`${serverBase}/api/v1/logout/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                },
-            });
-            if (response.ok) {
-                //Delete localStorage
-                deleteContainerManagerPorts()
-                alert('Logout realizado com sucesso');
-            } else {
-                alert('Erro ao fazer logout');
-            }
-        } catch (err) {
-            setError('Erro local: '+err);
-        }
-    }
 
     return (
+        
         <Container maxWidth="sm">
+            <Loading/>
             <Typography variant="h4">Login</Typography>
             {error && <Alert severity="error">{error}</Alert>}
             <form onSubmit={handleSubmit}> 
@@ -74,9 +63,6 @@ const LoginPage = () => {
                 </label>
                 <br />
                 <Button type="submit" variant="contained">Entrar</Button>
-                <Button variant="outlined" color="secondary" onClick={handleLogout}>
-                    Logout
-                </Button>
             </form>
         </Container>
     );

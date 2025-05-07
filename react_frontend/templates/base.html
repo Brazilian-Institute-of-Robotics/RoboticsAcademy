@@ -63,13 +63,14 @@
     {{ exercise_config|json_script:"exercise-config" }} {% block content %}
     <!-- Here comes the main content of child pages -->
     {% endblock %} {% block before_end_body %}
+      <!-- Script responsible for logout with timeout -->
       <script>
           window.DJANGO_ENV = JSON.parse('{{ django_env_json|escapejs }}');
       </script>
       <script>
 
         let logoutTimer;
-        const TIMEOUT = 0.2 * 60 * 1000; // 30 minutos
+        const TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
         const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT
         const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;

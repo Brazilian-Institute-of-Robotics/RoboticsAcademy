@@ -4,6 +4,7 @@ import DrawerAppBar from "./DrawerAppBar";
 import React from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { HomepageProvider } from "../contexts/HomepageContext";
+import Loading from "./message_system/Loading";
 
 const theme = createTheme({
   palette: {
@@ -21,6 +22,7 @@ function App() {
   return (
     <HomepageProvider>
       <ThemeProvider theme={theme}>
+        <Loading />
         <DrawerAppBar />
         <ExerciseList />
       </ThemeProvider>
