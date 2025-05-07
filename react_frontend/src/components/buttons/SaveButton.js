@@ -5,11 +5,49 @@ import { saveCode } from "../../helpers/utils";
 import PropTypes from "prop-types";
 
 const SaveFileButton = (props) => {
+
+  const config = JSON.parse(
+    document.getElementById("exercise-config").textContent
+  );
+
+  const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
+
   const [fileName, setFileName] = React.useState("myCode");
-  const saveFile = () => {
-    let userCode = "";
-    userCode = RoboticsReactComponents.CodeEditor.getCode();
-    saveCode(fileName, userCode);
+
+  const saveFile = async(e) => {
+    e.preventDefault();
+    
+    window.RoboticsReactComponents.MessageSystem.Loading.showLoading("Saving code...");
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
+
+    let requestUrl = `${serverBase}/exercises/exercise/${config[0].exercise_id}/save_code`;
+    let userCode = RoboticsReactComponents.CodeEditor.getCode();
+
+    try {
+      const response = await fetch(requestUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({fileName, userCode}),
+      });
+
+      if(response.ok)
+        alert('Código salvo com sucesso');
+      else
+        alert('Erro na resposta da API');
+      
+    } catch (error) {
+      console.log("ERRO: "+error)
+      alert('Erro no local');
+    }finally{window.RoboticsReactComponents.MessageSystem.Loading.hideLoading();}
+     
   };
   return (
     <Box sx={{ display: "flex" }}>
@@ -21,7 +59,7 @@ const SaveFileButton = (props) => {
         sx={{ m: 1 }}
         onClick={saveFile}
       >
-        Save file
+        Save code on system
       </Button>
       <TextField
         sx={{ m: 1 }}

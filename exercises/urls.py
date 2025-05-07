@@ -9,4 +9,5 @@ urlpatterns = [
     path('ros_version/', views.ros_version, name='ros_version'),
     path("exercise/<slug:exercise_id>/launch_files", views.launch_files, name='launch_files'),
     path("exercise/<slug:exercise_id>/user_code_zip", views.user_code_zip, name='user_code_zip'),
+    path("exercise/<slug:exercise_id>/save_code", views.save_code, name='sav_code'),
 ]

@@ -3,6 +3,7 @@ import Toolbar from "@mui/material/Toolbar";
 import { Box } from "@mui/material";
 import RoboticsTheme from "Components/RoboticsTheme";
 import PropTypes from "prop-types";
+import DownloadFileButton from "Components/buttons/DownloadFileButton";
 import SaveButton from "Components/buttons/SaveButton";
 import LoadFileButton from "Components/buttons/LoadFileButton";
 import ResetButton from "Components/buttons/ResetButton";
@@ -32,6 +33,7 @@ function ExerciseControl(props) {
         {editorRendered ? (
           <Box id={"editor-control"}>
             <LoadFileButton />
+            <DownloadFileButton />
             <SaveButton />
           </Box>
         ) : null}

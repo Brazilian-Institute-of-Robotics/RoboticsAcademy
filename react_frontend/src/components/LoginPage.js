@@ -30,7 +30,6 @@ const LoginPage = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log(data['container-ports'])
 
                 //Saves on local storage
                 saveContainerManagerPorts(data['container-ports']);
@@ -41,9 +40,7 @@ const LoginPage = () => {
         } catch (err) {
             console.log("ERROR: "+err)
             setError('Erro local');
-        }finally{
-            window.RoboticsReactComponents.MessageSystem.Loading.hideLoading();
-        }
+        }finally{window.RoboticsReactComponents.MessageSystem.Loading.hideLoading()}
     };
 
     return (

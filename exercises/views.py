@@ -101,3 +101,28 @@ def user_code_zip(request, exercise_id):
 
     except Exception as e:
         return Response({"success": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@login_required
+def save_code(request, exercise_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            file_name = data.get('fileName')
+            user_code = data.get('userCode')
+
+            if not all([file_name, user_code, exercise_id]):
+                return JsonResponse({'error': 'Missing data'}, status=400)
+            
+            user_id = request.user.id
+
+            base_path = os.path.join('RoboticsAcademy/student_codes', str(user_id), str(exercise_id))
+            os.makedirs(base_path, exist_ok=True)
+            file_path = os.path.join(base_path, file_name+".py")
+
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(user_code)
+
+            return JsonResponse({'message': 'Arquivo salvo com sucesso'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)

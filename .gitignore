@@ -124,3 +124,6 @@ docker-compose.yaml
 
 # Zips
 *.zip
+
+student_codes/*
+!student_codes/README.md
