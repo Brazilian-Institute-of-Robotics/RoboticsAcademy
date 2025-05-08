@@ -126,3 +126,31 @@ def save_code(request, exercise_id):
             return JsonResponse({'message': 'Arquivo salvo com sucesso'})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
+def list_user_codes(request, exercise_id):
+    user_id = request.user.id
+    base_path = os.path.join('RoboticsAcademy/student_codes', str(user_id), str(exercise_id))
+
+    if not os.path.exists(base_path):
+        return JsonResponse({'codes': []})
+
+    codes = []
+
+    try:
+        for filename in os.listdir(base_path):
+            file_path = os.path.join(base_path, filename)
+
+            if os.path.isfile(file_path):
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+
+                codes.append({
+                    'filename': filename,
+                    'content': content
+                })
+
+        return JsonResponse({'codes': codes})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
