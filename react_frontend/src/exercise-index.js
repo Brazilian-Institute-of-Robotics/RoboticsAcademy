@@ -5,6 +5,7 @@ import "./libs/tools.js";
 import { flushSync } from "react-dom";
 import CommsManager from "./libs/comms_manager";
 import {getContainerManagerPorts } from  './helpers/storeManager.js'
+import { UserCodeFilesProvider } from "./contexts/UserCodeFilesContex.js";
 
 import "./styles/tailwindcss_base.css";
 
@@ -94,7 +95,11 @@ window.RoboticsExerciseComponents = (function () {
     if (parent_is_root) {
       const root = createRoot(document.getElementById(dom_id));
       flushSync(() => {
-        root.render(rendered_component);
+        root.render(
+          <UserCodeFilesProvider>
+            {rendered_component}
+          </UserCodeFilesProvider>
+        );
       });
     }
 
