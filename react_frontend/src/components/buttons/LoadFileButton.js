@@ -20,7 +20,7 @@ const LoadFileButton = (props) => {
       startIcon={<CloudUploadOutlinedIcon />}
       component="label"
     >
-      Load file
+      Load local code
       <input hidden accept=".py" type="file" onChange={loadFile} />
     </Button>
   );

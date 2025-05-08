@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import DownloadFileButton from "Components/buttons/DownloadFileButton";
 import SaveButton from "Components/buttons/SaveButton";
 import LoadFileButton from "Components/buttons/LoadFileButton";
+import LoadServerFileButton from "../buttons/LoadServerFile";
 import ResetButton from "Components/buttons/ResetButton";
 import Frequencies from "Components/visualizers/Frequencies";
 import PlayPauseButton from "Components/buttons/PlayPauseButton";
@@ -33,6 +34,7 @@ function ExerciseControl(props) {
         {editorRendered ? (
           <Box id={"editor-control"}>
             <LoadFileButton />
+            <LoadServerFileButton/>
             <DownloadFileButton />
             <SaveButton />
           </Box>

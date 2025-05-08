@@ -3,6 +3,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import { Box, Button, TextField } from "@mui/material";
 import { saveCode } from "../../helpers/utils";
 import PropTypes from "prop-types";
+import { userCodeFiles } from "../../contexts/UserCodeFilesContex";
 
 const SaveFileButton = (props) => {
 
@@ -13,6 +14,7 @@ const SaveFileButton = (props) => {
   const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
 
   const [fileName, setFileName] = React.useState("myCode");
+  const { codeFiles, setCodeFiles } = userCodeFiles()
 
   const saveFile = async(e) => {
     e.preventDefault();
@@ -30,17 +32,20 @@ const SaveFileButton = (props) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        },
-        headers: {
-          'Content-Type': 'application/json',
           'X-CSRFToken': csrfToken
         },
         body: JSON.stringify({fileName, userCode}),
       });
 
-      if(response.ok)
+      if(response.ok){
+        const newFile = {
+          "filename": fileName,
+          "content": userCode,
+        }
+        codeFiles.push(newFile)
+        setCodeFiles(codeFiles)
         alert('Código salvo com sucesso');
-      else
+      }else
         alert('Erro na resposta da API');
       
     } catch (error) {
@@ -59,7 +64,7 @@ const SaveFileButton = (props) => {
         sx={{ m: 1 }}
         onClick={saveFile}
       >
-        Save code on system
+        Save code on server
       </Button>
       <TextField
         sx={{ m: 1 }}
