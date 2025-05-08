@@ -29,6 +29,9 @@ services:
         - type: bind
           source: ./
           target: /RoboticsAcademy
+        - type: bind
+          source: ./student_codes
+          target: /RoboticsAcademy/student_codes
         - /var/run/docker.sock:/var/run/docker.sock
       tty: true
       stdin_open: true
