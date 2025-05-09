@@ -1,10 +1,10 @@
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
-import { Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import * as React from "react";
 import PropTypes from "prop-types";
 import { userCodeFiles } from "../../contexts/UserCodeFilesContex";
 import { useState, useEffect } from "react";
-import SelectCodeModal from "../modals/SelectCodeModal";
+import SelectMultipleCodeModal from '../modals/SelectMutipleCodeModal';
 
 const LoadServerFileButton = (props) => {
 
@@ -48,12 +48,8 @@ const LoadServerFileButton = (props) => {
          
     };
 
-    const handleLoadCode = (file) => {
-      RoboticsReactComponents.CodeEditor.setCode(file.content);
-    };
-
   return (
-    <div>
+    <Box sx={{ display: "flex" }}>
       <Button
         variant="contained"
         sx={{ m: 1 }}
@@ -64,14 +60,11 @@ const LoadServerFileButton = (props) => {
       >
         Load server code
       </Button>
-      <SelectCodeModal
-        modalTitle="Select code to load"
-        buttonTitle="Load"
+      <SelectMultipleCodeModal
         open={openModal}
         onClose={() => setOpenModal(false)}
-        onLoad={handleLoadCode}
       />
-    </div>
+    </Box>
   );
 };
 

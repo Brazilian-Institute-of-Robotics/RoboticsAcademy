@@ -38,12 +38,22 @@ const SaveFileButton = (props) => {
       });
 
       if(response.ok){
-        const newFile = {
-          "filename": fileName,
-          "content": userCode,
+        const overwritedIndex = codeFiles.findIndex( item => item.filename === fileName)
+
+        //A new file was saved, so it's add on
+        //codeFiles (context variable)
+        if(overwritedIndex == -1){
+          const newFile = {
+            "filename": fileName,
+            "content": userCode,
+          }
+          codeFiles.push(newFile)
+          setCodeFiles(codeFiles)
+        }else{
+          //File already exists, so here Overwrite file with new content
+          codeFiles[overwritedIndex].content = userCode
         }
-        codeFiles.push(newFile)
-        setCodeFiles(codeFiles)
+        
         alert('Código salvo com sucesso');
       }else
         alert('Erro na resposta da API');

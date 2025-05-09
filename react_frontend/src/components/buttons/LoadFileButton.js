@@ -1,4 +1,4 @@
-import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { Button } from "@mui/material";
 import * as React from "react";
 import PropTypes from "prop-types";
@@ -17,7 +17,7 @@ const LoadFileButton = (props) => {
       variant="contained"
       sx={{ m: 1 }}
       color={"secondary"}
-      startIcon={<CloudUploadOutlinedIcon />}
+      startIcon={<FileUploadIcon />}
       component="label"
     >
       Load local code
