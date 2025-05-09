@@ -11,4 +11,5 @@ urlpatterns = [
     path("exercise/<slug:exercise_id>/user_code_zip", views.user_code_zip, name='user_code_zip'),
     path("exercise/<slug:exercise_id>/save_code", views.save_code, name='sav_code'),
     path("exercise/<slug:exercise_id>/list_user_codes", views.list_user_codes, name='list_user_codes'),
+    path("exercise/<slug:exercise_id>/delete_user_codes", views.delete_user_codes, name='delete_user_codes'),
 ]

@@ -138,15 +138,18 @@ def list_user_codes(request, exercise_id):
     codes = []
 
     try:
-        for filename in os.listdir(base_path):
-            file_path = os.path.join(base_path, filename)
+        for file in os.listdir(base_path):
+            file_path = os.path.join(base_path, file)
 
             if os.path.isfile(file_path):
                 with open(file_path, 'r', encoding='utf-8') as f:
                     content = f.read()
 
+                #Take out .py from file name
+                name = file.split('.')[0]
+
                 codes.append({
-                    'filename': filename,
+                    'filename': name,
                     'content': content
                 })
 
@@ -154,3 +157,34 @@ def list_user_codes(request, exercise_id):
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
+def delete_user_codes(request, exercise_id):
+    if request.method != "DELETE":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+    try:
+        body = json.loads(request.body)
+        fileNames = body.get("fileNames")
+        user_id = request.user.id
+        base_path = os.path.join('RoboticsAcademy/student_codes', str(user_id), str(exercise_id))
+
+        not_found_files = []
+
+        for name in fileNames:
+            file_path = os.path.join(base_path, name+".py")
+            if not os.path.isfile(file_path):
+                not_found_files.append(name)
+
+        if not_found_files:
+            return JsonResponse({"not_found": not_found_files}, status=400)
+
+        for name in fileNames:
+            os.remove(os.path.join(base_path, name+".py"))
+
+        return JsonResponse({"message": "All files removed."})
+
+    except Exception as e:
+        print(e)
+        return JsonResponse({"error": str(e)}, status=400)
+
