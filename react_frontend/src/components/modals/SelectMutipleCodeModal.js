@@ -59,17 +59,16 @@ const DeleteCodeModal = ({ open, onClose }) => {
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
 
     const fileNames = selectedFilesToDeleteIndex.map(
       (index) => codeFiles[index].filename
     )
-    setDeleteMessage("Codes are been deleted...")
     setIsDeleting(true)
     setSelectedFileToReadIndex(null);
     setSelectedFilesToDeleteIndex([])
 
-    deleteCodes(fileNames)
+    await deleteCodes(fileNames)
 
     setIsDeleting(false)
   };
@@ -85,6 +84,8 @@ const DeleteCodeModal = ({ open, onClose }) => {
       const confirmed = window.confirm("Are you sure in delete theses codes?");
       if (!confirmed) return;
 
+      setDeleteMessage("Codes are been deleted...")
+
       const response = await fetch(requestUrl, {
         method: 'DELETE',
         headers: {
@@ -93,6 +94,9 @@ const DeleteCodeModal = ({ open, onClose }) => {
         },
         body: JSON.stringify({ "fileNames": fileNames }),
       });
+
+      //Simutale request waiting
+      //await new Promise(resolve => setTimeout(resolve, 2000));
 
       if(response.ok){
         //filtra todos os arquivos removidos do codeFiles
@@ -109,9 +113,7 @@ const DeleteCodeModal = ({ open, onClose }) => {
       
     } catch (error) {
       setDeleteMessage("Failed to delete files, problem on FRONT")
-    }finally{
-      //await new Promise(resolve => setTimeout(resolve, 2000));
-    }
+    }finally{}
      
 };
 
