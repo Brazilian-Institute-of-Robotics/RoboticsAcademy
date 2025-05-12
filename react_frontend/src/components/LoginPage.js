@@ -1,24 +1,25 @@
 import React, { useState } from 'react';
-import { TextField, Button, Container, Typography, Alert } from '@mui/material';
+import { TextField, Button, Paper, Typography, Box } from "@mui/material";
 import { saveContainerManagerPorts, deleteContainerManagerPorts } from  '../helpers/storeManager'
-import Loading from './message_system/Loading';
+import { LoadingButton } from '@mui/lab';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false)
 
     const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
     const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async(e) => {
+        setLoading(true)
+        await submit(e)
+        setLoading(false)
+    }
+
+    const submit = async (e) => {
         e.preventDefault();
-        
         try {
-            //Use component ./message_system/Loading.js
-            window.RoboticsReactComponents.MessageSystem.Loading.showLoading(
-                "Login user..."
-            );
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
             const response = await fetch(`${serverBase}/api/v1/login/`, {
                 method: 'POST',
@@ -28,40 +29,65 @@ const LoginPage = () => {
                 },
                 body: JSON.stringify({ username, password }),
             });
-            if (response.ok) {
+            if(response.ok) {
                 const data = await response.json();
 
                 //Saves on local storage
                 saveContainerManagerPorts(data['container-ports']);
-
                 window.location.href = '/exercises';
             }
-            else setError('Credenciais inválidas');
+            else alert('Credenciais inválidas');
         } catch (err) {
             console.log("ERROR: "+err)
-            setError('Erro local');
-        }finally{window.RoboticsReactComponents.MessageSystem.Loading.hideLoading()}
+            alert('Erro local');
+        }finally{}
     };
 
     return (
-        
-        <Container maxWidth="sm">
-            <Loading/>
-            <Typography variant="h4">Login</Typography>
-            {error && <Alert severity="error">{error}</Alert>}
-            <form onSubmit={handleSubmit}> 
-                <label>
-                    USERNAME: 
-                    <input type='text' value={username} onChange={e => setUsername(e.target.value)} />
-                </label>
-                <label>
-                    PASSWORD: 
-                    <input type='password' value={password} onChange={e => setPassword(e.target.value)} />
-                </label>
-                <br />
-                <Button type="submit" variant="contained">Entrar</Button>
+        <Box
+          sx={{
+            height: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#f5f5f5",
+          }}
+        >
+          <Paper elevation={4} sx={{ padding: 4, width: 320 }}>
+            <Typography variant="h5" align="center" gutterBottom>
+              Login
+            </Typography>
+            <form onSubmit={handleSubmit}>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Senha"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <LoadingButton
+                fullWidth
+                loadingIndicator="Loading..."
+                loading={loading}
+                type="submit"
+                variant="contained"
+                color="primary"
+                sx={{ marginTop: 2 }}
+              >
+                Enter
+              </LoadingButton>
             </form>
-        </Container>
+          </Paper>
+        </Box>
     );
 };
 
