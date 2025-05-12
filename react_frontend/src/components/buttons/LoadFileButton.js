@@ -3,7 +3,8 @@ import { Button } from "@mui/material";
 import * as React from "react";
 import PropTypes from "prop-types";
 
-const LoadFileButton = (props) => {
+const LoadFileButton = ({changeFileName},props) => {
+
   const loadFile = (event) => {
     event.preventDefault();
     var fr = new FileReader();
@@ -11,6 +12,12 @@ const LoadFileButton = (props) => {
       RoboticsReactComponents.CodeEditor.setCode(fr.result);
     };
     fr.readAsText(event.target.files[0]);
+    const fileNameExtension = event.target.files[0].name
+    const filename = fileNameExtension.split(".")[0]
+
+    //Change value on textfields "Filename" in components:
+    //DownloadFileButton.js and SaveButton.js
+    changeFileName(filename)
   };
   return (
     <Button

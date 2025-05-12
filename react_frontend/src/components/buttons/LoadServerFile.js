@@ -6,7 +6,7 @@ import { userCodeFiles } from "../../contexts/UserCodeFilesContex";
 import { useState, useEffect } from "react";
 import SelectMultipleCodeModal from '../modals/SelectMutipleCodeModal';
 
-const LoadServerFileButton = (props) => {
+const LoadServerFileButton = ({changeFileName},props) => {
 
     const { setCodeFiles } = userCodeFiles()
     const [openModal, setOpenModal] = useState(false);
@@ -63,6 +63,7 @@ const LoadServerFileButton = (props) => {
       <SelectMultipleCodeModal
         open={openModal}
         onClose={() => setOpenModal(false)}
+        changeFileName={changeFileName}
       />
     </Box>
   );

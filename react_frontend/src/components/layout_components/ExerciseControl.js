@@ -45,8 +45,8 @@ function ExerciseControl(props) {
       <Toolbar className={"exercise-toolbar"}>
         {editorRendered ? (
           <Box id={"editor-control"}>
-            <LoadFileButton />
-            <LoadServerFileButton/>
+            <LoadFileButton changeFileName={handleChangeFileName}/>
+            <LoadServerFileButton changeFileName={handleChangeFileName}/>
             <DownloadFileButton fileName={fileName} changeFileName={handleChangeFileName} />
             <SaveButton fileName={fileName} changeFileName={handleChangeFileName} />
           </Box>

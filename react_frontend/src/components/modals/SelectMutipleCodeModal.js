@@ -13,7 +13,7 @@ import { userCodeFiles } from "../../contexts/UserCodeFilesContex";
 import { LoadingButton } from '@mui/lab';
 import { useTheme } from "@mui/material/styles";
 
-const DeleteCodeModal = ({ open, onClose }) => {
+const DeleteCodeModal = ({ open, onClose, changeFileName }) => {
 
   const { codeFiles, setCodeFiles } = userCodeFiles();
   const [selectedFileToReadIndex, setSelectedFileToReadIndex] = useState(null);
@@ -55,6 +55,10 @@ const DeleteCodeModal = ({ open, onClose }) => {
     if (selectedFileToReadIndex !== null) {
       const file = codeFiles[selectedFileToReadIndex];
       RoboticsReactComponents.CodeEditor.setCode(file.content);
+
+      //Change value on textfields "Filename" in components:
+      //DownloadFileButton.js and SaveButton.js
+      changeFileName(file.filename)
       handleClose();
     }
   };
