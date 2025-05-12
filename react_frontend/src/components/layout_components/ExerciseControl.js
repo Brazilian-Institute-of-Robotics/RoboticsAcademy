@@ -17,6 +17,7 @@ function ExerciseControl(props) {
   const [editorRendered, setEditorRendered] = React.useState(false);
   const [showFrequencies, setShowFrequencies] = React.useState(false);
   const [buttonActive, setButtonActive] = React.useState(false);
+  const [fileName, setFileName] = React.useState("myCode");
 
   React.useEffect(() => {
     if (document.getElementById("code-container")) {
@@ -28,6 +29,17 @@ function ExerciseControl(props) {
     setShowFrequencies(!showFrequencies);
   };
 
+  const handleChangeFileName = (name) => {
+
+    // Filter of chars: / \ * ? : | \" < > ."
+    const invalidChars = /[\/\\\?\%\*\:\|\"<>\'.]/g;
+
+    if (!invalidChars.test(name)) {
+      setFileName(name);
+    }
+  
+  };
+
   return (
     <RoboticsTheme>
       <Toolbar className={"exercise-toolbar"}>
@@ -35,8 +47,8 @@ function ExerciseControl(props) {
           <Box id={"editor-control"}>
             <LoadFileButton />
             <LoadServerFileButton/>
-            <DownloadFileButton />
-            <SaveButton />
+            <DownloadFileButton fileName={fileName} changeFileName={handleChangeFileName} />
+            <SaveButton fileName={fileName} changeFileName={handleChangeFileName} />
           </Box>
         ) : null}
         <Box

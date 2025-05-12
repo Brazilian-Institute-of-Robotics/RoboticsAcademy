@@ -5,7 +5,7 @@ import { saveCode } from "../../helpers/utils";
 import PropTypes from "prop-types";
 import { userCodeFiles } from "../../contexts/UserCodeFilesContex";
 
-const SaveFileButton = (props) => {
+const SaveFileButton = ({fileName, changeFileName}, props) => {
 
   const config = JSON.parse(
     document.getElementById("exercise-config").textContent
@@ -13,19 +13,29 @@ const SaveFileButton = (props) => {
 
   const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
 
-  const [fileName, setFileName] = React.useState("myCode");
   const { codeFiles, setCodeFiles } = userCodeFiles()
+
+  const handleSaveFile = async(e) => {
+    if(fileName == "")
+      alert("Por favor insira o nome do arquivo.")
+    else{
+      window.RoboticsReactComponents.MessageSystem.Loading.showLoading("Saving code...");
+      await saveFile(e)
+      window.RoboticsReactComponents.MessageSystem.Loading.hideLoading();
+    }
+  }
 
   const saveFile = async(e) => {
     e.preventDefault();
     
-    window.RoboticsReactComponents.MessageSystem.Loading.showLoading("Saving code...");
-
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
 
     let requestUrl = `${serverBase}/exercises/exercise/${config[0].exercise_id}/save_code`;
     let userCode = RoboticsReactComponents.CodeEditor.getCode();
+
+    //Simutale request waiting
+    //await new Promise(resolve => setTimeout(resolve, 2000));
 
     try {
       const response = await fetch(requestUrl, {
@@ -50,7 +60,7 @@ const SaveFileButton = (props) => {
           codeFiles.push(newFile)
           setCodeFiles(codeFiles)
         }else{
-          //File already exists, so here Overwrite file with new content
+          //File already exists, so here file is overwrited with new content
           codeFiles[overwritedIndex].content = userCode
         }
         
@@ -61,7 +71,7 @@ const SaveFileButton = (props) => {
     } catch (error) {
       console.log("ERRO: "+error)
       alert('Erro no local');
-    }finally{window.RoboticsReactComponents.MessageSystem.Loading.hideLoading();}
+    }finally{}
      
   };
   return (
@@ -72,7 +82,7 @@ const SaveFileButton = (props) => {
         color={"secondary"}
         startIcon={<SaveIcon />}
         sx={{ m: 1 }}
-        onClick={saveFile}
+        onClick={handleSaveFile}
       >
         Save code on server
       </Button>
@@ -84,7 +94,7 @@ const SaveFileButton = (props) => {
         color={"secondary"}
         value={fileName}
         onChange={(e) => {
-          setFileName(e.target.value);
+          changeFileName(e.target.value);
         }}
       />
     </Box>

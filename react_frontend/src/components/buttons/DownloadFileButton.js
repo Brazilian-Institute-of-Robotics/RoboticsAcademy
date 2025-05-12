@@ -4,13 +4,19 @@ import { Box, Button, TextField } from "@mui/material";
 import { saveCode } from "../../helpers/utils";
 import PropTypes from "prop-types";
 
-const DownloadFileButton = (props) => {
-  const [fileName, setFileName] = React.useState("myCode");
+const DownloadFileButton = ({fileName, changeFileName}, props) => {
+  
   const saveFile = () => {
-    let userCode = "";
-    userCode = RoboticsReactComponents.CodeEditor.getCode();
-    saveCode(fileName, userCode);
+    if(fileName == "")
+      alert("Por favor insira o nome do arquivo")
+    else{
+      let userCode = "";
+      userCode = RoboticsReactComponents.CodeEditor.getCode();
+      saveCode(fileName, userCode);
+    }
+    
   };
+
   return (
     <Box sx={{ display: "flex" }}>
       <Button
@@ -31,7 +37,7 @@ const DownloadFileButton = (props) => {
         color={"secondary"}
         value={fileName}
         onChange={(e) => {
-          setFileName(e.target.value);
+          changeFileName(e.target.value);
         }}
       />
     </Box>
