@@ -63,6 +63,7 @@ def load_exercise(request, exercise_id):
     data = {
         'django_env_json': json.dumps({
             'SERVER_PORT': settings.SERVER_PORT,
+            'GUIDE_BASE_URL': settings.EXERCISE_GUIDE_URL,
         })
     }
     exercise = Exercise.objects.get(exercise_id=exercise_id)

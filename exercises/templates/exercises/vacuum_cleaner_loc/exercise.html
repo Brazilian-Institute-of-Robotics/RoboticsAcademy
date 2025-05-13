@@ -8,7 +8,7 @@
     {% if deployment %}
         {% react_component exercise/vacuum_cleaner_loc_newmanager/LocVacuumCleaner %}
             {% react_component components/containers/MaterialBox id="exercise-container" %}
-            {% react_component components/common/MainAppBar exerciseName="Localized Vacuum Cleaner" url="https://jderobot.github.io/RoboticsAcademy/exercises/MobileRobots/vacuum_cleaner_loc"%} 
+            {% react_component components/common/MainAppBar exerciseName="Localized Vacuum Cleaner" url="/MobileRobots/vacuum_cleaner_loc" %} 
             {% react_component RA_links/WorldSelectorRA %} {% end_react_component %}  
             {% end_react_component %}
             {% react_component components/containers/MaterialBox id="content" %}
@@ -31,10 +31,10 @@
 {% end_react_component %}
 {% end_react_component %}
     {% end_react_component %}
-    {% else %}
+    {% else %}z
         {% react_component exercise/vacuum_cleaner_loc_newmanager/LocVacuumCleaner %}
             {% react_component components/wrappers/MaterialBox id="exercise-container" %}
-                {% react_component components/layout_components/MainAppBar exerciseName="Localized Vacuum Cleaner" url="https://jderobot.github.io/RoboticsAcademy/exercises/MobileRobots/vacuum_cleaner_loc"%} 
+                {% react_component components/layout_components/MainAppBar exerciseName="Localized Vacuum Cleaner" url="/MobileRobots/vacuum_cleaner_loc"%}
                 {% react_component components/visualizers/WorldSelector %} {% end_react_component %}  
                 {% end_react_component %} 
             {% react_component components/wrappers/MaterialBox id="content" %}

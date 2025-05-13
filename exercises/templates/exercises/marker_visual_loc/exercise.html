@@ -8,7 +8,7 @@
     {% if deployment %}
         {% react_component exercise/marker_visual_loc_harmonic/visualLoc %}
             {% react_component components/containers/MaterialBox id="exercise-container" %}
-                {% react_component components/common/MainAppBar exerciseName="Marker Visual Localization" url="https://jderobot.github.io/RoboticsAcademy/exercises/ComputerVision/marker_visual_loc"%} 
+                {% react_component components/common/MainAppBar exerciseName="Marker Visual Localization" url="/ComputerVision/marker_visual_loc"%} 
                 {% react_component RA_links/WorldSelectorRA %} {% end_react_component %} 
                 {% end_react_component %}
                 {% react_component components/containers/MaterialBox id="content" %}
@@ -33,7 +33,7 @@
     {% else %}
         {% react_component exercise/marker_visual_loc_harmonic/visualLoc %}
             {% react_component components/wrappers/MaterialBox id="exercise-container" %}
-                {% react_component components/layout_components/MainAppBar exerciseName="Marker Visual Localization" url="https://jderobot.github.io/RoboticsAcademy/exercises/ComputerVision/marker_visual_loc"%} 
+                {% react_component components/layout_components/MainAppBar exerciseName="Marker Visual Localization" url="/ComputerVision/marker_visual_loc"%} 
                 {% react_component components/visualizers/WorldSelector %} {% end_react_component %}  
                 {% end_react_component %} 
                 {% react_component components/wrappers/MaterialBox id="content" %}

@@ -15,6 +15,10 @@ function MainAppBar(props) {
   const maxConnectionAttempts = 3;
   let connectionAttempts = 0;
 
+  const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
+  const serverB = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
+  const homeURL = serverB+"/exercises/"
+
   const connectWithRetry = () => {
     if (connectionAttempts >= maxConnectionAttempts) {
       RoboticsReactComponents.MessageSystem.Alert.showAlert(
@@ -97,7 +101,7 @@ function MainAppBar(props) {
               alignItems: "center",
             }}
           >
-            <a href="http://127.0.0.1:7164/exercises/">
+            <a href= {homeURL}>
               <img
                 src="/static/exercises/assets/img/logo.gif"
                 fit={"cover"}

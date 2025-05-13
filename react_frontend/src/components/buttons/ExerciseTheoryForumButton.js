@@ -12,6 +12,9 @@ import "../../styles/buttons/ExerciseTheoryForumButton.css";
 
 const ExerciseTheoryForumButton = (props) => {
 
+  const GUIDE_BASE_URL = window.DJANGO_ENV.GUIDE_BASE_URL;
+  const guide_complete_url = GUIDE_BASE_URL+props.url
+
   const handleLogout = async (e) => {
       try {
           //Use component ./message_system/Loading.js
@@ -44,16 +47,16 @@ const ExerciseTheoryForumButton = (props) => {
   return (
     <RoboticsTheme>
       <ButtonGroup color={"loading"} variant={"contained"}>
-        <IconButton href={props.url} target="_blank" color="secondary">
+        <IconButton href={guide_complete_url} target="_blank" color="secondary">
           <SchoolOutlinedIcon />
         </IconButton>
-        <IconButton
+        {/* <IconButton
           href="https://forum.unibotics.org/"
           target="_blank"
           color="secondary"
         >
           <CommentOutlinedIcon />
-        </IconButton>
+        </IconButton> */}
         <IconButton 
           onClick={handleLogout} 
           target="_blank" 
