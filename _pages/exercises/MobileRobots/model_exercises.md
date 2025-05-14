@@ -1,12 +1,12 @@
 ---
-permalink: /exercises/MobileRobots/vacuum_cleaner
-title: " Basic Vacuum Cleaner"
+permalink: /exercises/MobileRobots/model_exercises
+title: " Model Exercises"
 
 sidebar:
   nav: "docs"
 
 toc: true
-toc_label: "TOC Vacuum Cleaner"
+toc_label: "TOC Model Exercises"
 toc_icon: "cog"
 
 
@@ -14,18 +14,32 @@ gallery:
     image_path: /assets/images/exercises/vacuum_cleaner/vacuum_cleaner.png
     alt: "Vacuum"
 
+goalImage:
+  - url: /assets/images/exercises/model_exercises/model_exercises_teaser.png
+    image_path: /assets/images/exercises/model_exercises/model_exercises_teaser.png
+    alt: "Vaccum cleaner"
+    title: "Vaccum cleaner"
+
+illustrations:
+  - url: /assets/images/exercises/3d_reconstruction/without_bilateral.png
+    image_path: /assets/images/exercises/3d_reconstruction/without_bilateral.png
+    alt: "Without Bilateral Filtering"
+    title: "Without Bilateral Filtering"
+
+  - url: /assets/images/exercises/3d_reconstruction/with_bilateral.png
+    image_path: /assets/images/exercises/3d_reconstruction/with_bilateral.png
+    alt: "With Bilateral Filtering"
+    title: "With Bilateral Filtering"
+
 youtubeId1: c90hmfkZRNY
-youtubeId2: Xcy84DhVjrY
 ---
 
 ## Goal
 
-The objective of this practice is to implement the logic of a navigation algorithm for an autonomous vacuum. The main objective will be to cover the largest area of ​​a house using the programmed algorithm.
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 
-<img src="/assets/images/exercises/vacuum_cleaner/vacuum_cleaner.png" width="100%" height="60%">
-{% include gallery caption="Vacuum cleaner." %}
 
-**Note**: If you haven't, take a look at the [user guide](https://jderobot.github.io/RoboticsAcademy/user_guide/#installation) to understand how the installation is made, how to launch a RoboticsBackend and how to perform the exercises.
+{% include gallery id="goalImage" caption="Main image" %}
 
 ## Robot API
 
@@ -52,9 +66,7 @@ print(HAL.getPose3d().y)
 yaw = HAL.getPose3d().yaw
 ```
 
-For this example, it is necessary to ensure that the vacuum cleaner covers the highest possible percentage of the house. The application of the automatic evaluator (referee) will measure the percentage traveled, and based on this percentage, will perform the qualification of the solution algorithm.
-
-### Types conversion
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
 
 - **Laser**
 
@@ -99,14 +111,6 @@ if len(laser_data.values) > 0:
     laser_polar, laser_xy = parse_laser_data(laser_data)
 ```
 
-## Theory
-
-Implementation of navigation algorithms for an autonomous vacuum is the basic requirement for this exercise. The main objective is to cover the largest area of a house. First, let us understand what is Coverage Algorithms.
-
-### Coverage Algorithms
-
-Coverage Path Planning is an important area of research in Path Planning for robotics, which involves finding a path that passes through every reachable position in its environment. In this exercise, We are using a very basic coverage algorithm called Random Exploration.
-
 ## Analyzing Coverage Algorithms
 
 ### Classification
@@ -150,62 +154,13 @@ This influences the optimality of generated paths for each sub-region by adjusti
 
 This involves the plan to move from one small subregion to another. The coverage is said to be complete when there is no point left to backtrack.
 
-### Supplements
+## Illustrations
 
-Usually, coverage algorithms generate a linear, piecewise path composed of straight lines and sharp turns. This path is difficult for other autonomous drones like Underwater Vehicles, Aerial Vehicles and some Ground Vehicles difficult to follow. Path Smoothening is applied to these paths to effectively implement the algorithm.
-
-## Hints
-
-Simple hints provided to help you solve the vacuum_cleaner exercise. Please note that the **full solution has not been provided.**
-
-### Random Angle Generation
-
-The most important task is the generation of a random angle. There are 2 ways to achieve it.
-
-- **Random Duration**: By keeping the angular_velocity fixed, the duration of the turn can be randomized, in order to point the robot towards a random direction.
-
-- **Random Angle**: This method requires calculation. We generate a random angle and then turn towards it. Approximately an angular speed of 3 turns the robot by 90 degrees.
-
-Among both the methods, Random Duration would be a preferable one as the Random Angle requires precision, which requires PID to be achieved successfully.
-
-Also, in order to achieve better precision it is preferable to use ```rospy.sleep()``` in place of ```time.sleep()```.
-
-### Dash Movement
-
-Once the direction has been decided, we move in that direction. This is the simplest part, we have to send velocity command to the robot, until a collision is detected.
-
-A word of caution though, whenever we have a change of state, we have to give a sleep duration to the robot to give it time to reset the commands given to it. [Illustrations](#Illustrations) section describes a visual representation.
-
-### Spiral Movement
-
-Using the physical formula $v = r·\omega$ (See [references](#References) for more details). In order to increase $r$, we can either increase $v$ or decrease $\omega$, while keeping the other parameter constant. Experimentally, increasing $v$ has a better effect than decreasing $\omega$. Refer to [illustrations](#Illustrations).
-
-### Analysis
-
-Being such a simple algorithm, it is not expected to work all the time. The maximum accuracy we got was 80% and that too only once!
-
-### Illustrations
-
-![](/assets/images/exercises/vacuum_cleaner/without_duration.gif) 
-
-*Without applying a sleep duration the previous rotation command still has effect on the go straight command*
-
-![](/assets/images/exercises/vacuum_cleaner/duration.gif)
-
-*After applying a duration, we get straight direction movement*
-
-![](/assets/images/exercises/vacuum_cleaner/reduce_omega.gif)
-
-*Effect of reducing $\omega$ to generate spiral*
-
-![](/assets/images/exercises/vacuum_cleaner/increasing_v.gif)
-
-*Effect of increasing $v$ to generate spiral*
-
+{% include gallery id="illustrations" caption="Illustrations" %}
 
 ## Videos
 
-{% include youtubePlayer.html id=page.youtubeId2 %}
+{% include youtubePlayer.html id=page.youtubeId1 %}
 
 *This solution is an illustration for the Web Templates*
 
@@ -216,7 +171,13 @@ Being such a simple algorithm, it is not expected to work all the time. The maxi
 - Contributors: [Vanessa Fernandez](https://github.com/vmartinezf), [Jose María Cañas](https://github.com/jmplaza), [Carlos Awadallah](https://github.com/cawadall), [Nacho Arranz](https://github.com/igarag), [Javier Izquierdo](https://github.com/javizqh).
 - Maintained by [Sakshay Mahna](https://github.com/SakshayMahna), [Javier Izquierdo](https://github.com/javizqh).
 
-<!--
-Another possible solution is to implement the logic of a navigation algorithm for an autonomous vacuum with autolocation.
-{% include youtubePlayer.html id=page.youtubeId2 %}
--->
+## References
+
+1. [https://www.researchgate.net/publication/330183516_3D_Computer_Vision_Stereo_and_3D_Reconstruction_from_Disparity](https://www.researchgate.net/publication/330183516_3D_Computer_Vision_Stereo_and_3D_Reconstruction_from_Disparity)
+2. [https://www.iitr.ac.in/departments/MA/uploads/Stereo-updated.pdf](https://www.iitr.ac.in/departments/MA/uploads/Stereo-updated.pdf)
+3. [https://www.cs.auckland.ac.nz/courses/compsci773s1c/lectures/CS773S1C-3DReconstruction.pdf](https://www.cs.auckland.ac.nz/courses/compsci773s1c/lectures/CS773S1C-3DReconstruction.pdf)
+4. [https://cs.nyu.edu/~fergus/teaching/vision/9_10_Stereo.pdf](https://cs.nyu.edu/~fergus/teaching/vision/9_10_Stereo.pdf)
+5. [https://mil.ufl.edu/nechyba/www/eel6562/course_materials/t9.3d_vision/lecture_multiview1x2.pdf](https://mil.ufl.edu/nechyba/www/eel6562/course_materials/t9.3d_vision/lecture_multiview1x2.pdf)
+6. [https://learnopencv.com/introduction-to-epipolar-geometry-and-stereo-vision/](https://learnopencv.com/introduction-to-epipolar-geometry-and-stereo-vision/)
+7. [https://medium.com/@dc.aihub/3d-reconstruction-with-stereo-images-part-1-camera-calibration-d86f750a1ade](https://medium.com/@dc.aihub/3d-reconstruction-with-stereo-images-part-1-camera-calibration-d86f750a1ade)
+

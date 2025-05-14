@@ -439,6 +439,17 @@ feature_row:
     status: "running"
     order: 0;
 
+  - image_path: /assets/images/exercises/model_exercises/model_exercises_teaser.png
+    alt: "Model Exercises"
+    title: "Model Exercises"
+    excerpt: "First model made by CIMATEC"
+    url: /exercises/MobileRobots/model_exercises
+    btn_class: "btn--danger"
+    btn_label: "Go!"
+    version_label: "btn--success"
+    status: "running"
+    order: 0;
+
 ---
 
 
