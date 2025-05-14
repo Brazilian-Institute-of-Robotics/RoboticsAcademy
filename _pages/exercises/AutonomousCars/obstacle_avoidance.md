@@ -123,7 +123,7 @@ GUI.showLocalTarget(target)
 
 ```
 
-![VFF_FORCES]({{ site.url }}/RoboticsAcademy/assets/images/exercises/obstacle_avoidance/vff_forces.png)
+![VFF_FORCES](/assets/images/exercises/obstacle_avoidance/vff_forces.png)
 
 
 Alternatively, the following variables can be setted with the same results:
@@ -279,7 +279,7 @@ Robot Navigation involves all the related tasks and algorithms required to take 
 * **Planning**: The robot needs to be able to plan a route to point B
 * **Explore**: The robot needs to be able to explore new terrain
 
-![Robot Navigation Problems]({{ site.url }}/RoboticsAcademy/assets/images/exercises/obstacle_avoidance/robot-navigation-problems.png)
+![Robot Navigation Problems](/assets/images/exercises/obstacle_avoidance/robot-navigation-problems.png)
 
 Some of the ways to achieve the task of Navigation are as follows:
 
@@ -307,7 +307,7 @@ The Virtual Force Field Algorithm works in the following steps:
 * The robot assigns a repulsive vector to the obstacle according to its sensor readings that points away from the waypoint. This is done by summing all the vectors that are translated from the sensor readings.
 * The robot follows the vector obtained by summing the target and obstacle vector.
 
-![VFF]({{ site.url }}/RoboticsAcademy/assets/images/exercises/obstacle_avoidance/vff.png)
+![VFF](/assets/images/exercises/obstacle_avoidance/vff.png)
 
 
 
@@ -317,12 +317,12 @@ There are a few problems related to this algorithm:
 * The robot tends to oscillate in narrow corridors, that is when the robot receives an obstacle vector simultaneously from opposite sides.
 * The robot may not be able to enter narrow corridors in the first place!
 
-![Drawbacks]({{ site.url }}/RoboticsAcademy/assets/images/exercises/obstacle_avoidance/drawbacks.png)
+![Drawbacks](/assets/images/exercises/obstacle_avoidance/drawbacks.png)
 
 ### Virtual Force Histogram Algorithm
 This algorithm improves over the Virtual Force Field Algorithm, by using a data structure called the Polar Histogram. The robot maintains a histogram grid of the  instantaneous sensor values received. Then, based on the threshold value set by the programmer, the program detects minimas(valleys) in the polar histogram. The angle corresponding to these values are then followed by the robot.
 
-![VFH]({{ site.url }}/RoboticsAcademy/assets/images/exercises/obstacle_avoidance/vfh.gif)
+![VFH](/assets/images/exercises/obstacle_avoidance/vfh.gif)
 
 **Note**: The exercise only requires us to implement Virtual Force Field Algorithm
 	
@@ -344,7 +344,7 @@ The obstacle vector is to be calculated from the sensor readings we obtain from 
 
 **Note**: There is a catch in this case, you may notice that most of the time in our implementation of the exercise we get an obstacle vector which is almost always pointing opposite to the direction in which we are supposed to head. This is a problem, as adding this vector directly to the target vector, would give a resultant which is more or less, quite not we expect. Hence, there is some trick we need to apply to solve this problem.
 
-![Obstacle Vector]({{ site.url }}/RoboticsAcademy/assets/images/exercises/obstacle_avoidance/obstacle_vector.png)
+![Obstacle Vector](/assets/images/exercises/obstacle_avoidance/obstacle_vector.png)
 *Obstacle Vector without any obstacles in front of the car*
 
 ### Direction Vector

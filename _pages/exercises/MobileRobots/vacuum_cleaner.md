@@ -22,7 +22,7 @@ youtubeId2: Xcy84DhVjrY
 
 The objective of this practice is to implement the logic of a navigation algorithm for an autonomous vacuum. The main objective will be to cover the largest area of ​​a house using the programmed algorithm.
 
-<img src="/RoboticsAcademy/assets/images/exercises/vacuum_cleaner/vacuum_cleaner.png" width="100%" height="60%">
+<img src="/assets/images/exercises/vacuum_cleaner/vacuum_cleaner.png" width="100%" height="60%">
 {% include gallery caption="Vacuum cleaner." %}
 
 **Note**: If you haven't, take a look at the [user guide](https://jderobot.github.io/RoboticsAcademy/user_guide/#installation) to understand how the installation is made, how to launch a RoboticsBackend and how to perform the exercises.
@@ -127,13 +127,13 @@ The problem of coverage involves two standard basic motions, which are used as a
 
 The robot follows an increasing circle/square pattern.
 
-![Base Movement Spiral]({{ site.url }}/RoboticsAcademy/assets/images/exercises/vacuum_cleaner/spiral.gif)
+![Base Movement Spiral](/assets/images/exercises/vacuum_cleaner/spiral.gif)
 
 - **Boustrophedon Motion**
 
 The robot follows an S-shaped pattern.
 
-![Base Movement Boustrophedon]({{ site.url }}/RoboticsAcademy/assets/images/exercises/vacuum_cleaner/boustrophedon.gif)
+![Base Movement Boustrophedon](/assets/images/exercises/vacuum_cleaner/boustrophedon.gif)
 
 ### Analysis of Coverage Algorithms
 

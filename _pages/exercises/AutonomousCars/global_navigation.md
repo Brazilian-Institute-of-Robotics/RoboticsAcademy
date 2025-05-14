@@ -165,19 +165,19 @@ Gradient Path Planning can be implemented using Brushfire Algorithm or Wave Fron
 
 Wave Front Algorithm is BFS based approach to build a path from source to destination. The algorithm works by assigning weights to a grid of cells. Given the source and target, the algorithm starts from the target node and moves outwards like a ripple, while progressively assigning weights to the neighboring cells.
 
-![Assigning Weights]({{ site.url }}/RoboticsAcademy/assets/images/exercises/global_navigation/weights.png)
+![Assigning Weights](/assets/images/exercises/global_navigation/weights.png)
 
 *Assigning Weights*
 
 As for obstacles, additional weights are added to the cells that are close to obstacles. Intuitively, the weights represent the superposition of waves that are reflected from the walls of obstacles.
 
-![Superposition of Waves]({{ site.url }}/RoboticsAcademy/assets/images/exercises/global_navigation/superposition.gif)
+![Superposition of Waves](/assets/images/exercises/global_navigation/superposition.gif)
 
 *Superposition of Waves*
 
 The algorithm stops upon reaching the source. To navigate through the generated path, the robot follows the path indicated by decreasing weights (a downhill drive). A grayscale image representation quite clearly depicts the path the robot might follow!
 
-![GrayScale Representation]({{ site.url }}/RoboticsAcademy/assets/images/exercises/global_navigation/grayscale.png)
+![GrayScale Representation](/assets/images/exercises/global_navigation/grayscale.png)
 
 *Gray Scale Representation*
 

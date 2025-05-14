@@ -411,7 +411,7 @@ In order to apply multiple transformations all at the same time, we use the conc
 
 In our case we need to map a 3D Point in gazebo, to a 2D matrix map of our house. The equation used in the exercise was:
 
-![Coordinate to Pixel]({{ site.url }}/RoboticsAcademy/assets/images/exercises/vacuum_cleaner_loc/coord2pix.png)
+![Coordinate to Pixel](/assets/images/exercises/vacuum_cleaner_loc/coord2pix.png)
 
 *Coordinate to Pixel Conversion Equation*
 
