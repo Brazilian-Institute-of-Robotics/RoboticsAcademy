@@ -12,8 +12,23 @@ import "../../styles/buttons/ExerciseTheoryForumButton.css";
 
 const ExerciseTheoryForumButton = (props) => {
 
-  const GUIDE_BASE_URL = window.DJANGO_ENV.GUIDE_BASE_URL;
-  const guide_complete_url = GUIDE_BASE_URL+props.url
+  const [url, setUrl] = React.useState("")
+ 
+  React.useEffect(() => {
+       /*
+        Case window.DJANGO_ENV.GUIDE_BASE_URL == "", that means guide pages server is executed
+        on same machine that this server, so this page can create url dinamically
+
+        Otherwise, it used the url on DJANGO_ENV.GUIDE_BASE_URL
+      */
+      const base_url =  window.DJANGO_ENV.GUIDE_BASE_URL == "" ?
+        `${document.location.protocol}//${document.location.hostname}:4000/exercises` :
+          window.DJANGO_ENV.GUIDE_BASE_URL
+      
+      const complete_url = base_url+props.url
+      setUrl(complete_url)
+    }, []);
+  
 
   const handleLogout = async (e) => {
       try {
@@ -47,7 +62,7 @@ const ExerciseTheoryForumButton = (props) => {
   return (
     <RoboticsTheme>
       <ButtonGroup color={"loading"} variant={"contained"}>
-        <IconButton href={guide_complete_url} target="_blank" color="secondary">
+        <IconButton href={url} target="_blank" color="secondary">
           <SchoolOutlinedIcon />
         </IconButton>
         {/* <IconButton

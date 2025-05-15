@@ -59,11 +59,20 @@ def index(request):
 
 @login_required
 def load_exercise(request, exercise_id):
-    
+
+    guideBaseUrl = ""
+    isOnSameMachine = settings.IS_GUIDE_CONTAINER_SAME_MACHINE
+
+    #Case == "false", means container of this server and
+    #container of guide pages are in diferent machines,
+    #so is necessary to get env. variable EXERCISE_GUIDE_URL
+    if(isOnSameMachine == "false"):
+        guideBaseUrl = settings.EXERCISE_GUIDE_URL
+
     data = {
         'django_env_json': json.dumps({
             'SERVER_PORT': settings.SERVER_PORT,
-            'GUIDE_BASE_URL': settings.EXERCISE_GUIDE_URL,
+            'GUIDE_BASE_URL': guideBaseUrl
         })
     }
     exercise = Exercise.objects.get(exercise_id=exercise_id)

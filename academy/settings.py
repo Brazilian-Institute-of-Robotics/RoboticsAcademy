@@ -185,7 +185,9 @@ CORS_ALLOW_HEADERS = (
 
 CORS_ALLOW_CREDENTIALS = True
 
+
 LOGIN_URL = '/login/'
 SERVER_PORT = os.getenv("SERVER_PORT", "7164") 
+IS_GUIDE_CONTAINER_SAME_MACHINE = os.getenv("IS_GUIDE_CONTAINER_SAME_MACHINE", "true")
 EXERCISE_GUIDE_URL = os.getenv("EXERCISE_GUIDE_URL", "https://jderobot.github.io/RoboticsAcademy/exercises")
 
