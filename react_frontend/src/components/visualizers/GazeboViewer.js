@@ -4,9 +4,12 @@ import { Box } from "@mui/system";
 import { CircularProgress, Typography } from "@mui/material";
 import {getContainerManagerPorts } from  '../../helpers/storeManager'
 
-const port = getContainerManagerPorts()?.gazebo
-
 function GazeboViewer(props) {
+
+  const host = `${document.location.protocol}//${document.location.hostname}`;
+  const port = getContainerManagerPorts()?.gazebo
+  const url = host+":"+port
+
   const [enableGazebo, handleEnableGazebo] = React.useState(false);
   React.useEffect(() => {
     const callback = (message) => {
@@ -48,7 +51,7 @@ function GazeboViewer(props) {
               height: "100%",
             }}
             src={
-              `http://127.0.0.1:${port}/vnc.html?resize=remote&autoconnect=true&reconnect=true`
+              `${url}/vnc.html?resize=remote&autoconnect=true&reconnect=true`
             }
           />
         </Box>
