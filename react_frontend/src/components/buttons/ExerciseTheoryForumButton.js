@@ -12,8 +12,11 @@ import "../../styles/buttons/ExerciseTheoryForumButton.css";
 
 const ExerciseTheoryForumButton = (props) => {
 
+  const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
+  const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`; 
+          
   const [url, setUrl] = React.useState("")
- 
+
   React.useEffect(() => {
        /*
         Case window.DJANGO_ENV.GUIDE_BASE_URL == "", that means guide pages server is executed
