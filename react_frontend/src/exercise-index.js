@@ -6,6 +6,7 @@ import { flushSync } from "react-dom";
 import CommsManager from "./libs/comms_manager";
 import {getContainerManagerPorts } from  './helpers/storeManager.js'
 import { UserCodeFilesProvider } from "./contexts/UserCodeFilesContex.js";
+import { InactivityProvider } from "./contexts/InactivityContext.js";
 
 import "./styles/tailwindcss_base.css";
 
@@ -96,9 +97,12 @@ window.RoboticsExerciseComponents = (function () {
       const root = createRoot(document.getElementById(dom_id));
       flushSync(() => {
         root.render(
-          <UserCodeFilesProvider>
-            {rendered_component}
-          </UserCodeFilesProvider>
+          <InactivityProvider>
+            <UserCodeFilesProvider>
+              {rendered_component}
+            </UserCodeFilesProvider>
+          </InactivityProvider>
+          
         );
       });
     }

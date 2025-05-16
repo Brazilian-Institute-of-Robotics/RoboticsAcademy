@@ -33,6 +33,9 @@ export default function DrawerAppBar(props) {
 
    const handleLogout = async (e) => {
         try {
+            const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT
+            const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
+
             //Use component ./message_system/Loading.js imported on App.js
             window.RoboticsReactComponents.MessageSystem.Loading.showLoading(
               "Logout user..."

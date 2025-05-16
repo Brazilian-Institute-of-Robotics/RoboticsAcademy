@@ -37,7 +37,6 @@ ALLOWED_HOSTS = ['*']
 
 VERSION = '13082021'
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -53,6 +52,7 @@ INSTALLED_APPS = [
     'academy.academy_rest_api.apps.AcademyRestApiConfig',   # Academy rest api application
     'react_frontend.apps.ReactFrontendConfig',               # React frontend application
     'corsheaders',
+    #'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -191,3 +191,15 @@ SERVER_PORT = os.getenv("SERVER_PORT", "7164")
 IS_GUIDE_CONTAINER_SAME_MACHINE = os.getenv("IS_GUIDE_CONTAINER_SAME_MACHINE", "true")
 EXERCISE_GUIDE_URL = os.getenv("EXERCISE_GUIDE_URL", "https://jderobot.github.io/RoboticsAcademy/exercises")
 
+# Celery Configuration
+# CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_TIMEZONE = 'UTC'
+
+# Duração da sessão em segundos (ex: 2 horas)
+SESSION_COOKIE_AGE = 7200
+# Se True, a sessão será encerrada ao fechar o navegador
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# Renova o tempo de expiração a cada request
+SESSION_SAVE_EVERY_REQUEST = True 
