@@ -3,11 +3,13 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 const InactivityContext = createContext();
 
 //Default timeout 30 minutes
-export const InactivityProvider = ({ children, timeout = 30 * 60 * 1000 }) => {
+export const InactivityProvider = ({ children }) => {
   const [lastActivity, setLastActivity] = useState(() => {
     const savedTime = localStorage.getItem('lastActivity');
     return savedTime ? Number(savedTime) : Date.now();
   });
+
+  const timeout = parseInt(window.DJANGO_ENV.INACTIVE_TIMEOUT) * 60 * 1000
 
   // Função de logout automático
   const sendLogout = useCallback(async () => {  // Adicionado async

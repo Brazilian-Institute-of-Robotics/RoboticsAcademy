@@ -72,7 +72,8 @@ def load_exercise(request, exercise_id):
     data = {
         'django_env_json': json.dumps({
             'SERVER_PORT': settings.SERVER_PORT,
-            'GUIDE_BASE_URL': guideBaseUrl
+            'GUIDE_BASE_URL': guideBaseUrl,
+            'INACTIVE_TIMEOUT': settings.INACTIVE_TIMEOUT
         })
     }
     exercise = Exercise.objects.get(exercise_id=exercise_id)

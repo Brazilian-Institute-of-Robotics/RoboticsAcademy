@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required
 import json
 
 django_env = {
-    'SERVER_PORT': settings.SERVER_PORT
+    'SERVER_PORT': settings.SERVER_PORT,
+    'INACTIVE_TIMEOUT': settings.INACTIVE_TIMEOUT
 }
 
 @login_required

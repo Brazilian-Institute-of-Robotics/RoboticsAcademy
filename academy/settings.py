@@ -200,8 +200,11 @@ EXERCISE_GUIDE_URL = os.getenv("EXERCISE_GUIDE_URL", "https://jderobot.github.io
 #In hours
 USER_CONTAINER_EXPIRATION=int(os.getenv("USER_CONTAINER_EXPIRATION", default=8))
 
+#In minutes
+INACTIVE_TIMEOUT=int(os.getenv("INACTIVE_TIMEOUT", default=30))
+
 # Session's duration in seconds
-SESSION_COOKIE_AGE = SESSION_COOKIE_AGE = int(os.getenv('USER_SESSION_EXPIRATION', default=7200)) 
+SESSION_COOKIE_AGE = int(os.getenv('USER_SESSION_EXPIRATION', default=7200)) 
 
 # If True, session will be finished when broswer is totally closed
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
