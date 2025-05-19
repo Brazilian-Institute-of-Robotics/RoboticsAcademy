@@ -150,7 +150,11 @@ RUN python3.10 -m pip install \
     matplotlib==3.0.* numpy==1.24.3 nunavut==1.1.0 packaging==21.3 pkgconfig==1.5.5 pyros-genmsg==0.5.8 \
     pyulog==1.0.1 pyyaml==5.4.1 requests==2.31.0 serial==0.0.97 six==1.16.0 toml==0.10.2 psutil==5.9.0 \
     onnxruntime==1.15.0 Pillow==9.0.1 opencv-python==4.5.5.64 netron seaborn==0.11.2 watchdog==2.1.5 utm==0.7.0 \
-    psycopg2 jedi pyapriltags python-dotenv docker
+    psycopg2 jedi pyapriltags python-dotenv docker celery redis django-celery-beat
+
+# redis server
+RUN apt-get update && \
+    apt-get install -y redis-server
 
 # monaco editor
 RUN python3.10 -m pip install black==24.10.0

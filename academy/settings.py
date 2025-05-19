@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'academy.academy_rest_api.apps.AcademyRestApiConfig',   # Academy rest api application
     'react_frontend.apps.ReactFrontendConfig',               # React frontend application
     'corsheaders',
-    #'django_celery_beat',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -185,21 +185,27 @@ CORS_ALLOW_HEADERS = (
 
 CORS_ALLOW_CREDENTIALS = True
 
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/Sao_Paulo'
+CELERY_ENABLE_UTC = False
 
 LOGIN_URL = '/login/'
 SERVER_PORT = os.getenv("SERVER_PORT", "7164") 
 IS_GUIDE_CONTAINER_SAME_MACHINE = os.getenv("IS_GUIDE_CONTAINER_SAME_MACHINE", "true")
 EXERCISE_GUIDE_URL = os.getenv("EXERCISE_GUIDE_URL", "https://jderobot.github.io/RoboticsAcademy/exercises")
 
-# Celery Configuration
-# CELERY_BROKER_URL = 'redis://localhost:6379/0'
-# CELERY_ACCEPT_CONTENT = ['json']
-# CELERY_TASK_SERIALIZER = 'json'
-# CELERY_TIMEZONE = 'UTC'
+#In hours
+USER_CONTAINER_EXPIRATION=int(os.getenv("USER_CONTAINER_EXPIRATION", default=8))
 
-# Duração da sessão em segundos (ex: 2 horas)
-SESSION_COOKIE_AGE = 7200
-# Se True, a sessão será encerrada ao fechar o navegador
+# Session's duration in seconds
+SESSION_COOKIE_AGE = SESSION_COOKIE_AGE = int(os.getenv('USER_SESSION_EXPIRATION', default=7200)) 
+
+# If True, session will be finished when broswer is totally closed
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-# Renova o tempo de expiração a cada request
-SESSION_SAVE_EVERY_REQUEST = True 
+
+# Reload SESSION_COOKIE_AGE timeout when a request is made
+SESSION_SAVE_EVERY_REQUEST = True
+

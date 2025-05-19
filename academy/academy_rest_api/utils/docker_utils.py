@@ -1,5 +1,8 @@
 import docker
 import time
+from django.conf import settings
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 CONTAINER_BASE_NAME = "manager_container_user_"
 
@@ -7,7 +10,7 @@ def startUserContainer(user_id):
     try:
         client = docker.from_env()
 
-        # Verifica se a imagem existe no host
+        # Verify if image exists
         try:
             client.images.get('jderobot/robotics-academy:test')
         except docker.errors.ImageNotFound:
@@ -16,10 +19,10 @@ def startUserContainer(user_id):
                 'message': 'Docker image not found at server'
             }
 
-        # Nome único para o container do usuário
+        # Unique name to user's container
         container_name = CONTAINER_BASE_NAME + str(user_id)
         
-        # Remove container existente (se houver)
+        # Removes a container with same name
         try:
             old_container = client.containers.get(container_name)
             old_container.stop()
@@ -28,12 +31,18 @@ def startUserContainer(user_id):
             pass  # Container não existia, tudo bem
         
         src_path = "/home/rafaelpalma/git-repositories/cimatec-academy/src"
-        
-        # Cria um novo container com portas dinâmicas
+
+        #Container's expiration in hours
+        expiration = settings.USER_CONTAINER_EXPIRATION
+
+        #Generate expiration datetime
+        expires_at = (datetime.now(ZoneInfo("America/Sao_Paulo")) + timedelta(hours=expiration)).isoformat()
+
+        # Creates a new container with random external ports
         container = client.containers.run(
             image="jderobot/robotics-academy:test",
             name=container_name,
-            command="-s",  # Comando padrão do seu container
+            command="-s",  # Default command
             ports={
                 '7163/tcp': None,
                 '6080/tcp': None,
@@ -42,30 +51,32 @@ def startUserContainer(user_id):
             volumes={
                 str(src_path): {'bind': '/RoboticsApplicationManager', 'mode': 'rw'},
             },
+            labels={
+                'expired_at': expires_at,
+            },
             detach=True,
             tty=True,
             stdin_open=True,
         )
 
-        #Aguarda o container estar totalmente inicializado em até 5 segundos
+        #Wait container be inicialized for 5 seconds at most
         max_attempts = 10
         for _ in range(max_attempts):
             container.reload()
             if container.status == 'running':
-                # Verifica se as portas já foram mapeadas
+                # Verify if external ports is already maped
                 if 'NetworkSettings' in container.attrs:
                     break
             time.sleep(0.5)
         else:
-            raise Exception("Timeout ao aguardar inicialização do container manager do usuário")
+            raise Exception("Fail to inicialize user's container")
         
-        # Atualiza o container para obter as portas mapeadas
         container.reload()
         
-        # Obtém as portas atribuídas pelo Docker
+        # Get extenals ports assign by Docker
         port_bindings = container.attrs['NetworkSettings']['Ports']
         
-        # Extrai as portas externas
+        # Extract ports
         assigned_ports = {
             'manager': int(port_bindings['7163/tcp'][0]['HostPort']),
             'gazebo': int(port_bindings['6080/tcp'][0]['HostPort']),
@@ -86,27 +97,28 @@ def deleteUserContainer(user_id):
         client = docker.from_env()
         container_name = CONTAINER_BASE_NAME + str(user_id)
         
-        # Tentar obter o container
+        # Try to get container
         try:
             container = client.containers.get(container_name)
             
-            # Forçar parada e remoção
+            # Stop and remove container
             container.stop(timeout=5)
-            container.remove()
+            container.remove(force=True)
             
             return {
                 'success': 1,
-                'message': f'Container {container_name} removido com sucesso'
+                'message': f'Container {container_name} was removed'
             }
             
         except docker.errors.NotFound:
             return {
                 'success': 1,
-                'message': f'Container já foi deletado'
+                'message': f'Container already deleted'
             }
             
     except Exception as e:
         return {
+            'success': 0,
             'status': 'error',
             'message': str(e)
         }
