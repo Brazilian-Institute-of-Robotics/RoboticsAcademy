@@ -208,9 +208,11 @@ RUN pip3 install \
         colcon-lcov-result \
         PySimpleGUI-4-foss
 
-RUN colcon mixin add default https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
-RUN colcon mixin update default
+COPY colcon_mixins /tmp/colcon_mixins
+RUN colcon mixin add default file:///tmp/colcon_mixins/index.yaml && \
+    colcon mixin update default
 RUN rm -rf log 
+
 # remove log folder
 RUN mkdir -p /home/drones_ws/src/
 WORKDIR /home/drones_ws/src/

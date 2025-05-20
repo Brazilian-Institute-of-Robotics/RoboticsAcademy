@@ -97,6 +97,12 @@ else
   NO_CACHE=""
 fi
 
+########### GET ALL MIXINS NEEDED ############
+
+bash ./fetch_all_mixins.sh
+
+########### BUILD DOCKER IMAGE ############
+
 # Build the Docker Base image
 if $FORCE_BUILD_NO_CACHE || $FORCE_BUILD || [[ "$(docker images -q jderobot/robotics-applications:dependencies-$ROS_DISTRO 2> /dev/null)" == "" ]]; then
   echo "===================== BUILDING $ROS_DISTRO BASE IMAGE ====================="
