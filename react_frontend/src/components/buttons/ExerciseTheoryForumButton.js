@@ -6,7 +6,7 @@ import CodeOutlinedIcon from "@mui/icons-material/CodeOutlined";
 import CommentOutlinedIcon from "@mui/icons-material/CommentOutlined";
 import RoboticsTheme from "Components/RoboticsTheme";
 import LogoutIcon from '@mui/icons-material/Logout';
-import { deleteContainerManagerPorts } from "../../helpers/storeManager";
+import { logout } from "../../helpers/auth";
 
 import "../../styles/buttons/ExerciseTheoryForumButton.css";
 
@@ -33,33 +33,15 @@ const ExerciseTheoryForumButton = (props) => {
     }, []);
   
 
-  const handleLogout = async (e) => {
-      try {
-          //Use component ./message_system/Loading.js
-          window.RoboticsReactComponents.MessageSystem.Loading.showLoading(
-            "Logout user..."
-          );
-          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-          const response = await fetch(`${serverBase}/api/v1/logout/`, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'X-CSRFToken': csrfToken,
-              },
-          });
-          if (response.ok) {
-              //Delete localStorage
-              deleteContainerManagerPorts()
-              window.location.href = '/login';
-          } else {
-              alert('Erro na resposta da API');
-          }
-      } catch (err) {
-          console.log("Error: "+err)
-          alert('Erro no local');
-      }finally{
-        window.RoboticsReactComponents.MessageSystem.Loading.hideLoading();
-      }
+  const handleLogout = async () => {
+    
+      //Use component ./message_system/Loading.js imported on App.js
+      window.RoboticsReactComponents.MessageSystem.Loading.showLoading(
+        "Logout user..."
+      );
+      await logout(serverBase)
+  
+      window.RoboticsReactComponents.MessageSystem.Loading.hideLoading();
   }
 
   return (

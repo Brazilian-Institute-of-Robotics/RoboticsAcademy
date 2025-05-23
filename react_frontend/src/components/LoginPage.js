@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TextField, Button, Paper, Typography, Box } from "@mui/material";
 import { saveContainerManagerPorts, deleteContainerManagerPorts } from  '../helpers/storeManager'
 import { LoadingButton } from '@mui/lab';
+import { login } from '../helpers/auth';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
@@ -12,36 +13,11 @@ const LoginPage = () => {
     const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
 
     const handleSubmit = async(e) => {
+        e.preventDefault();
         setLoading(true)
-        await submit(e)
+        await login(serverBase, username, password)
         setLoading(false)
     }
-
-    const submit = async (e) => {
-        e.preventDefault();
-        try {
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            const response = await fetch(`${serverBase}/api/v1/login/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({ username, password }),
-            });
-            if(response.ok) {
-                const data = await response.json();
-
-                //Saves on local storage
-                saveContainerManagerPorts(data['container-ports']);
-                window.location.href = '/exercises';
-            }
-            else alert('Credenciais inválidas');
-        } catch (err) {
-            console.log("ERROR: "+err)
-            alert('Erro local');
-        }finally{}
-    };
 
     return (
         <Box

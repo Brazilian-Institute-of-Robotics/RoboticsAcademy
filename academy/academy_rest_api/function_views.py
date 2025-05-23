@@ -21,28 +21,44 @@ def user_login(request):
     username = data.get('username')
     password = data.get('password')
 
-    user = authenticate(username=username, password=password)
-    if user:
-      create_container = DockerUtils.startUserContainer(user.id)
+    try:
+      user = authenticate(username=username, password=password)
+      if user:
+        create_container = DockerUtils.startUserContainer(user.id)
+        
+        if(create_container["success"] == 0):
+          message = create_container["message"]
+          print(message)
+          return JsonResponse({'status': 'error', 'message':"Fail to create user's container"}, status=500)
       
-      if(create_container["success"] == 0):
-         message = create_container["message"]
-         return JsonResponse({'status': 'error', 'message':message}, status=500)
-      
-      login(request, user)
-      return JsonResponse({'status': 'success', 'container-ports':create_container["ports"]})
+        login(request, user)
+        return JsonResponse({'status': 'success', 'container-ports':create_container["ports"]})
+      else:
+        return JsonResponse({'status': 'error', 'message': "User not found, wrong credentials"}, status=404)
+    except Exception as e:
+     print(f"Error type: {type(e).__name__}")
+     print(f"Error message: {str(e)}") 
+     return JsonResponse({'status': 'error', 'message': "Unexpected error on API, please call developers"}, status=500)
+  else:
+     return JsonResponse({'status': 'error', 'message': "Site must use method POST in endpoint /api/v1/login/"}, status=405)
+       
     
-  return JsonResponse({'status': 'error'}, status=400)
-
+  
 def user_logout(request):
-    if request.user.is_authenticated:
-      user_id = request.user.id
-      delete_container = DockerUtils.deleteUserContainer(user_id)
-      if(delete_container["success"] == 0):
-          message = delete_container["message"]
-          return JsonResponse({'status': 'error', 'message':message}, status=500)
-      
-      logout(request)
-      return JsonResponse({'status': 'success', 'message': 'Logout realizado com sucesso'})
-    
-    return JsonResponse({'status': 'success', 'message': 'Usuario já estava deslogado'})
+    if request.method == 'POST':
+
+      if request.user.is_authenticated:
+        user_id = request.user.id
+        delete_container = DockerUtils.deleteUserContainer(user_id)
+        
+        if(delete_container["success"] == 0):
+            message = delete_container["message"]
+            print(message)
+            return JsonResponse({'status': 'error', 'message':"Fail to delete user's container"}, status=500)
+        
+        logout(request)
+        return JsonResponse({'status': 'success', 'message': 'Logout successful'})
+      else:
+        return JsonResponse({'status': 'success', 'message': 'User is already logout'})
+    else:
+      return JsonResponse({'status': 'error', 'message': "Site must use method POST in endpoint /api/v1/logout/"}, status=405)

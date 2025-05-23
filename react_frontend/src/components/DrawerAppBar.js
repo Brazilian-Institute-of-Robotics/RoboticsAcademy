@@ -14,11 +14,14 @@ import ForumIcon from "@mui/icons-material/Forum";
 import { useState } from "react";
 import LogoutIcon from '@mui/icons-material/Logout';
 import SearchBar from "./SearchBar";
-import { deleteContainerManagerPorts } from  '../helpers/storeManager'
+import { logout } from "../helpers/auth";
 
 const drawerWidth = 240;
 
 export default function DrawerAppBar(props) {
+  const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT
+  const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
+  
   const { window_ } = props;
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -31,37 +34,16 @@ export default function DrawerAppBar(props) {
     window.open(url, "_blank");
   };
 
-   const handleLogout = async (e) => {
-        try {
-            const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT
-            const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
+  const handleLogout = async () => {
 
-            //Use component ./message_system/Loading.js imported on App.js
-            window.RoboticsReactComponents.MessageSystem.Loading.showLoading(
-              "Logout user..."
-            );
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            const response = await fetch(`${serverBase}/api/v1/logout/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                },
-            });
-            if (response.ok) {
-                //Delete localStorage
-                deleteContainerManagerPorts()
-                window.location.href = '/login';
-            } else {
-                alert('Erro na resposta da API');
-            }
-        } catch (err) {
-            console.log("Error: "+err)
-            alert('Erro no local');
-        }finally{
-          window.RoboticsReactComponents.MessageSystem.Loading.hideLoading();
-        }
-    }
+    //Use component ./message_system/Loading.js imported on App.js
+    window.RoboticsReactComponents.MessageSystem.Loading.showLoading(
+      "Logout user..."
+    );
+    await logout(serverBase)
+
+    window.RoboticsReactComponents.MessageSystem.Loading.hideLoading();
+  }
   
 
   const drawer = (
