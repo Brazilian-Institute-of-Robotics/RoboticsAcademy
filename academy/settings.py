@@ -29,11 +29,38 @@ print("BASE_DIR", BASE_DIR)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure--(47x6f9ah3wi=x-wuryrzl^&$kr+di_j#1a@-#%!(k+i6fbcd'
 
+# GET PRODUCTION on .env and
+PRODUCTION = os.getenv('PRODUCTION', 'False').lower() in ('true', '1', 't')
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = not PRODUCTION
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1'] if PRODUCTION else ['*']
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://127.0.0.1:7164",
+    "https://localhost:7164",
+]
+
+# Cookies seguros (só enviados via HTTPS)
+SESSION_COOKIE_SECURE = PRODUCTION
+CSRF_COOKIE_SECURE = PRODUCTION
+
+# Impede que páginas sejam carregadas em iframes (proteção contra clickjacking)
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Redireciona todo tráfego HTTP para HTTPS
+SECURE_SSL_REDIRECT = PRODUCTION  # (funciona se o request tiver is_secure())
+
+# Proteções adicionais
+SECURE_BROWSER_XSS_FILTER = PRODUCTION
+SECURE_CONTENT_TYPE_NOSNIFF = PRODUCTION
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 VERSION = '13082021'
 

@@ -1,12 +1,34 @@
 #!/bin/bash
 
+# Path to .env
+ENV_PATH="$(dirname "$0")/../.env"
+
+# Load .env variables
+if [ -f "$ENV_PATH" ]; then
+  . "$ENV_PATH"
+else
+  echo "Arquivo .env não encontrado: $ENV_PATH"
+  exit 1
+fi
+
+echo ""
+echo "=================== IS PRODUCTION MODE? : $PRODUCTION ======================"
+echo ""
+
 # Initialize variables with default values
 ram_version="https://github.com/JdeRobot/RoboticsApplicationManager.git"
 branch="humble-devel"
 radi_version="humble"
 gpu_mode="false"
 nvidia="false"
-compose_file="dev_humble_cpu"
+compose_file=""
+
+# Define compose_file based em PRODUCTION
+if [ "$PRODUCTION" = "True" ]; then
+    compose_file="prod_humble_cpu"
+else
+    compose_file="dev_humble_cpu"
+fi
 
 # Function to display help message
 show_help() {

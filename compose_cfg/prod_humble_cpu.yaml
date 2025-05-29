@@ -1,3 +1,7 @@
+networks:
+  user-network:
+    driver: bridge
+
 services:
   my-postgres:
     image: jderobot/robotics-database:latest
@@ -13,6 +17,8 @@ services:
       - ./database/exercises/db.sql:/docker-entrypoint-initdb.d/2.sql
       - ./database/django_auth.sql:/docker-entrypoint-initdb.d/3.sql
       - ./scripts:/scripts
+    networks:
+        - user-network
     healthcheck:
       test: pg_isready -U user-dev -d academy_db
       interval: 3s
@@ -22,17 +28,22 @@ services:
   robotics-academy-webapp:
       image: jderobot/robotics-academy:test
       container_name: developer-webapp
-      entrypoint: ./entrypoint.sh
+      entrypoint: ./entrypoint_prod.sh
       ports:
-        - "7164:7164"
+        - "8000:8000"
       volumes:
         - type: bind
           source: ./
           target: /RoboticsAcademy
         - type: bind
+          source: ./staticfiles
+          target: /RoboticsAcademy/staticfiles
+        - type: bind
           source: ./student_codes
           target: /RoboticsAcademy/student_codes
         - /var/run/docker.sock:/var/run/docker.sock
+      networks:
+        - user-network
       tty: true
       stdin_open: true
       environment:
@@ -41,3 +52,15 @@ services:
         my-postgres:
           condition: service_healthy
         
+  nginx:
+    image: nginx:latest
+    ports:
+      - "7164:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./staticfiles:/RoboticsAcademy/staticfiles
+      - ./ssl:/etc/nginx/ssl
+    networks:
+        - user-network
+    depends_on:
+      - robotics-academy-webapp

@@ -129,3 +129,6 @@ student_codes/*
 !student_codes/README.md
 
 scripts/RADI/colcon_mixins
+
+staticfiles/*
+ssl/*

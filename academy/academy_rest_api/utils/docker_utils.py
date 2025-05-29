@@ -42,6 +42,7 @@ def startUserContainer(user_id):
         container = client.containers.run(
             image="jderobot/robotics-academy:test",
             name=container_name,
+            network="cimatec-academy_user-network",
             command="-s",  # Default command
             ports={
                 '7163/tcp': None,
