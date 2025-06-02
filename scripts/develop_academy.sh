@@ -84,12 +84,24 @@ while getopts ":r:b:i:g:n:t:h" opt; do
   esac
 done
 
+
+
 # Set up trap to catch interrupt signal (Ctrl+C) and execute cleanup function
 trap 'cleanup' INT
 
 echo "RAM src: $ram_version"
 echo "RAM branch: $branch"
 echo "RoboticsBackend version: $radi_version"
+
+ENTRYPOINTS_DIR="./scripts/RADI/entrypoints"
+
+echo "Given permissions to entrypoints files"
+
+chmod +x \
+  "$ENTRYPOINTS_DIR/manager_dev.sh" \
+  "$ENTRYPOINTS_DIR/set_dri_name.sh" \
+  "$ENTRYPOINTS_DIR/webapp_dev.sh" \
+  "$ENTRYPOINTS_DIR/webapp_prod.sh"
 
 # Check docker compose installation
 if ! command -v docker compose &> /dev/null; then

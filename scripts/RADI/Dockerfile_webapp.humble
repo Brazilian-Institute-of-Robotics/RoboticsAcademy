@@ -1,0 +1,26 @@
+FROM jderobot/robotics-applications:dependencies-humble
+
+WORKDIR /
+
+ARG IMAGE_TAG
+ENV IMAGE_TAG=${IMAGE_TAG}
+
+# RoboticsAcademy
+ARG ROBOTICS_ACADEMY=$ROBOTICS_ACADEMY
+RUN git clone --depth 1 https://github.com/Brazilian-Institute-of-Robotics/RoboticsAcademy.git -b $ROBOTICS_ACADEMY /RoboticsAcademy/
+
+# Compress commons
+WORKDIR /RoboticsAcademy/
+RUN cd /RoboticsAcademy/common && cd console_interfaces && zip -r ../common.zip console_interfaces/ && cd .. && cd gui_interfaces && zip -r -u ../common.zip gui_interfaces/ && cd .. && cd hal_interfaces && zip -r -u ../common.zip hal_interfaces/ && cd ../.. && mv common/common.zip react_frontend/src/common.zip
+
+# build react_fronted
+RUN cd /RoboticsAcademy/react_frontend/ && yarn install && yarn run build
+
+# Django server
+EXPOSE 7164
+
+WORKDIR /
+
+# Setting environment in both interactive or non-interactive shells
+ENV BASH_ENV=/.env
+ENTRYPOINT ["./entrypoint.sh"]
