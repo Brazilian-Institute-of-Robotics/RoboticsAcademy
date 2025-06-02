@@ -54,10 +54,22 @@ cleanup() {
   exit 0
 }
 
-# Function that verify if the containers "developer-webapp" 
-# and "universe_db" exists
+# Function that verify in development if the containers "developer-webapp" 
+# and "universe_db" exists. In production checks production-webapp and 
+# universe_db_prod
 containers_exist() {
-  docker ps -a --format '{{.Names}}' | grep -E 'developer-webapp|universe_db' > /dev/null
+  local webapp_container="developer-webapp"
+  local db_container="universe_db"
+
+  if [ "$PRODUCTION" = "True" ]; then
+    webapp_container="production-webapp"
+    db_container="universe_db_prod" 
+  fi
+
+  docker ps -a --format '{{.Names}}' | grep -q "^${webapp_container}$" || return 1
+  docker ps -a --format '{{.Names}}' | grep -q "^${db_container}$" || return 1
+
+  return 0
 }
 
 while getopts ":r:b:i:g:n:t:h" opt; do

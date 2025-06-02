@@ -132,3 +132,5 @@ scripts/RADI/colcon_mixins
 
 staticfiles/*
 ssl/*
+
+RoboticsAcademy/

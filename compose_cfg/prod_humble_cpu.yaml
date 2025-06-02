@@ -5,13 +5,14 @@ networks:
 services:
   my-postgres:
     image: jderobot/robotics-database:latest
-    container_name: universe_db
+    container_name: universe_db_prod
+    env_file: .env 
     environment:
-      POSTGRES_DB: academy_db 
-      POSTGRES_USER: user-dev 
-      POSTGRES_PASSWORD: robotics-academy-dev
+      POSTGRES_DB: ${DB_NAME} 
+      POSTGRES_USER: ${DB_USER} 
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     volumes:
       - ./RoboticsInfrastructure/database/universes.sql:/docker-entrypoint-initdb.d/1.sql
       - ./database/exercises/db.sql:/docker-entrypoint-initdb.d/2.sql
@@ -20,14 +21,14 @@ services:
     networks:
         - user-network
     healthcheck:
-      test: pg_isready -U user-dev -d academy_db
+      test: pg_isready -U ${DB_USER} -d ${DB_NAME}
       interval: 3s
       timeout: 1s
       retries: 20
 
-  robotics-academy-webapp:
+  robotics-academy-webapp-prod:
       image: jderobot/robotics-academy:test
-      container_name: developer-webapp
+      container_name: production-webapp
       entrypoint: ./entrypoint_prod.sh
       ports:
         - "8000:8000"
@@ -54,8 +55,9 @@ services:
         
   nginx:
     image: nginx:latest
+    env_file: .env 
     ports:
-      - "7164:443"
+      - "${SERVER_PORT}:443"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ./staticfiles:/RoboticsAcademy/staticfiles
@@ -63,4 +65,4 @@ services:
     networks:
         - user-network
     depends_on:
-      - robotics-academy-webapp
+      - robotics-academy-webapp-prod
