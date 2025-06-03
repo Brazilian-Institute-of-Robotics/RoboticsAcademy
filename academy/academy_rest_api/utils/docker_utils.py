@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 CONTAINER_BASE_NAME = "manager_container_user_"
+IMAGE_NAME = "jderobot/robotics-academy:manager"
 
 def startUserContainer(user_id):
     try:
@@ -12,11 +13,11 @@ def startUserContainer(user_id):
 
         # Verify if image exists
         try:
-            client.images.get('jderobot/robotics-academy:test')
+            client.images.get(IMAGE_NAME)
         except docker.errors.ImageNotFound:
             return {
                 'success': 0,
-                'message': 'Docker image not found at server'
+                'message': 'Docker image ${IMAGE_NAME} not found at server'
             }
 
         # Unique name to user's container
@@ -28,9 +29,10 @@ def startUserContainer(user_id):
             old_container.stop()
             old_container.remove(force=True)
         except docker.errors.NotFound:
-            pass  # Container não existia, tudo bem
-        
-        src_path = "/home/rafaelpalma/git-repositories/cimatec-academy/src"
+            pass  # Container didn't exists
+
+        #Script used on container's start
+        entrypoint_file = "/manager_prod.sh" if settings.PRODUCTION == True else "/manager_dev.sh"
 
         #Container's expiration in hours
         expiration = settings.USER_CONTAINER_EXPIRATION
@@ -40,21 +42,18 @@ def startUserContainer(user_id):
 
         # Creates a new container with random external ports
         container = client.containers.run(
-            image="jderobot/robotics-academy:test",
+            image=IMAGE_NAME,
             name=container_name,
             network="cimatec-academy_user-network",
-            command="-s",  # Default command
             ports={
                 '7163/tcp': None,
                 '6080/tcp': None,
                 '1108/tcp': None,
             },
-            volumes={
-                str(src_path): {'bind': '/RoboticsApplicationManager', 'mode': 'rw'},
-            },
             labels={
                 'expired_at': expires_at,
             },
+            entrypoint=entrypoint_file,
             detach=True,
             tty=True,
             stdin_open=True,
@@ -91,6 +90,8 @@ def startUserContainer(user_id):
         }
     
     except Exception as e:
+        print("Error on container's creation:")
+        print(e)
         return {'success': 0, 'message': str(e)}
 
 def deleteUserContainer(user_id):
@@ -118,6 +119,8 @@ def deleteUserContainer(user_id):
             }
             
     except Exception as e:
+        print("Error on container's deletion:")
+        print(e)
         return {
             'success': 0,
             'status': 'error',
