@@ -13,7 +13,7 @@ const ExerciseList = () => {
   //   exercises: null,
   // });
   const [loading, setLoading] = useState(true);
-  const [exerciseList, setExerciseList] = useState();
+  const [exerciseList, setExerciseList] = useState([]);
   const [serverBase, setServerBase] = useState("");
 
   const filterText = getSearchBarText();
@@ -49,15 +49,28 @@ const ExerciseList = () => {
 
   useEffect(() => {
     const serverB = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
-
-    // setListState({ loading: true, exercises: null });
     const apiURL = `${serverB}/api/v1/exercises/`;
-    fetch(apiURL)
-      .then((res) => res.json())
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // timeout 30s
+
+
+    fetch(apiURL, {signal: controller.signal})
+      .then((res) => {
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error(`Fail to find exercises. Response status: ${response.status}`);
+        return res.json()
+      })
       .then((exercises) => {
         setServerBase(serverB)
         filterByVersion(exercises);
-        // setListState({ loading: false, exercises: exercises });
+      })
+      .catch((error) => {
+        if (error.name === 'AbortError') 
+          alert("Request canceled by timeout")
+        else
+          alert(error.message)
+
+        setLoading(false);
       });
   }, [setExerciseList]);
 
