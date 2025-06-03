@@ -29,7 +29,7 @@ services:
   robotics-academy-webapp-prod:
       image: jderobot/robotics-academy:test
       container_name: production-webapp
-      entrypoint: ./entrypoint_prod.sh
+      entrypoint: ./webapp_prod.sh
       ports:
         - "8000:8000"
       volumes:

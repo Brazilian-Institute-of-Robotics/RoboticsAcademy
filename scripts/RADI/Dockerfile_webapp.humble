@@ -13,6 +13,12 @@ RUN git clone --depth 1 https://github.com/Brazilian-Institute-of-Robotics/Robot
 WORKDIR /RoboticsAcademy/
 RUN cd /RoboticsAcademy/common && cd console_interfaces && zip -r ../common.zip console_interfaces/ && cd .. && cd gui_interfaces && zip -r -u ../common.zip gui_interfaces/ && cd .. && cd hal_interfaces && zip -r -u ../common.zip hal_interfaces/ && cd ../.. && mv common/common.zip react_frontend/src/common.zip
 
+#COPY ENTRYPOINTS TO CONTAINER ROOT
+RUN cp /RoboticsAcademy/scripts/RADI/entrypoints/set_dri_name.sh / && \
+    cp /RoboticsAcademy/scripts/RADI/entrypoints/webapp_dev.sh / && \
+    cp /RoboticsAcademy/scripts/RADI/entrypoints/webapp_prod.sh / && \
+    chmod +x /*.sh
+
 # build react_fronted
 RUN cd /RoboticsAcademy/react_frontend/ && yarn install && yarn run build
 

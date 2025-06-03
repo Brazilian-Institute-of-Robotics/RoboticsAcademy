@@ -23,7 +23,7 @@ services:
   robotics-academy-webapp:
       image: jderobot/robotics-academy:test
       container_name: developer-webapp
-      entrypoint: ./entrypoint.sh
+      entrypoint: ./webapp_dev.sh
       env_file: .env 
       ports:
         - "${SERVER_PORT}:7164"
