@@ -127,7 +127,7 @@ def save_code(request, exercise_id):
             
             user_id = request.user.id
 
-            base_path = os.path.join('RoboticsAcademy/student_codes', str(user_id), str(exercise_id))
+            base_path = os.path.join('student_codes', str(user_id), str(exercise_id))
             os.makedirs(base_path, exist_ok=True)
             file_path = os.path.join(base_path, file_name+".py")
 
@@ -141,7 +141,7 @@ def save_code(request, exercise_id):
 @login_required
 def list_user_codes(request, exercise_id):
     user_id = request.user.id
-    base_path = os.path.join('RoboticsAcademy/student_codes', str(user_id), str(exercise_id))
+    base_path = os.path.join('student_codes', str(user_id), str(exercise_id))
 
     if not os.path.exists(base_path):
         return JsonResponse({'codes': []})
@@ -178,7 +178,7 @@ def delete_user_codes(request, exercise_id):
         body = json.loads(request.body)
         fileNames = body.get("fileNames")
         user_id = request.user.id
-        base_path = os.path.join('RoboticsAcademy/student_codes', str(user_id), str(exercise_id))
+        base_path = os.path.join('student_codes', str(user_id), str(exercise_id))
 
         not_found_files = []
 

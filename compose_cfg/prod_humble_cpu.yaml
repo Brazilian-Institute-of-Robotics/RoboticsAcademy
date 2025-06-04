@@ -36,12 +36,6 @@ services:
         - type: bind
           source: ./
           target: /RoboticsAcademy
-        - type: bind
-          source: ./staticfiles
-          target: /RoboticsAcademy/staticfiles
-        - type: bind
-          source: ./student_codes
-          target: /RoboticsAcademy/student_codes
         - /var/run/docker.sock:/var/run/docker.sock
       networks:
         - user-network
