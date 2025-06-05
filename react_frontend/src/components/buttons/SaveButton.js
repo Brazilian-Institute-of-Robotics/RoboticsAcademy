@@ -34,6 +34,13 @@ const SaveFileButton = ({fileName, changeFileName}, props) => {
     let requestUrl = `${serverBase}/exercises/exercise/${config[0].exercise_id}/save_code`;
     let userCode = RoboticsReactComponents.CodeEditor.getCode();
 
+    const overwritedIndex = codeFiles.findIndex( item => item.filename === fileName)
+
+    if(overwritedIndex != -1){
+      const confirmed = window.confirm("There is a file with same name. Are you sure you want to overwrite it?");
+      if (!confirmed) return;
+    }
+
     //Simutale request waiting
     //await new Promise(resolve => setTimeout(resolve, 2000));
 
@@ -48,7 +55,6 @@ const SaveFileButton = ({fileName, changeFileName}, props) => {
       });
 
       if(response.ok){
-        const overwritedIndex = codeFiles.findIndex( item => item.filename === fileName)
 
         //A new file was saved, so it's add on
         //codeFiles (context variable)
