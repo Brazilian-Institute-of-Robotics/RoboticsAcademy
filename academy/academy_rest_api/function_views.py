@@ -13,6 +13,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from pathlib import Path
 from utils import docker_utils as DockerUtils
+from colorama import Fore
 
 def user_login(request):
   if request.method == 'POST':
@@ -27,17 +28,22 @@ def user_login(request):
         create_container = DockerUtils.startUserContainer(user.id)
         
         if(create_container["success"] == 0):
-          message = create_container["message"]
-          print(message)
-          return JsonResponse({'status': 'error', 'message':"Fail to create user's container"}, status=500)
+            type = create_container["error_type"]
+            message = create_container["error_message"]
+
+            print(Fore.RED + f"FAIL TO CREATE USER'S CONTAINER (ID = {user.id}). ERROR DETAILS:")
+            print(Fore.RED + f"API Error type: {type}")
+            print(Fore.RED + f"API Error message: {message}")
+
+            return JsonResponse({'status': 'error', 'message':"Fail to create user's container"}, status=500)
       
         login(request, user)
         return JsonResponse({'status': 'success', 'container-ports':create_container["ports"]})
       else:
         return JsonResponse({'status': 'error', 'message': "User not found, wrong credentials"}, status=404)
     except Exception as e:
-     print(f"Error type: {type(e).__name__}")
-     print(f"Error message: {str(e)}") 
+     print(Fore.RED + f"API Error type: {type(e).__name__}")
+     print(Fore.RED + f"API Error message: {str(e)}") 
      return JsonResponse({'status': 'error', 'message': "Unexpected error on API, please call developers"}, status=500)
   else:
      return JsonResponse({'status': 'error', 'message': "Site must use method POST in endpoint /api/v1/login/"}, status=405)
@@ -46,19 +52,28 @@ def user_login(request):
   
 def user_logout(request):
     if request.method == 'POST':
+      try:
+        if request.user.is_authenticated:
+          user_id = request.user.id
+          delete_container = DockerUtils.deleteUserContainer(user_id)
+          
+          if(delete_container["success"] == 0):
+              type = delete_container["error_type"]
+              message = delete_container["error_message"]
 
-      if request.user.is_authenticated:
-        user_id = request.user.id
-        delete_container = DockerUtils.deleteUserContainer(user_id)
-        
-        if(delete_container["success"] == 0):
-            message = delete_container["message"]
-            print(message)
-            return JsonResponse({'status': 'error', 'message':"Fail to delete user's container"}, status=500)
-        
-        logout(request)
-        return JsonResponse({'status': 'success', 'message': 'Logout successful'})
-      else:
-        return JsonResponse({'status': 'success', 'message': 'User is already logout'})
+              print(Fore.RED + f"FAIL TO DELETE USER'S CONTAINER (ID = {user_id}). ERROR DETAILS:")
+              print(Fore.RED + f"API Error type: {type}")
+              print(Fore.RED + f"API Error message: {message}")
+              
+              #return JsonResponse({'status': 'error', 'message':"Fail to delete user's container"}, status=500)
+          
+          logout(request)
+          return JsonResponse({'status': 'success', 'message': 'Logout successful'})
+        else:
+          return JsonResponse({'status': 'success', 'message': 'User is already logout'})
+      except Exception as e:
+        print(Fore.RED + f"API Error type: {type(e).__name__}")
+        print(Fore.RED + f"API Error message: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': "Unexpected error on API, please call developers"}, status=500)
     else:
       return JsonResponse({'status': 'error', 'message': "Site must use method POST in endpoint /api/v1/logout/"}, status=405)

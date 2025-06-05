@@ -17,7 +17,8 @@ def startUserContainer(user_id):
         except docker.errors.ImageNotFound:
             return {
                 'success': 0,
-                'message': 'Docker image ${IMAGE_NAME} not found at server'
+                'error_type': "ImageNotFound",
+                'error_message': f"Docker image {IMAGE_NAME} not found at server"
             }
 
         # Unique name to user's container
@@ -90,9 +91,12 @@ def startUserContainer(user_id):
         }
     
     except Exception as e:
-        print("Error on container's creation:")
-        print(e)
-        return {'success': 0, 'message': str(e)}
+        return {
+            'success': 0,
+            'status': 'error',
+            'error_type': type(e).__name__,
+            'error_message': str(e)
+        }
 
 def deleteUserContainer(user_id):
     try:
@@ -119,10 +123,9 @@ def deleteUserContainer(user_id):
             }
             
     except Exception as e:
-        print("Error on container's deletion:")
-        print(e)
         return {
             'success': 0,
             'status': 'error',
-            'message': str(e)
+            'error_type': type(e).__name__,
+            'error_message': str(e)
         }
