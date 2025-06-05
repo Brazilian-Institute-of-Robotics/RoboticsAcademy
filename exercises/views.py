@@ -60,27 +60,36 @@ def index(request):
 
 @login_required
 def load_exercise(request, exercise_id):
+    if request.method != 'GET':
+        return HttpResponseNotAllowed(['GET'])
+    try:
+        guideBaseUrl = ""
+        isOnSameMachine = settings.IS_GUIDE_CONTAINER_SAME_MACHINE
 
-    guideBaseUrl = ""
-    isOnSameMachine = settings.IS_GUIDE_CONTAINER_SAME_MACHINE
+        #Case == "false", means container of this server and
+        #container of guide pages are in diferent machines,
+        #so is necessary to get env. variable EXERCISE_GUIDE_URL
+        if(isOnSameMachine == "false"):
+            guideBaseUrl = settings.EXERCISE_GUIDE_URL
 
-    #Case == "false", means container of this server and
-    #container of guide pages are in diferent machines,
-    #so is necessary to get env. variable EXERCISE_GUIDE_URL
-    if(isOnSameMachine == "false"):
-        guideBaseUrl = settings.EXERCISE_GUIDE_URL
+        data = {
+            'django_env_json': json.dumps({
+                'SERVER_PORT': settings.SERVER_PORT,
+                'GUIDE_BASE_URL': guideBaseUrl,
+                'INACTIVE_TIMEOUT': settings.INACTIVE_TIMEOUT
+            })
+        }
+        exercise = Exercise.objects.get(exercise_id=exercise_id)
 
-    data = {
-        'django_env_json': json.dumps({
-            'SERVER_PORT': settings.SERVER_PORT,
-            'GUIDE_BASE_URL': guideBaseUrl,
-            'INACTIVE_TIMEOUT': settings.INACTIVE_TIMEOUT
-        })
-    }
-    exercise = Exercise.objects.get(exercise_id=exercise_id)
-    data.update(exercise.context)
-
-    return render(request, 'exercises/' + exercise_id + '/exercise.html', data)
+        data.update(exercise.context)
+        return render(request, 'exercises/' + exercise_id + '/exercise.html', data)
+    
+    except Exercise.DoesNotExist:
+        return JsonResponse({'message': f"Exercise with id = {exercise_id} not found"}, status=404)
+    except Exception as e:
+        print(Fore.RED + f"API Error type: {type(e).__name__}")
+        print(Fore.RED + f"API Error message: {str(e)}")
+        return JsonResponse({'message': str(e)}, status=500)
 
 @login_required
 def request_code(request, exercise_id):
