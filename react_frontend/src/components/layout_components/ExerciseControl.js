@@ -44,12 +44,22 @@ function ExerciseControl(props) {
       if(response.ok){
         const data = await response.json()
         setCodeFiles(data.codes);
-      }else
-        alert('Códigos dos exercicios não foram carregados: erro na resposta da API');
+      }else{
+        const data = await response.json();
+          
+        //If true, it's means folder where code files are saved was not found
+        if(data["folder_not_found"] )
+          alert(data["message"])
+        else{
+          console.log(data["message"])
+          alert('It was not possible to load code files (API error). Please try reload or contact development');
+        }
+          
+      }
       
     } catch (error) {
       console.log("ERRO: "+error)
-      alert('Códigos dos exercicios não foram carregados: erro local');
+      alert('It was not possible to load code files (FRONT error). Please try reload or contact development');
     }finally{}
   };
 

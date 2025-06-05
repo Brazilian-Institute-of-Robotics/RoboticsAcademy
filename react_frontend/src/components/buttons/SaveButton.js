@@ -70,13 +70,13 @@ const SaveFileButton = ({fileName, changeFileName}, props) => {
           codeFiles[overwritedIndex].content = userCode
         }
         
-        alert('Código salvo com sucesso');
+        alert('Code was saved');
       }else
-        alert('Erro na resposta da API');
+        alert('Failed to save code, error on request or API');
       
     } catch (error) {
-      console.log("ERRO: "+error)
-      alert('Erro no local');
+      console.log("ERROR: "+error)
+      alert('Failed to save code, error on FRONT');
     }finally{}
      
   };

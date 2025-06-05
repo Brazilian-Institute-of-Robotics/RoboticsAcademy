@@ -10,12 +10,14 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseNotAllowed
 from rest_framework.decorators import api_view
 from .models import Exercise
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from colorama import Fore
 
 
 @login_required
@@ -29,7 +31,6 @@ def get_python_code(request):
         body = json.loads(body_unicode, strict=False)
 
         python_code = body['python_code']
-        print("B")
         print(python_code)
     python_code = python_code.lstrip('\\').lstrip('"')
     python_code = python_code.replace('\\n', '\n')
@@ -123,7 +124,7 @@ def save_code(request, exercise_id):
             user_code = data.get('userCode')
 
             if not all([file_name, user_code, exercise_id]):
-                return JsonResponse({'error': 'Missing data'}, status=400)
+                return JsonResponse({'message': 'Missing data'}, status=400)
             
             user_id = request.user.id
 
@@ -134,15 +135,28 @@ def save_code(request, exercise_id):
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(user_code)
 
-            return JsonResponse({'message': 'Arquivo salvo com sucesso'})
+            return JsonResponse({'message': 'Code file saved'})
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+            print(Fore.RED + f"API Error type: {type(e).__name__}")
+            print(Fore.RED + f"API Error message: {str(e)}")
+            return JsonResponse({'message': str(e)}, status=500)
 
 @login_required
 def list_user_codes(request, exercise_id):
+    if request.method != 'GET':
+        return HttpResponseNotAllowed(['GET'])
+    
     user_id = request.user.id
     base_path = os.path.join('student_codes', str(user_id), str(exercise_id))
 
+    #Check if folder student_codes exists
+    if not os.path.exists(os.path.join('student_codes')):
+        return JsonResponse({
+            'folder_not_found': True,
+            "message": "Listing fail. Couldn't find folder files. Contact developments"
+        },status=500)
+
+    #Means user never saved a code file e current exercise
     if not os.path.exists(base_path):
         return JsonResponse({'codes': []})
 
@@ -167,28 +181,40 @@ def list_user_codes(request, exercise_id):
         return JsonResponse({'codes': codes})
 
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        print(Fore.RED + f"API Error type: {type(e).__name__}")
+        print(Fore.RED + f"API Error message: {str(e)}")
+        return JsonResponse({'message': str(e)}, status=500)
 
 @login_required
 def delete_user_codes(request, exercise_id):
-    if request.method != "DELETE":
-        return JsonResponse({"error": "Method not allowed"}, status=405)
-
+    if request.method != 'DELETE':
+        return HttpResponseNotAllowed(['DELETE'])
+    
     try:
         body = json.loads(request.body)
         fileNames = body.get("fileNames")
         user_id = request.user.id
         base_path = os.path.join('student_codes', str(user_id), str(exercise_id))
+        
+        if not os.path.exists(base_path):
+            return JsonResponse({
+                'user_folder_not_found': True,
+                "message": "Deletion fail. Couldn't find user's folder files. Contact developments"
+            },status=500)
 
-        not_found_files = []
+        files_not_found = []
 
         for name in fileNames:
-            file_path = os.path.join(base_path, name+".py")
+            file_path = os.path.join(base_path, "test"+name+".py")
             if not os.path.isfile(file_path):
-                not_found_files.append(name)
+                files_not_found.append(name)
 
-        if not_found_files:
-            return JsonResponse({"not_found": not_found_files}, status=400)
+        if files_not_found:
+            files = ', '.join(files_not_found)
+            return JsonResponse({
+                "message": f"Deletion fail. Some files not found: {files}",
+                "files_not_found": files_not_found
+            },status=400)
 
         for name in fileNames:
             os.remove(os.path.join(base_path, name+".py"))
@@ -196,6 +222,7 @@ def delete_user_codes(request, exercise_id):
         return JsonResponse({"message": "All files removed."})
 
     except Exception as e:
-        print(e)
-        return JsonResponse({"error": str(e)}, status=400)
+        print(Fore.RED + f"API Error type: {type(e).__name__}")
+        print(Fore.RED + f"API Error message: {str(e)}") 
+        return JsonResponse({"message": str(e)}, status=400)
 

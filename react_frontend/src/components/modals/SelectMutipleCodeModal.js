@@ -112,10 +112,19 @@ const DeleteCodeModal = ({ open, onClose, changeFileName }) => {
         setDeleteMessage("Files deleted successfully")
         
       }else{
-        setDeleteMessage("Failed to delete files, problem on request or API")
+        const data = await response.json();
+
+        //If true, it's means some code files couldn't be found
+        if(data["files_not_found"] || data["user_folder_not_found"] )
+          setDeleteMessage(data["message"])
+        else{
+          console.log(data["message"])
+          setDeleteMessage("Failed to delete files, problem on request or API")
+        }
       }
       
     } catch (error) {
+      console.log("ERROR: "+error)
       setDeleteMessage("Failed to delete files, problem on FRONT")
     }finally{}
      
