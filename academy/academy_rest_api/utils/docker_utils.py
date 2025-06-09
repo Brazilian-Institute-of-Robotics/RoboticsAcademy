@@ -41,24 +41,29 @@ def startUserContainer(user_id):
         #Generate expiration datetime
         expires_at = (datetime.now(ZoneInfo("America/Sao_Paulo")) + timedelta(hours=expiration)).isoformat()
 
-        # Creates a new container with random external ports
-        container = client.containers.run(
-            image=IMAGE_NAME,
-            name=container_name,
-            network="cimatec-academy_user-network",
-            ports={
+        container_kwargs = {
+            "image": IMAGE_NAME,
+            "name": container_name,
+            "ports": {
                 '7163/tcp': None,
                 '6080/tcp': None,
                 '1108/tcp': None,
             },
-            labels={
+            "labels": {
                 'expired_at': expires_at,
             },
-            entrypoint=entrypoint_file,
-            detach=True,
-            tty=True,
-            stdin_open=True,
-        )
+            "entrypoint": entrypoint_file,
+            "detach": True,
+            "tty": True,
+            "stdin_open": True,
+        }
+
+        if settings.PRODUCTION == True:
+            project_name = settings.COMPOSE_PROJECT_NAME
+            container_kwargs["network"] = f"{project_name}_user-network"
+
+        # Creates a new container with random external ports
+        container = client.containers.run(**container_kwargs)
 
         #Wait container be inicialized for 5 seconds at most
         max_attempts = 10

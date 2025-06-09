@@ -224,6 +224,8 @@ SERVER_PORT = os.getenv("SERVER_PORT", "7164")
 IS_GUIDE_CONTAINER_SAME_MACHINE = os.getenv("IS_GUIDE_CONTAINER_SAME_MACHINE", "true")
 EXERCISE_GUIDE_URL = os.getenv("EXERCISE_GUIDE_URL", "https://jderobot.github.io/RoboticsAcademy/exercises")
 
+COMPOSE_PROJECT_NAME=os.getenv("COMPOSE_PROJECT_NAME", "cimatec-academy")
+
 #In hours
 USER_CONTAINER_EXPIRATION=int(os.getenv("USER_CONTAINER_EXPIRATION", default=8))
 
