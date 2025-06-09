@@ -1,4 +1,4 @@
 [submodule "RoboticsInfrastructure"]
 	path = RoboticsInfrastructure
 	url = https://github.com/Brazilian-Institute-of-Robotics/RoboticsInfrastructure.git
-	branch = academy-submodule
+	branch = submodule
