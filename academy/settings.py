@@ -27,7 +27,7 @@ print("BASE_DIR", BASE_DIR)
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--(47x6f9ah3wi=x-wuryrzl^&$kr+di_j#1a@-#%!(k+i6fbcd'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure--(47x6f9ah3wi=x-wuryrzl^&$kr+di_j#1a@-#%!(k+i6fbcd')
 
 # GET PRODUCTION on .env and
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() in ('true', '1', 't')
