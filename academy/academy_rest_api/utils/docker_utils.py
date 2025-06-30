@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 CONTAINER_BASE_NAME = "manager_container_user_"
+DOCKER_NETWORK_BASE_NAME = "network_user_"
 IMAGE_NAME = "jderobot/robotics-academy:manager"
 
 def startUserContainer(user_id):
@@ -31,9 +32,27 @@ def startUserContainer(user_id):
             old_container.remove(force=True)
         except docker.errors.NotFound:
             pass  # Container didn't exists
+        
+        # Unique name to user's network
+        network_name = DOCKER_NETWORK_BASE_NAME + str(user_id)
+
+        #Removes a network with same name
+        try:
+            old_network = client.networks.get(network_name)
+            old_network.remove()
+        except docker.errors.NotFound:
+            pass
+
+        #Create a exclusive network to this user's container
+        user_network = client.networks.create(network_name, driver="bridge")
 
         #Script used on container's start
         entrypoint_file = "/manager_prod.sh" if settings.PRODUCTION == True else "/manager_dev.sh"
+
+        #Paths necessary to create volumes
+        project_absolute_path = settings.PROJECT_ABSOLUTE_PATH
+        src_path = project_absolute_path+"/src"
+        entrypoints_path = f"{project_absolute_path}/scripts/RADI/entrypoints{entrypoint_file}"
 
         #Container's expiration in hours
         expiration = settings.USER_CONTAINER_EXPIRATION
@@ -44,6 +63,7 @@ def startUserContainer(user_id):
         container_kwargs = {
             "image": IMAGE_NAME,
             "name": container_name,
+            "network": network_name,
             "ports": {
                 '7163/tcp': None,
                 '6080/tcp': None,
@@ -52,15 +72,20 @@ def startUserContainer(user_id):
             "labels": {
                 'expired_at': expires_at,
             },
+            "volumes": {
+                str(f"{entrypoints_path}/manager_dev.sh"): {'bind': '/manager_dev.sh', 'mode': 'rw'},
+                str(f"{entrypoints_path}/manager_prod.sh"): {'bind': '/manager_prod.sh', 'mode': 'rw'}
+                #str(src_path): {'bind': '/RoboticsApplicationManager', 'mode': 'rw'}
+            },
             "entrypoint": entrypoint_file,
             "detach": True,
             "tty": True,
             "stdin_open": True,
         }
 
-        if settings.PRODUCTION == True:
-            project_name = settings.COMPOSE_PROJECT_NAME
-            container_kwargs["network"] = f"{project_name}_user-network"
+        # if settings.PRODUCTION == True:
+        #     project_name = settings.COMPOSE_PROJECT_NAME
+        #     container_kwargs["network"] = f"{project_name}_user-network"
 
         # Creates a new container with random external ports
         container = client.containers.run(**container_kwargs)
@@ -107,7 +132,8 @@ def deleteUserContainer(user_id):
     try:
         client = docker.from_env()
         container_name = CONTAINER_BASE_NAME + str(user_id)
-        
+        network_name = DOCKER_NETWORK_BASE_NAME + str(user_id)
+
         # Try to get container
         try:
             container = client.containers.get(container_name)
@@ -116,6 +142,8 @@ def deleteUserContainer(user_id):
             container.stop(timeout=5)
             container.remove(force=True)
             
+            network = client.networks.get(network_name)
+            network.remove()
             return {
                 'success': 1,
                 'message': f'Container {container_name} was removed'

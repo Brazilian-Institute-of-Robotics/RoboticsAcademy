@@ -15,8 +15,13 @@ def remove_expired_containers():
         try:
             expired_at = datetime.fromisoformat(expired_at_str)
             if expired_at < now:
+                user_id = container.name.split("_")[-1] 
                 container.stop()
                 container.remove(force=True)
+
+                user_network_name = f"network_user_{user_id}"
+                network = client.networks.get(user_network_name)
+                network.remove()
         except Exception as e:
             print(f"Error to delete container {container.name}: {e}")
             continue
