@@ -52,7 +52,7 @@ def startUserContainer(user_id):
         #Paths necessary to create volumes
         project_absolute_path = settings.PROJECT_ABSOLUTE_PATH
         src_path = project_absolute_path+"/src"
-        entrypoints_path = f"{project_absolute_path}/scripts/RADI/entrypoints{entrypoint_file}"
+        entrypoints_path = f"{project_absolute_path}/scripts/RADI/entrypoints"
 
         #Container's expiration in hours
         expiration = settings.USER_CONTAINER_EXPIRATION
@@ -73,8 +73,6 @@ def startUserContainer(user_id):
                 'expired_at': expires_at,
             },
             "volumes": {
-                str(f"{entrypoints_path}/manager_dev.sh"): {'bind': '/manager_dev.sh', 'mode': 'rw'},
-                str(f"{entrypoints_path}/manager_prod.sh"): {'bind': '/manager_prod.sh', 'mode': 'rw'}
                 #str(src_path): {'bind': '/RoboticsApplicationManager', 'mode': 'rw'}
             },
             "entrypoint": entrypoint_file,
@@ -83,6 +81,17 @@ def startUserContainer(user_id):
             "stdin_open": True,
         }
 
+        #On developemnt, this allow all changes in host's file manager_dev.sh
+        #be send to container respective file
+        if settings.PRODUCTION == False:
+            container_kwargs["entrypoint"] = "/opt/manager_dev.sh"
+            container_kwargs["volumes"] = {
+                str(f"{entrypoints_path}/manager_dev.sh"): {
+                    'bind': '/opt/manager_dev.sh',
+                    'mode': 'rw'
+                }
+            }
+        
         # if settings.PRODUCTION == True:
         #     project_name = settings.COMPOSE_PROJECT_NAME
         #     container_kwargs["network"] = f"{project_name}_user-network"
