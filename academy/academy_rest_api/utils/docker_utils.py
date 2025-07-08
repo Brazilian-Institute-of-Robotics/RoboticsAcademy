@@ -64,6 +64,7 @@ def startUserContainer(user_id):
             "image": IMAGE_NAME,
             "name": container_name,
             "network": network_name,
+            "nano_cpus": 2000000000,  # 2 núcleos completos
             "ports": {
                 '7163/tcp': None,
                 '6080/tcp': None,
@@ -79,7 +80,33 @@ def startUserContainer(user_id):
             "detach": True,
             "tty": True,
             "stdin_open": True,
+            "devices": ["/dev/dri"],
         }
+
+        #Case host machine has a NVDIA GPU
+        if settings.GPU_AVAILABLE == "1":
+            container_kwargs.update({
+                "nano_cpus": 2000000000,  # Container can only use 2 CPU'S cores from host
+                "environment": {
+                    "NVIDIA_VISIBLE_DEVICES": "all",
+                    "NVIDIA_DRIVER_CAPABILITIES": "all",
+                },
+                "device_requests": [
+                    {
+                        "count": 1,
+                        "capabilities": [["gpu"]]
+                    }
+                ]
+            })
+            
+            print("---------------")
+            print("GPU NVIDIA detected: using suport.")
+            print("---------------")
+        else:
+            print("---------------")
+            print("GPU NVIDIA not detected: continuing without GPU's SUPORT.")
+            print("---------------")
+        
 
         #On developemnt, this allow all changes in host's file manager_dev.sh
         #be send to container respective file

@@ -1,5 +1,26 @@
 #!/bin/bash
 
+GPU_ENV_LINE="GPU_AVAILABLE="
+GPU_ENV_FILE="$(dirname "$0")/../.env"
+
+# Remove old GPU_AVAILABLE variable on .env (if exists)
+if grep -q "^$GPU_ENV_LINE" "$GPU_ENV_FILE" 2>/dev/null; then
+    sed -i "/^$GPU_ENV_LINE/d" "$GPU_ENV_FILE"
+fi
+
+# Ensures a line break at the end of .env file
+if [ -s "$GPU_ENV_FILE" ] && [ "$(tail -c1 "$GPU_ENV_FILE")" != "" ]; then
+    echo "" >> "$GPU_ENV_FILE"
+fi
+
+# Add GPU_AVAILABLE on .env
+if command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
+    echo "GPU_AVAILABLE=1" >> "$GPU_ENV_FILE"
+else
+    echo "GPU_AVAILABLE=0" >> "$GPU_ENV_FILE"
+fi
+
+
 # Path to .env
 ENV_PATH="$(dirname "$0")/../.env"
 
