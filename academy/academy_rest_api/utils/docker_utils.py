@@ -64,7 +64,7 @@ def startUserContainer(user_id):
             "image": IMAGE_NAME,
             "name": container_name,
             "network": network_name,
-            "nano_cpus": 2000000000,  # 2 núcleos completos
+            "nano_cpus": 2000000000,  # Container can only use 2 CPU'S cores from host
             "ports": {
                 '7163/tcp': None,
                 '6080/tcp': None,
@@ -85,8 +85,7 @@ def startUserContainer(user_id):
 
         #Case host machine has a NVDIA GPU
         if settings.GPU_AVAILABLE == "1":
-            container_kwargs.update({
-                "nano_cpus": 2000000000,  # Container can only use 2 CPU'S cores from host
+            container_kwargs.update({ 
                 "environment": {
                     "NVIDIA_VISIBLE_DEVICES": "all",
                     "NVIDIA_DRIVER_CAPABILITIES": "all",

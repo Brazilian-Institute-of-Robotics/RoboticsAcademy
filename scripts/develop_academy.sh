@@ -14,7 +14,7 @@ if [ -s "$GPU_ENV_FILE" ] && [ "$(tail -c1 "$GPU_ENV_FILE")" != "" ]; then
 fi
 
 # Add GPU_AVAILABLE on .env
-if command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
+if command -v nvidia-smi &> /dev/null 2>&1 && nvidia-smi &> /dev/null 2>&1; then
     echo "GPU_AVAILABLE=1" >> "$GPU_ENV_FILE"
 else
     echo "GPU_AVAILABLE=0" >> "$GPU_ENV_FILE"
