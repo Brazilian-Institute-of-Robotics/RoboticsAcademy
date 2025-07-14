@@ -49,10 +49,16 @@ def startUserContainer(user_id):
         #Script used on container's start
         entrypoint_file = "/manager_prod.sh" if settings.PRODUCTION == True else "/manager_dev.sh"
 
-        #Paths necessary to create volumes
+        #Path necessary to create volume to entrypoint script
         project_absolute_path = settings.PROJECT_ABSOLUTE_PATH
         src_path = project_absolute_path+"/src"
         entrypoints_path = f"{project_absolute_path}/scripts/RADI/entrypoints"
+
+        #Path necessary to create volumes to worlds, models and launchs
+        infra_path = settings.INFRASTRUCTURE_ABSOLUTE_PATH
+        customs_robots = infra_path+"/CustomRobots"
+        jderobot_drones = infra_path+"/jderobot_drones"
+        resources = infra_path+"/resources"
 
         #Container's expiration in hours
         expiration = settings.USER_CONTAINER_EXPIRATION
@@ -74,6 +80,9 @@ def startUserContainer(user_id):
                 'expired_at': expires_at,
             },
             "volumes": {
+                str(customs_robots): {'bind': '/home/ws/src/CustomRobots' , 'mode': 'ro'},
+                str(jderobot_drones): {'bind': '/home/ws/src/jderobot_drones' , 'mode': 'ro'},
+                str(resources): {'bind': '/resources' , 'mode': 'ro'},
                 #str(src_path): {'bind': '/RoboticsApplicationManager', 'mode': 'rw'}
             },
             "entrypoint": entrypoint_file,
@@ -81,6 +90,13 @@ def startUserContainer(user_id):
             "tty": True,
             "stdin_open": True,
             "devices": ["/dev/dri"],
+            "healthcheck": {
+                "test": ["CMD-SHELL", "test -f /tmp/colcon-build-finished || exit 1"],
+                "interval": 5_000_000_000,  # How many nanoseconds each test is executed
+                "timeout": 3_000_000_000,   # How many nanoseconds is the waiting time for test's answer
+                "retries": 5, # How many times test is executed
+                "start_period": 15_000_000_000,  # How many nanoseconds is the waiting time before first test
+            }
         }
 
         #Case host machine has a NVDIA GPU
@@ -110,13 +126,11 @@ def startUserContainer(user_id):
         #On developemnt, this allow all changes in host's file manager_dev.sh
         #be send to container respective file
         if settings.PRODUCTION == False:
-            container_kwargs["entrypoint"] = "/opt/manager_dev.sh"
-            container_kwargs["volumes"] = {
-                str(f"{entrypoints_path}/manager_dev.sh"): {
-                    'bind': '/opt/manager_dev.sh',
-                    'mode': 'rw'
-                }
+            container_kwargs["volumes"][str(f"{entrypoints_path}/manager_dev.sh")] = {
+                'bind': '/opt/manager_dev.sh',
+                'mode': 'rw'
             }
+            container_kwargs["entrypoint"] = "/opt/manager_dev.sh"
         
         # if settings.PRODUCTION == True:
         #     project_name = settings.COMPOSE_PROJECT_NAME
@@ -125,17 +139,8 @@ def startUserContainer(user_id):
         # Creates a new container with random external ports
         container = client.containers.run(**container_kwargs)
 
-        #Wait container be inicialized for 5 seconds at most
-        max_attempts = 10
-        for _ in range(max_attempts):
-            container.reload()
-            if container.status == 'running':
-                # Verify if external ports is already maped
-                if 'NetworkSettings' in container.attrs:
-                    break
-            time.sleep(0.5)
-        else:
-            raise Exception("Fail to inicialize user's container")
+        #Wait for command colcon build is executed completely on container
+        wait_until_healthy(container, 60)
         
         container.reload()
         
@@ -197,3 +202,24 @@ def deleteUserContainer(user_id):
             'error_type': type(e).__name__,
             'error_message': str(e)
         }
+    
+def wait_until_healthy(container, timeout=30):
+   
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        container.reload()
+        state = container.attrs.get("State", {})
+        health = state.get("Health", {})
+        status = health.get("Status")
+
+        if status == "healthy":
+            print("Container is healthy.")
+            return
+
+        if status == "unhealthy":
+            raise Exception("Container is unhealthy")
+
+        print(f"Waiting container become healthy... Status: {status}")
+        time.sleep(1)
+
+    raise Exception("Timeout: container don't become healthy in time.")
