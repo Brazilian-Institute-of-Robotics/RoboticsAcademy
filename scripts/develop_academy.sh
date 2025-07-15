@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# ================= START GPU VERIFICATION ===================================
+
 GPU_ENV_LINE="GPU_AVAILABLE="
 GPU_ENV_FILE="$(dirname "$0")/../.env"
 
@@ -13,13 +15,18 @@ if [ -s "$GPU_ENV_FILE" ] && [ "$(tail -c1 "$GPU_ENV_FILE")" != "" ]; then
     echo "" >> "$GPU_ENV_FILE"
 fi
 
-# Add GPU_AVAILABLE on .env
-if command -v nvidia-smi &> /dev/null 2>&1 && nvidia-smi &> /dev/null 2>&1; then
+# Verify:
+# 1. If nvidia-smi command exists
+# 2. Command doesn't returns "No devices were found"
+if command -v nvidia-smi >/dev/null 2>&1 && \
+   nvidia-smi >/dev/null 2>&1 && \
+   ! nvidia-smi --query-gpu=name --format=csv,noheader | grep -q "No devices were found"; then
     echo "GPU_AVAILABLE=1" >> "$GPU_ENV_FILE"
 else
     echo "GPU_AVAILABLE=0" >> "$GPU_ENV_FILE"
 fi
 
+# ================= END GPU VERIFICATION =====================================
 
 # Path to .env
 ENV_PATH="$(dirname "$0")/../.env"

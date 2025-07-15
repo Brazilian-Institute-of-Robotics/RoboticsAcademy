@@ -22,26 +22,11 @@ def startUserContainer(user_id):
                 'error_message': f"Docker image {IMAGE_NAME} not found at server"
             }
 
-        # Unique name to user's container
         container_name = CONTAINER_BASE_NAME + str(user_id)
-        
-        # Removes a container with same name
-        try:
-            old_container = client.containers.get(container_name)
-            old_container.stop()
-            old_container.remove(force=True)
-        except docker.errors.NotFound:
-            pass  # Container didn't exists
-        
-        # Unique name to user's network
         network_name = DOCKER_NETWORK_BASE_NAME + str(user_id)
 
-        #Removes a network with same name
-        try:
-            old_network = client.networks.get(network_name)
-            old_network.remove()
-        except docker.errors.NotFound:
-            pass
+        #Delete user's old container in case exists
+        delete_old_container(client, container_name, network_name)
 
         #Create a exclusive network to this user's container
         user_network = client.networks.create(network_name, driver="bridge")
@@ -91,10 +76,10 @@ def startUserContainer(user_id):
             "stdin_open": True,
             "devices": ["/dev/dri"],
             "healthcheck": {
-                "test": ["CMD-SHELL", "test -f /tmp/colcon-build-finished || exit 1"],
+                "test": ["CMD-SHELL", "test -f /tmp/colcon-build-finished || exit 1"], # Test verify if file colcon-build-finished exists
                 "interval": 5_000_000_000,  # How many nanoseconds each test is executed
                 "timeout": 3_000_000_000,   # How many nanoseconds is the waiting time for test's answer
-                "retries": 5, # How many times test is executed
+                "retries": 10, # How many times test is executed
                 "start_period": 15_000_000_000,  # How many nanoseconds is the waiting time before first test
             }
         }
@@ -139,8 +124,8 @@ def startUserContainer(user_id):
         # Creates a new container with random external ports
         container = client.containers.run(**container_kwargs)
 
-        #Wait for command colcon build is executed completely on container
-        wait_until_healthy(container, 60)
+        #Verify if container is healthy for 80 seconds
+        wait_until_healthy(container, 80)
         
         container.reload()
         
@@ -202,6 +187,22 @@ def deleteUserContainer(user_id):
             'error_type': type(e).__name__,
             'error_message': str(e)
         }
+
+def delete_old_container(client, container_name, network_name):
+        # Removes a container with same name
+        try:
+            old_container = client.containers.get(container_name)
+            old_container.stop()
+            old_container.remove(force=True)
+        except docker.errors.NotFound:
+            pass  # Container didn't exists
+
+        #Removes a network with same name
+        try:
+            old_network = client.networks.get(network_name)
+            old_network.remove()
+        except docker.errors.NotFound:
+            pass
     
 def wait_until_healthy(container, timeout=30):
    
