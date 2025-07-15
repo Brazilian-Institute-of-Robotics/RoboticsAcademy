@@ -31,6 +31,9 @@ services:
         - type: bind
           source: ./
           target: /RoboticsAcademy
+        - type: bind
+          source: "${INFRASTRUCTURE_ABSOLUTE_PATH}"
+          target: /Infrastructure
         - /var/run/docker.sock:/var/run/docker.sock
       tty: true
       stdin_open: true
