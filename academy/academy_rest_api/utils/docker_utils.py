@@ -44,6 +44,8 @@ def startUserContainer(user_id):
         customs_robots = infra_path+"/CustomRobots"
         jderobot_drones = infra_path+"/jderobot_drones"
         resources = infra_path+"/resources"
+        launchers = infra_path+"/Launchers"
+        worlds = infra_path+"/Worlds"
 
         #Container's expiration in hours
         expiration = settings.USER_CONTAINER_EXPIRATION
@@ -68,6 +70,8 @@ def startUserContainer(user_id):
                 str(customs_robots): {'bind': '/home/ws/src/CustomRobots' , 'mode': 'ro'},
                 str(jderobot_drones): {'bind': '/home/ws/src/jderobot_drones' , 'mode': 'ro'},
                 str(resources): {'bind': '/resources' , 'mode': 'ro'},
+                str(launchers): {'bind': '/opt/jderobot/Launchers' , 'mode': 'ro'},
+                str(worlds): {'bind': '/opt/jderobot/Worlds' , 'mode': 'ro'},
                 #str(src_path): {'bind': '/RoboticsApplicationManager', 'mode': 'rw'}
             },
             "entrypoint": entrypoint_file,
