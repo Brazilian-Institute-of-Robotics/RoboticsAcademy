@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load render_bundle from webpack_loader %}
+
+{% block content %}
+  {% csrf_token %}
+  <div id="create-exercise-root"></div>
+{% endblock %}
+
+{% block before_end_body %}
+    {{ block.super }}
+    {% render_bundle 'create_exercise' 'js' %}
+{% endblock %}

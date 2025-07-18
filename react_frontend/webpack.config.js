@@ -34,6 +34,7 @@ module.exports = {
     index: "./src/index.js",
     exercise: "./src/exercise-index.js",
     login: './src/login.js', 
+    create_exercise: './src/create_exercise.js'
   },
   output: {
     filename: "js/[name].[contenthash:8].js",

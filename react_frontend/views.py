@@ -21,3 +21,8 @@ def login(request):
   return render(request, "react_frontend/login.html",{
      'django_env_json': json.dumps(django_env)
   })
+
+def create_exercise(request):
+  return render(request, "react_frontend/create_exercise.html",{
+     'django_env_json': json.dumps(django_env)
+  })
