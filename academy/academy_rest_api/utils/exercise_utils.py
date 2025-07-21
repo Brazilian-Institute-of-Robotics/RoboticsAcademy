@@ -2,13 +2,14 @@ import os
 import shutil
 from exercises.models import Exercise, Universe, World, Robot
 from django.db import transaction
+from django.conf import settings
 
 
 def createExerciseDatabase(exercise_name):
     try:
         exercise_exists = Exercise.objects.filter(exercise_id=exercise_name).exists()
         if exercise_exists:
-          return {'success': 0, 'error': 'There is a exercise with this name', 'details': 'There is a exercise with this name'}
+          return {'success': 0, 'exists': 1, 'error': 'There is a exercise with this name', 'details': 'There is a exercise with this name'}
         
         with transaction.atomic():
             world = World.objects.create(
@@ -43,10 +44,10 @@ def createExerciseDatabase(exercise_name):
             )
 
             exercise.universes.add(universe)
-            return {'success': 1,}
+            return {'success': 1, 'exists': 0}
         
     except Exception as e:
-        return {'success': 0, 'error': 'Fail to create exercise in database',  'details': str(e)}
+        return {'success': 0, 'exists': 0, 'error': 'Fail to create exercise in database',  'details': str(e)}
 
 
 
@@ -129,6 +130,39 @@ def createExerciseStatic(exercise_name):
     except Exception as e:
         return {'success': 0, 'error': 'Unexpected problem', 'details': f'{str(e)}'}
 
+def createExerciseLauncher(exercise_name):
+    try:
+        launchers_path = '/Infrastructure/Launchers'
+        base_launcher_path = os.path.join(launchers_path, 'base_launch', 'base.launch.py')
+        exercise_launcher_path = os.path.join(launchers_path, f'{exercise_name}.launch.py')
+
+       # Check if exercise's launcher exits and delete
+        if os.path.isfile(exercise_launcher_path):
+            os.remove(exercise_launcher_path)
+
+        # Copy base.launch.py on exercise template directory as {exercise_name}.launch.py
+        try:
+            shutil.copyfile(base_launcher_path, exercise_launcher_path)
+        except IOError as e:
+            return {'success': 0, 'error': 'Fail to copy base_launch.py to exercise template directory', 'details': f'{str(e)}'}
+        
+        # Changes contents inside exercise.html
+        try:
+            with open(exercise_launcher_path, 'r') as file:
+                content = file.read()
+            
+            content = content.replace('!WORLD_NAME!', exercise_name)
+            
+            with open(exercise_launcher_path, 'w') as file:
+                file.write(content)
+        except IOError as e:
+            return {'success': 0, 'error': f'Fail to change {exercise_name}.launch.py', 'details': f'{str(e)}'}
+        
+        return {'success': 1,}
+
+    except Exception as e:
+        return {'success': 0, 'exists': 1, 'error': 'Unexpected problem', 'details': f'{e}'}
+
 def deleteExercise(exercise_name):
     try:
         exercise = Exercise.objects.filter(exercise_id=exercise_name).first()
@@ -144,14 +178,19 @@ def deleteExercise(exercise_name):
                 exercise.delete()
                 template_exercise_dir = os.path.join('/RoboticsAcademy/exercises/templates', 'exercises', exercise_name)
                 static_exercise_dir = os.path.join('/RoboticsAcademy/exercises/static', 'exercises', exercise_name)
+                exercise_launcher_path = os.path.join('/Infrastructure/Launchers', f'{exercise_name}.launch.py')
 
-                # Check if exercise's template directory and delete
+                # Check if exercise's template directory exists and delete
                 if os.path.exists(template_exercise_dir):
                     shutil.rmtree(template_exercise_dir)
 
-                # Check if exercise's static directory and delete
+                # Check if exercise's static directory exists and delete
                 if os.path.exists(static_exercise_dir):
                     shutil.rmtree(static_exercise_dir)
+                
+                # Check if exercise's launcher exits and delete
+                if os.path.isfile(exercise_launcher_path):
+                    os.remove(exercise_launcher_path)
             
             return {'success': 1,}
         
@@ -165,5 +204,6 @@ def deleteExercise(exercise_name):
         #Case fails, recreate exercises directories
         createExerciseTemplate(exercise_name)
         createExerciseStatic(exercise_name)
+        createExerciseLauncher(exercise_name)
         return {'success': 0, 'exists': 1, 'error': 'Unexpected problem', 'details': f'{e}'}
     

@@ -98,7 +98,8 @@ def create_exercise(request):
           print("ERROR: "+exerciseDB["error"])
           print("DETAILS: "+exerciseDB["details"])
           print("--------------------------")
-          return JsonResponse({'error': 'Fail to create exercise'}, status=400)
+          message =  "There is exercise with same name" if exerciseDB["exists"] == 1 else "Fail to delete exercise"
+          return JsonResponse({'error': message}, status=400)
 
         template = ExerciseUtils.createExerciseTemplate(exercise_name)
         if template["success"] == 0:
@@ -134,6 +135,16 @@ def create_exercise(request):
             print("DETAILS: "+str(e))
             print("--------------------------")
             return JsonResponse({'error': 'Fail to create exercise'}, status=500)
+        
+        launcher = ExerciseUtils.createExerciseLauncher(exercise_name)
+        if launcher["success"] == 0:
+            ExerciseUtils.deleteExercise(exercise_name)
+            print("--------------------------")
+            print("ERROR ON CREATE EXERCISE (LAUNCHER)")
+            print("ERROR: "+launcher["error"])
+            print("DETAILS: "+launcher["details"])
+            print("--------------------------")
+            return JsonResponse({'error': 'Fail to create exercise'}, status=400)
 
         return JsonResponse({'message': 'Exercise created!'})
   return JsonResponse({'error': 'Method not permited, must be POST.'}, status=405)
