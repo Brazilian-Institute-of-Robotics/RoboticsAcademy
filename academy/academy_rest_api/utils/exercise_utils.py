@@ -163,47 +163,112 @@ def createExerciseLauncher(exercise_name):
     except Exception as e:
         return {'success': 0, 'exists': 1, 'error': 'Unexpected problem', 'details': f'{e}'}
 
-def deleteExercise(exercise_name):
+def createExerciseWorld(exercise_name, world_file):
     try:
-        exercise = Exercise.objects.filter(exercise_id=exercise_name).first()
-        if exercise:
-            with transaction.atomic():
-                universes = exercise.universes.all()
-                for universe in universes:
-                    # Deleta world associado
-                    if getattr(universe, 'world', None):
-                        universe.world.delete()
-                    universe.delete()
-            
-                exercise.delete()
-                template_exercise_dir = os.path.join('/RoboticsAcademy/exercises/templates', 'exercises', exercise_name)
-                static_exercise_dir = os.path.join('/RoboticsAcademy/exercises/static', 'exercises', exercise_name)
-                exercise_launcher_path = os.path.join('/Infrastructure/Launchers', f'{exercise_name}.launch.py')
+        exercise_world_path = os.path.join('/Infrastructure/Worlds', f'{exercise_name}.world')
 
-                # Check if exercise's template directory exists and delete
-                if os.path.exists(template_exercise_dir):
-                    shutil.rmtree(template_exercise_dir)
+        # Check if exercise's world exists and delete
+        if os.path.isfile(exercise_world_path):
+            os.remove(exercise_world_path)
 
-                # Check if exercise's static directory exists and delete
-                if os.path.exists(static_exercise_dir):
-                    shutil.rmtree(static_exercise_dir)
-                
-                # Check if exercise's launcher exits and delete
-                if os.path.isfile(exercise_launcher_path):
-                    os.remove(exercise_launcher_path)
-            
-            return {'success': 1,}
-        
+        with open(exercise_world_path, 'wb+') as dest:
+            for chunk in world_file.chunks():
+                dest.write(chunk)
+
+        return {'success': 1,}
+    except Exception as e:
+        return {'success': 0, 'exists': 1, 'error': 'Unexpected problem', 'details': f'{e}'}
+
+def deleteExercise(exercise_name):
+    
+    exercise = Exercise.objects.filter(exercise_id=exercise_name).first()
+    if not exercise:
         return {
             'success': 0,
             'exists': 0,
-            'error': f'There is no exercise with this name ({exercise_name})', 
+            'error': f'There is no exercise with this name ({exercise_name})',
             'details': f'There is no exercise with this name ({exercise_name})'
         }
+
+    original_paths = {
+        'template': os.path.join('/RoboticsAcademy/exercises/templates', 'exercises', exercise_name),
+        'static': os.path.join('/RoboticsAcademy/exercises/static', 'exercises', exercise_name),
+        'launcher': os.path.join('/Infrastructure/Launchers', f'{exercise_name}.launch.py'),
+        'world': os.path.join('/Infrastructure/Worlds', f'{exercise_name}.world'),
+    }
+    
+    # Create a temporary path to exercises files
+    TRASH_BASE = '/tmp/deleted_exercises'
+    trash_dir = os.path.join(TRASH_BASE, exercise_name)
+    os.makedirs(trash_dir, exist_ok=True)
+    moved_paths = []
+
+    try:
+        # Moves exercises files to temporary directory and test if they are deletable
+        for label, path in original_paths.items():
+            if os.path.exists(path):
+                trash_path = os.path.join(trash_dir, f"{label}__{os.path.basename(path)}")
+                shutil.move(path, trash_path)
+                moved_paths.append((trash_path, path))
+                if not test_file_deletable(trash_path):
+                    raise Exception(f"File not deletable: {trash_path}")
+
+        # Make db transaction to delete exercise, universes and worlds
+        with transaction.atomic():
+            universes = exercise.universes.all()
+            for universe in universes:
+                if getattr(universe, 'world', None):
+                    universe.world.delete()
+                universe.delete()
+            exercise.delete()
+
+            #Function to delete temporary path
+            def finalize_deletion():
+                try:
+                    shutil.rmtree(trash_dir)
+                except Exception as cleanup_error:
+                    return {
+                        'success': 0,
+                        'exists': 1,
+                        'error': f'Could not delete trash dir {trash_dir}: {cleanup_error}',
+                        'details': str(e)
+                    }
+                
+            # Ensure finalize_deletion() only executes if db transaction succeed
+            transaction.on_commit(finalize_deletion)
+
+        return {'success': 1}
+
     except Exception as e:
-        #Case fails, recreate exercises directories
-        createExerciseTemplate(exercise_name)
-        createExerciseStatic(exercise_name)
-        createExerciseLauncher(exercise_name)
-        return {'success': 0, 'exists': 1, 'error': 'Unexpected problem', 'details': f'{e}'}
+
+        # Restore exercises files to original path
+        for trash_path, original_path in moved_paths:
+            try:
+                shutil.move(trash_path, original_path)
+            except Exception as restore_error:
+                return {
+                    'success': 0,
+                    'exists': 1,
+                    'error': f'Failed to restore {original_path} from trash: {restore_error}',
+                    'details': str(e)
+                }
+
+        return {
+            'success': 0,
+            'exists': 1,
+            'error': 'Aborted due to undeletable file or other error',
+            'details': str(e)
+        }
+
+# Verify if file or folder in path is deletable
+def test_file_deletable(path):
+    try:
+        if os.path.isdir(path):
+            os.listdir(path)
+        elif os.path.isfile(path):
+            with open(path, 'rb'):
+                pass
+        return True
+    except Exception as e:
+        return False
     

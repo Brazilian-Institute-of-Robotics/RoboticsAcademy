@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 
 function CreateExerciseForm() {
+  const [worldFile, setWorldFile] = useState(null);
   const [name, setName] = useState('');
   const [responseMsg, setResponseMsg] = useState('');
   const [isDeleting, setIsDeleting] = useState(false)
@@ -22,6 +23,18 @@ function CreateExerciseForm() {
         }
         return cookieValue;
   }
+
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+
+    if (selectedFile && selectedFile.name.endsWith('.world')) {
+      setWorldFile(selectedFile);
+      setError("");
+    } else {
+      setWorldFile(null);
+      setError("Apenas arquivos .world são permitidos.");
+    }
+  };
 
   const handleDelete = async (e) => {
     if (!name) {
@@ -56,13 +69,21 @@ function CreateExerciseForm() {
 
     const csrfToken = getCookie("csrftoken")
 
+    if (!worldFile) {
+      setResponseMsg("❌ Nenhum arquivo selecionado.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('world_file', worldFile);
+
     const res = await fetch(`${serverBase}/api/v1/exercise/`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken
       },
-      body: JSON.stringify({ name }),
+      body: formData,
     });
 
     const data = await res.json();
@@ -70,6 +91,7 @@ function CreateExerciseForm() {
     if (res.ok) {
       setResponseMsg(`✅ ${data.message}`);
       setName('');
+      setWorldFile(null)
     } else {
       setResponseMsg(`❌ ${data.error}`);
     }
@@ -86,6 +108,12 @@ function CreateExerciseForm() {
           onChange={(e) => setName(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded"
           required
+        />
+        <input
+          type="file"
+          accept=".world"
+          onChange={handleFileChange}
+          className="mb-2"
         />
         <div className="flex gap-2">
           <button
