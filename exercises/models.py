@@ -208,3 +208,20 @@ class Exercise(models.Model):
 
     class Meta:
         db_table = '"exercises"'
+
+class NodeType(models.Model):
+    """
+    NEW MODEL INSERT BY RAFAEL BARRETTO
+
+    This model is used types of nodes that can be used on a HAL,py file
+
+    Ex: motors, odometry, laser, etc
+    """
+
+    name = models.CharField(max_length=40, blank=False, unique=True)
+
+    def __str__(self):
+        return str(self.name)
+
+    class Meta:
+        db_table = '"nodes_types"'

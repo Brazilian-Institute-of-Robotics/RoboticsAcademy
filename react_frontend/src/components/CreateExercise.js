@@ -1,5 +1,5 @@
 // CreateExerciseForm.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Editor from "@monaco-editor/react";
 
 function CreateExerciseForm() {
@@ -11,35 +11,47 @@ function CreateExerciseForm() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [availableNodes, setAvailableNodes] = useState([]);
   const [selectedNodes, setSelectedNodes] = useState([]);
 
   const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
   const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
 
-  const availableNodes = [
-    "bumper", "camera", "laser", "motors",
-    "neural_network", "noisy_odometry", "odometry", "sim_time"
-  ];
-
-  const toggleNode = (node) => {
-    setSelectedNodes((prev) =>
-      prev.includes(node) ? prev.filter((n) => n !== node) : [...prev, node]
-    );
-  };
-
   function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            for (let cookie of document.cookie.split(';')) {
-                cookie = cookie.trim();
-                if (cookie.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
-                    break;
-                }
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        for (let cookie of document.cookie.split(';')) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+                break;
             }
         }
-        return cookieValue;
+    }
+    return cookieValue;
   }
+
+  useEffect(() => {
+    const csrfToken = getCookie("csrftoken")
+    const fetchNodeTypes = async () => {
+      try {
+        const response = await fetch(`${serverBase}/api/v1/node`, {
+          method: 'GET',
+          headers: {
+            'X-CSRFToken': csrfToken
+          },
+        });
+
+        const data = await response.json();
+        setAvailableNodes(data)
+
+      } catch (error) {
+        console.error('Erro ao buscar NodeTypes:', error);
+      }
+    };
+
+    fetchNodeTypes();
+  }, []);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -124,7 +136,7 @@ function CreateExerciseForm() {
       headers: {
         'X-CSRFToken': csrfToken
       },
-      body: JSON.stringify({ nodes: selectedNodes}),
+      body: JSON.stringify({ nodes_ids: selectedNodes}),
     });
 
     const data = await res.json();
@@ -136,6 +148,12 @@ function CreateExerciseForm() {
     
     setLoading(false);
     
+  };
+
+  const toggleNode = (node) => {
+    setSelectedNodes((prev) =>
+      prev.includes(node) ? prev.filter((n) => n !== node) : [...prev, node]
+    );
   };
 
   return (
@@ -172,14 +190,14 @@ function CreateExerciseForm() {
           <div className="mb-4 flex flex-wrap gap-4">
             {availableNodes.map((node) => (
               <div>
-                <label key={node} className="flex items-center gap-2">
+                <label key={node.id} className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    checked={selectedNodes.includes(node)}
-                    onChange={() => toggleNode(node)}
+                    checked={selectedNodes.includes(node.id)}
+                    onChange={() => toggleNode(node.id)}
                     className="accent-blue-600"
                   />
-                  {node}
+                  {node.name}
                 </label>
                 <br/>
               </div>

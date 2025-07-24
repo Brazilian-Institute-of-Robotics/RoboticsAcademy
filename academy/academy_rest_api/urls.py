@@ -1,10 +1,9 @@
 from rest_framework import routers
 from django.urls import path, include
 from . import views
-from . import function_views
 
 from academy.academy_rest_api.views.exercises import ExerciseViewSet
-from academy.academy_rest_api.views import auth_views, exercise_views, hal_views
+from academy.academy_rest_api.views import auth_views, exercise_views, hal_views, node_type_views
 
 router = routers.SimpleRouter()
 router.register(r'exercises', ExerciseViewSet)
@@ -25,4 +24,5 @@ urlpatterns = [
     path('exercise/', exercise_views.create_exercise),
     path('exercise/<str:exercise_name>/', exercise_views.delete_exercise),
     path('hal/', hal_views.generate_hal),
+    path('node/', node_type_views.get_all_nodes)
 ]
