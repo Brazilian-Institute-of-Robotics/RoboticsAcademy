@@ -1,0 +1,26 @@
+#IMPORT START
+from hal_interfaces.general.bumper import BumperNode
+#IMPORT END
+
+#CREATE START
+    bumper_node = BumperNode(
+        [
+            "/roombaROS/events/right_bumper",
+            "/roombaROS/events/center_bumper",
+            "/roombaROS/events/left_bumper",
+        ]
+    )
+#CREATE END
+
+#ADD START
+    executor.add_node(bumper_node)
+#ADD END
+
+#FUNCTION START
+# Bumper
+def getBumperData():
+    try:
+        return bumper_node.getBumperData()
+    except Exception as e:
+        print(f"Exception in hal getBumper {repr(e)}")
+#FUNCTION END

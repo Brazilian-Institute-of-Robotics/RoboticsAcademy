@@ -16,6 +16,7 @@ from django.http import JsonResponse
 from pathlib import Path
 from utils import docker_utils as DockerUtils
 from utils import exercise_utils as ExerciseUtils 
+from utils import hal_utils as HalUtils 
 from colorama import Fore
 from exercises.models import Exercise
 from rest_framework.decorators import api_view
@@ -86,12 +87,15 @@ def user_logout(request):
 def create_exercise(request):
   if request.method == 'POST':
     exercise_name = request.POST.get('name')
+    hal_code = request.POST.get('hal_code')
     world_file = request.FILES.get('world_file')
 
     if not exercise_name:
         return JsonResponse({'error': 'Exercise name is required.'}, status=400)
     if not world_file:
         return JsonResponse({'error': 'World file is required.'}, status=400)
+    if not hal_code:
+       return JsonResponse({'error': 'HAL code is required.'}, status=400)
     
     # ADD EXERCISE ON DATABASE
     exerciseDB = ExerciseUtils.createExerciseDatabase(exercise_name)
@@ -120,7 +124,7 @@ def create_exercise(request):
         return JsonResponse({'error': 'Fail to create exercise'}, status=400)
     
     # CREATE EXERCISE'S STATIC FILES
-    static = ExerciseUtils.createExerciseStatic(exercise_name)
+    static = ExerciseUtils.createExerciseStatic(exercise_name, hal_code)
     if static["success"] == 0:
         
         rollback_result = creationRollback(exercise_name)
@@ -192,7 +196,7 @@ def create_exercise(request):
 def delete_exercise(request, exercise_name):
   if request.method == "DELETE":
     if not exercise_name:
-      return JsonResponse({'error': 'Nome do exercicio e obrigatorio.'}, status=400)
+      return JsonResponse({'error': 'Exercise name is required.'}, status=400)
     
     exercise_removal = ExerciseUtils.deleteExercise(exercise_name)
     if exercise_removal["success"] == 0:
@@ -207,6 +211,35 @@ def delete_exercise(request, exercise_name):
     return JsonResponse({'message': 'Exercise deleted!'})
   
   return JsonResponse({'error': 'Method not permited, must be DELETE.'}, status=405)
+
+def generate_hal(request):
+  if request.method == "POST":
+    data = json.loads(request.body)
+    nodes = data.get('nodes') # EX: ["motors", "laser", "camera"]
+
+    if nodes == None:
+      return JsonResponse({'error': 'Nodes cannot be null.'}, status=400)
+    
+    if not isinstance(nodes, list):
+       return JsonResponse({'error': 'Nodes must be a array.'}, status=400)
+    
+    if len(nodes) == 0:
+       return JsonResponse({'error': 'Nodes need to have at least one element.'}, status=400)
+    
+    try:
+      hal_code = HalUtils.generate_hal(nodes)
+    except Exception as e:
+      printError(
+        "ERROR TO GENERATE HAL FILE",
+        "ERROR: Fail to generate HAL.py",
+        "DETAILS: "+str(e),
+      )
+      return JsonResponse({'error': 'Fail to generate HAL file. Contact suport'}, status=500)
+        
+    return JsonResponse({'code': hal_code})
+  else:
+    return JsonResponse({'error': 'Method not permited, must be POST.'}, status=405)
+      
 
 def printError(head, error, details):
   print("--------------------------")

@@ -1,0 +1,20 @@
+#IMPORT START
+from hal_interfaces.general.noise_odometry import NoisyOdometryNode
+#IMPORT END
+
+#CREATE START
+    noisy_odometry_node = NoisyOdometryNode("/odom")
+#CREATE END
+
+#ADD START
+    executor.add_node(noisy_odometry_node)
+#ADD END
+
+#FUNCTION START
+# Pose
+def getOdom():
+    try:
+        return noisy_odometry_node.getPose3d()
+    except Exception as e:
+        print(f"Exception in hal getPose3d {repr(e)}")  
+#FUNCTION END

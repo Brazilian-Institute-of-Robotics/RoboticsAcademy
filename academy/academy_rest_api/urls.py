@@ -23,4 +23,5 @@ urlpatterns = [
     path('logout/', function_views.user_logout),
     path('exercise/', function_views.create_exercise),
     path('exercise/<str:exercise_name>/', function_views.delete_exercise),
+    path('hal/', function_views.generate_hal),
 ]

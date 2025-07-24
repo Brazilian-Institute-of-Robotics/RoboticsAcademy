@@ -1,0 +1,20 @@
+#IMPORT START
+from hal_interfaces.general.motors import MotorsNode
+#IMPORT END
+
+#CREATE START
+    motor_node = MotorsNode("/cmd_vel", 4, 0.3)
+#CREATE END
+
+#ADD START
+#ADD END
+
+#FUNCTION START
+# Linear speed
+def setV(v):
+    motor_node.sendV(float(v))
+
+# Angular speed
+def setW(w):
+    motor_node.sendW(float(w))
+#FUNCTION END

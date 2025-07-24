@@ -1,0 +1,17 @@
+#IMPORT START
+from hal_interfaces.general.odometry import OdometryNode
+#IMPORT END
+
+#CREATE START
+    sim_time_node = SimTimeNode()
+#CREATE END
+
+#ADD START
+    executor.add_node(sim_time_node)
+#ADD END
+
+#FUNCTION START
+# Time
+def getSimTime():
+    return sim_time_node.getSimTime()
+#FUNCTION END

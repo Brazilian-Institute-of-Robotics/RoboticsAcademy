@@ -93,7 +93,7 @@ def createExerciseTemplate(exercise_name):
     
     return {'success': 1,}
 
-def createExerciseStatic(exercise_name):
+def createExerciseStatic(exercise_name, hal_code):
     try:
         static_base_path = '/RoboticsAcademy/exercises/static'
         exercises_dir = os.path.join(static_base_path, 'exercises')
@@ -123,6 +123,11 @@ def createExerciseStatic(exercise_name):
         base_template = os.path.join(static_base_path, 'ReactParentComponent.css')
         destination_template = os.path.join(react_code_path, 'css', 'ReactParentComponent.css')
         shutil.copyfile(base_template, destination_template)
+        
+        #HAL.py
+        hal_path = os.path.join(python_code_path, 'HAL.py')
+        with open(hal_path, "w") as f:
+            f.write(hal_code)
 
         return {'success': 1,}
     except OSError as e:

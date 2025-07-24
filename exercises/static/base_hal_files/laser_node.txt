@@ -1,0 +1,20 @@
+#IMPORT START
+from hal_interfaces.general.laser import LaserNode
+#IMPORT END
+
+#CREATE START
+    laser_node = LaserNode("TOPIC_NAME_HERE")
+#CREATE END
+
+#ADD START
+    executor.add_node(laser_node)
+#ADD END
+
+#FUNCTION START
+# Laser
+def getLaserData():
+    try:
+        return laser_node.getLaserData()
+    except Exception as e:
+        print(f"Exception in hal getLaserData {repr(e)}")
+#FUNCTION END
