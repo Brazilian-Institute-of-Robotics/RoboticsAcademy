@@ -3,7 +3,8 @@ import json
 from colorama import Fore
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
-from utils import docker_utils as DockerUtils
+
+from academy.academy_rest_api.utils import docker_utils as DockerUtils
 
 def user_login(request):
   if request.method == 'POST':

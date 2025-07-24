@@ -5,8 +5,7 @@ import subprocess
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from django.http import JsonResponse
-from utils import exercise_utils as ExerciseUtils 
-from utils import hal_utils as HalUtils 
+from academy.academy_rest_api.utils import exercise_utils as ExerciseUtils 
 from colorama import Fore
 from rest_framework.decorators import api_view
 
