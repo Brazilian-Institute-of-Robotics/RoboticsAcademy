@@ -9,35 +9,48 @@ from academy.academy_rest_api.utils import exercise_utils as ExerciseUtils
 from colorama import Fore
 from rest_framework.decorators import api_view
 
+from exercises.models import Exercise
+
 def create_exercise(request):
   if request.method == 'POST':
-    exercise_name = request.POST.get('name')
-    hal_code = request.POST.get('hal_code')
-    world_file = request.FILES.get('world_file')
+    #exercise_name_id = request.POST.get('exerciseId')
+
+    exercise_name = request.POST.get('exerciseName').strip()
+    exercise_description = request.POST.get('description').strip()
+    universe_name = request.POST.get('universe_name').strip()
+    hal_code = request.POST.get('halCode')
+    world_file = request.FILES.get('worldFile')
 
     if not exercise_name:
         return JsonResponse({'error': 'Exercise name is required.'}, status=400)
+    if not universe_name:
+        return JsonResponse({'error': 'Universe name is required.'}, status=400)
     if not world_file:
         return JsonResponse({'error': 'World file is required.'}, status=400)
     if not hal_code:
        return JsonResponse({'error': 'HAL code is required.'}, status=400)
     
-    # ADD EXERCISE ON DATABASE
-    exerciseDB = ExerciseUtils.createExerciseDatabase(exercise_name)
+    exercise_id = exercise_name.lower().replace(" ", "_")
+    launcher_name = universe_name.lower().replace(" ", "_")
+    
+    print("ADD EXERCISE TO DATABASE")
+    exerciseDB = ExerciseUtils.createExerciseDatabase(
+       exercise_id, exercise_name, exercise_description,
+       universe_name, launcher_name
+    )
     if exerciseDB["success"] == 0:
       printError(
             "ERROR ON CREATE EXERCISE (DATABASE)",
             "ERROR: "+exerciseDB["error"],
             "DETAILS: "+exerciseDB["details"]
       )
-      message =  "There is exercise with same name" if exerciseDB["exists"] == 1 else "Fail to delete exercise"
-      return JsonResponse({'error': message}, status=400)
+      return JsonResponse({'error': exerciseDB["error"]}, status=400)
 
-    # CREATE EXERCISE'S TEMPLATES FILES
-    template = ExerciseUtils.createExerciseTemplate(exercise_name)
+    print("CREATE EXERCISE'S TEMPLATES FILES")
+    template = ExerciseUtils.createExerciseTemplate(exercise_id)
     if template["success"] == 0:
         
-        rollback_result = creationRollback(exercise_name)
+        rollback_result = creationRollback(exercise_id)
         if rollback_result["success"] == 0:
           return JsonResponse({'error': 'Fail to create exercise AND fail to rollback. Please contact admin.'}, status=500)
         
@@ -48,11 +61,11 @@ def create_exercise(request):
         )
         return JsonResponse({'error': 'Fail to create exercise'}, status=400)
     
-    # CREATE EXERCISE'S STATIC FILES
-    static = ExerciseUtils.createExerciseStatic(exercise_name, hal_code)
+    print("CREATE EXERCISE'S STATIC FILES")
+    static = ExerciseUtils.createExerciseStatic(exercise_id, hal_code)
     if static["success"] == 0:
         
-        rollback_result = creationRollback(exercise_name)
+        rollback_result = creationRollback(exercise_id)
         if rollback_result["success"] == 0:
           return JsonResponse({'error': 'Fail to create exercise AND fail to rollback. Please contact admin.'}, status=500)
         
@@ -63,7 +76,7 @@ def create_exercise(request):
         )
         return JsonResponse({'error': 'Fail to create exercise'}, status=400)
     
-    # BUILD EXERCISES WEB FILES
+    print("BUILD EXERCISES WEB FILES")
     try:
         subprocess.run(
             ['yarn', 'run', 'build'],
@@ -72,7 +85,7 @@ def create_exercise(request):
         )
     except subprocess.CalledProcessError as e:
         
-        rollback_result = creationRollback(exercise_name)
+        rollback_result = creationRollback(exercise_id)
         if rollback_result["success"] == 0:
           return JsonResponse({'error': 'Fail to create exercise AND fail to rollback. Please contact admin.'}, status=500)
         
@@ -83,11 +96,11 @@ def create_exercise(request):
         )
         return JsonResponse({'error': 'Fail to create exercise'}, status=500)
     
-    # CREATE LAUNCHER FILE
-    launcher = ExerciseUtils.createExerciseLauncher(exercise_name)
+    print("CREATE LAUNCHER FILE")
+    launcher = ExerciseUtils.createExerciseLauncher(launcher_name)
     if launcher["success"] == 0:
         
-        rollback_result = creationRollback(exercise_name)
+        rollback_result = creationRollback(exercise_id)
         if rollback_result["success"] == 0:
           return JsonResponse({'error': 'Fail to create exercise AND fail to rollback. Please contact admin.'}, status=500)
         
@@ -98,11 +111,11 @@ def create_exercise(request):
         )
         return JsonResponse({'error': 'Fail to create exercise'}, status=400)
     
-    # CREATE WORLD FILE
-    world = ExerciseUtils.createExerciseWorld(exercise_name, world_file)
+    print("CREATE WORLD FILE")
+    world = ExerciseUtils.createExerciseWorld(launcher_name, world_file)
     if world["success"] == 0:
         
-        rollback_result = creationRollback(exercise_name)
+        rollback_result = creationRollback(exercise_id)
         if rollback_result["success"] == 0:
           return JsonResponse({'error': 'Fail to create exercise AND fail to rollback. Please contact admin.'}, status=500)
         
@@ -136,6 +149,20 @@ def delete_exercise(request, exercise_name):
     return JsonResponse({'message': 'Exercise deleted!'})
   
   return JsonResponse({'error': 'Method not permited, must be DELETE.'}, status=405)
+
+def find_by_name(request, name):
+   if request.method == "GET":
+      if not name:
+        return JsonResponse({'error': 'Exercise name is required.'}, status=400)
+      
+      try:
+        exercise = Exercise.objects.filter(name=name).values().first()
+        return JsonResponse({'message': 'Exercise found.', 'exercise': exercise})
+      except Exception as e:
+         return JsonResponse({'error': 'Fail to find exercise by name.'}, status=500)
+  
+   else:
+      return JsonResponse({'error': 'Method not permited, must be GET.'}, status=405)
 
 def printError(head, error, details):
   print("--------------------------")

@@ -5,16 +5,24 @@ from django.db import transaction
 from django.conf import settings
 
 
-def createExerciseDatabase(exercise_name):
+def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
+       universe_name, launcher_name):
     try:
-        exercise_exists = Exercise.objects.filter(exercise_id=exercise_name).exists()
+        exercise_exists = Exercise.objects.filter(exercise_id=exercise_id).exists()
+        universe_exists = Universe.objects.filter(name=universe_name).exists()
+        world_exists = World.objects.filter(name=universe_name).exists()
+
         if exercise_exists:
-          return {'success': 0, 'exists': 1, 'error': 'There is a exercise with this name', 'details': 'There is a exercise with this name'}
+            return {'success': 0, 'exists': 1, 'error': 'There is a exercise with this name', 'details': 'There is a exercise with this name'}
+        if universe_exists:
+            return {'success': 0, 'exists': 1, 'error': 'There is a universe with this name', 'details': 'There is a universe with this name'}
+        if world_exists:
+            return {'success': 0, 'exists': 1, 'error': 'There is a world with this name', 'details': 'There is a world with this name'}
         
         with transaction.atomic():
             world = World.objects.create(
-                name=exercise_name,
-                launch_file_path=f"/opt/jderobot/Launchers/{exercise_name}.launch.py",
+                name=universe_name,
+                launch_file_path=f"/opt/jderobot/Launchers/{launcher_name}.launch.py",
                 visualization_config_path="None",
                 ros_version="ROS2",
                 visualization="gazebo_rae",
@@ -29,18 +37,18 @@ def createExerciseDatabase(exercise_name):
             )
 
             universe = Universe.objects.create(
-                name=exercise_name,
+                name=universe_name,
                 world=world,
                 robot=robot
             )
 
             exercise = Exercise.objects.create(
-                exercise_id=exercise_name,
+                exercise_id=exercise_id,
                 name=exercise_name,
-                description=exercise_name,
+                description=exercise_description,
                 tags='{"tags": "ROS2"}',
                 status="ACTIVE",
-                template=f"RoboticsAcademy/exercises/static/exercises/{exercise_name}/python_template/",
+                template=f"RoboticsAcademy/exercises/static/exercises/{exercise_id}/python_template/",
             )
 
             exercise.universes.add(universe)
@@ -51,10 +59,10 @@ def createExerciseDatabase(exercise_name):
 
 
 
-def createExerciseTemplate(exercise_name):
+def createExerciseTemplate(exercise_id):
     template_base_path = '/RoboticsAcademy/exercises/templates'
     exercises_dir = os.path.join(template_base_path, 'exercises')
-    new_exercise_path = os.path.join(exercises_dir, exercise_name)
+    new_exercise_path = os.path.join(exercises_dir, exercise_id)
 
     # Verificar se template base existe
     if not os.path.exists(template_base_path):
@@ -84,7 +92,7 @@ def createExerciseTemplate(exercise_name):
         with open(destination_template, 'r') as file:
             content = file.read()
         
-        content = content.replace('!EXERCISE_NAME!', exercise_name)
+        content = content.replace('!EXERCISE_NAME!', exercise_id)
         
         with open(destination_template, 'w') as file:
             file.write(content)
@@ -93,11 +101,11 @@ def createExerciseTemplate(exercise_name):
     
     return {'success': 1,}
 
-def createExerciseStatic(exercise_name, hal_code):
+def createExerciseStatic(exercise_id, hal_code):
     try:
         static_base_path = '/RoboticsAcademy/exercises/static'
         exercises_dir = os.path.join(static_base_path, 'exercises')
-        new_exercise_path = os.path.join(exercises_dir, exercise_name)
+        new_exercise_path = os.path.join(exercises_dir, exercise_id)
 
         python_code_path = os.path.join(new_exercise_path, "python_template", "ros2_humble")
         resources_path = os.path.join(new_exercise_path, "resources")
@@ -135,17 +143,17 @@ def createExerciseStatic(exercise_name, hal_code):
     except Exception as e:
         return {'success': 0, 'error': 'Unexpected problem', 'details': f'{str(e)}'}
 
-def createExerciseLauncher(exercise_name):
+def createExerciseLauncher(launcher_name):
     try:
         launchers_path = '/Infrastructure/Launchers'
         base_launcher_path = os.path.join(launchers_path, 'base_launch', 'base.launch.py')
-        exercise_launcher_path = os.path.join(launchers_path, f'{exercise_name}.launch.py')
+        exercise_launcher_path = os.path.join(launchers_path, f'{launcher_name}.launch.py')
 
        # Check if exercise's launcher exits and delete
         if os.path.isfile(exercise_launcher_path):
             os.remove(exercise_launcher_path)
 
-        # Copy base.launch.py on exercise template directory as {exercise_name}.launch.py
+        # Copy base.launch.py on exercise template directory as {launcher_name}.launch.py
         try:
             shutil.copyfile(base_launcher_path, exercise_launcher_path)
         except IOError as e:
@@ -156,21 +164,21 @@ def createExerciseLauncher(exercise_name):
             with open(exercise_launcher_path, 'r') as file:
                 content = file.read()
             
-            content = content.replace('!WORLD_NAME!', exercise_name)
+            content = content.replace('!WORLD_NAME!', launcher_name)
             
             with open(exercise_launcher_path, 'w') as file:
                 file.write(content)
         except IOError as e:
-            return {'success': 0, 'error': f'Fail to change {exercise_name}.launch.py', 'details': f'{str(e)}'}
+            return {'success': 0, 'error': f'Fail to change {launcher_name}.launch.py', 'details': f'{str(e)}'}
         
         return {'success': 1,}
 
     except Exception as e:
         return {'success': 0, 'exists': 1, 'error': 'Unexpected problem', 'details': f'{e}'}
 
-def createExerciseWorld(exercise_name, world_file):
+def createExerciseWorld(world_name, world_file):
     try:
-        exercise_world_path = os.path.join('/Infrastructure/Worlds', f'{exercise_name}.world')
+        exercise_world_path = os.path.join('/Infrastructure/Worlds', f'{world_name}.world')
 
         # Check if exercise's world exists and delete
         if os.path.isfile(exercise_world_path):
@@ -185,30 +193,39 @@ def createExerciseWorld(exercise_name, world_file):
         return {'success': 0, 'exists': 1, 'error': 'Unexpected problem', 'details': f'{e}'}
 
 def deleteExercise(exercise_name):
-    
-    exercise = Exercise.objects.filter(exercise_id=exercise_name).first()
-    if not exercise:
-        return {
-            'success': 0,
-            'exists': 0,
-            'error': f'There is no exercise with this name ({exercise_name})',
-            'details': f'There is no exercise with this name ({exercise_name})'
-        }
 
-    original_paths = {
-        'template': os.path.join('/RoboticsAcademy/exercises/templates', 'exercises', exercise_name),
-        'static': os.path.join('/RoboticsAcademy/exercises/static', 'exercises', exercise_name),
-        'launcher': os.path.join('/Infrastructure/Launchers', f'{exercise_name}.launch.py'),
-        'world': os.path.join('/Infrastructure/Worlds', f'{exercise_name}.world'),
-    }
-    
-    # Create a temporary path to exercises files
-    TRASH_BASE = '/tmp/deleted_exercises'
-    trash_dir = os.path.join(TRASH_BASE, exercise_name)
-    os.makedirs(trash_dir, exist_ok=True)
     moved_paths = []
 
     try:
+        exercise = Exercise.objects.filter(exercise_id=exercise_name).first()
+        if not exercise:
+            return {
+                'success': 0,
+                'exists': 0,
+                'error': f'There is no exercise with this name ({exercise_name})',
+                'details': f'There is no exercise with this name ({exercise_name})'
+            }
+
+        original_paths = {
+            'template': os.path.join('/RoboticsAcademy/exercises/templates', 'exercises', exercise_name),
+            'static': os.path.join('/RoboticsAcademy/exercises/static', 'exercises', exercise_name),
+        }
+
+        # Add all launchers and worlds files associated with exercises on original_paths
+        universes = exercise.universes.select_related('world').all()
+        for universe in universes:
+            if universe.world and universe.world.launch_file_path:
+                launch_path = universe.world.launch_file_path
+                file_name = os.path.splitext(os.path.splitext(os.path.basename(launch_path))[0])[0]
+                original_paths[f'launcher__{file_name}'] = os.path.join('/Infrastructure/Launchers', f'{file_name}.launch.py')
+                original_paths[f'world__{file_name}'] = os.path.join('/Infrastructure/Worlds', f'{file_name}.world')
+        
+        # Create a temporary path to exercises files
+        TRASH_BASE = '/tmp/deleted_exercises'
+        trash_dir = os.path.join(TRASH_BASE, exercise_name)
+        os.makedirs(trash_dir, exist_ok=True)
+
+    
         # Moves exercises files to temporary directory and test if they are deletable
         for label, path in original_paths.items():
             if os.path.exists(path):
@@ -243,7 +260,7 @@ def deleteExercise(exercise_name):
             transaction.on_commit(finalize_deletion)
 
         return {'success': 1}
-
+    
     except Exception as e:
 
         # Restore exercises files to original path
@@ -258,6 +275,7 @@ def deleteExercise(exercise_name):
                     'details': str(e)
                 }
 
+        print(e)
         return {
             'success': 0,
             'exists': 1,

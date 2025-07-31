@@ -26,10 +26,10 @@ const LoginPage = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "#f5f5f5",
+            backgroundColor: "#474444",
           }}
         >
-          <Paper elevation={4} sx={{ padding: 4, width: 320 }}>
+          <Paper elevation={4} sx={{ padding: 4, width: 320,}}>
             <Typography variant="h5" align="center" gutterBottom>
               Login
             </Typography>
