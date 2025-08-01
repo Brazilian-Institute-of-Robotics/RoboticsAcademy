@@ -4,10 +4,87 @@ import { Button, Checkbox, FormControlLabel, Grid, Typography } from '@mui/mater
 import { Editor } from '@monaco-editor/react';
 import FormError from '../message_system/FormError';
 
+import { getCookie } from '../../helpers/cookie';
+
 export default function HalGenerator({
-    formik, availableNodes, selectedNodes, 
-    isNodeSelected, toggleNode, handleGenerate, props
-}) {
+    formik, formikAtrributeName, isLoading, 
+    setIsLoading, isDisable, setMessageFunction
+}, props) {
+
+    const [availableNodes, setAvailableNodes] = useState([]);
+    const [selectedNodes, setSelectedNodes] = useState([])
+    const [isNodeSelected, setIsNodeSelected] = useState(true)
+
+    const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
+    const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
+
+    // GETS NODES TYPES'S LIST FROM DATABASE
+    useEffect(() => {
+        const csrfToken = getCookie("csrftoken")
+        const fetchNodeTypes = async () => {
+            try {
+            const response = await fetch(`${serverBase}/api/v1/node`, {
+                method: 'GET',
+                headers: {
+                'X-CSRFToken': csrfToken
+                },
+            });
+
+            const data = await response.json();
+            setAvailableNodes(data)
+
+            } catch (error) {
+                setMessageFunction("❌ Error to find nodes types. Please contact suport")
+            }
+        };
+
+        fetchNodeTypes();
+    }, []);
+
+    //HANDLE TO CHANGE SELECTED NODES
+    const toggleNode = (node_id) => {
+        if (selectedNodes.includes(node_id)) 
+            setSelectedNodes(selectedNodes.filter((n) => n !== node_id))
+        else 
+            setSelectedNodes([...selectedNodes, node_id])  
+    };
+
+    const handleGenerate = async () => {
+        if (selectedNodes.length == 0){
+          setIsNodeSelected(false)
+          formik.setFieldValue(formikAtrributeName, "")
+        }
+        else {
+          try {
+            setIsNodeSelected(true)
+            setIsLoading(true);
+    
+            const csrfToken = getCookie("csrftoken")
+            const res = await fetch(`${serverBase}/api/v1/hal/`, {
+              method: 'POST',
+              headers: {
+                'X-CSRFToken': csrfToken
+              },
+              body: JSON.stringify({ nodes_ids: selectedNodes}),
+            });
+    
+            const data = await res.json();
+            if (res.ok) {
+              formik.setFieldValue("code", data.code)
+            } else {
+              setMessageFunction("❌ Error on generate code (API). please contact suport");
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          } catch (error) {
+            setMessageFunction("❌ Error on generate code (FRONT END). please contact suport");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }finally{
+            setIsLoading(false);
+          }
+        }
+        
+      };
+
     
     return (
         <div>
@@ -54,9 +131,9 @@ export default function HalGenerator({
                 <Button 
                     variant="contained" 
                     sx={{ width:"50ch"}}
-                    //loading={isGenarating}
+                    loading={isLoading}
                     loadingIndicator="Loading..."
-                    //disabled={isDeleting || isSaving}
+                    disabled={isDisable}
                     onClick={handleGenerate}
                 >
                     Generate HAL. py
@@ -69,15 +146,15 @@ export default function HalGenerator({
                 </div>)
                 }
             </Box>
-            {/* <FormError inputName="code" errors={formik.errors} touched={formik.touched}/> */}
+            <FormError inputName={formikAtrributeName} errors={formik.errors} touched={formik.touched}/>
             
             {/* CODE EDITOR */}
             <Editor
                 name="code"
                 height="600px"
                 defaultLanguage="python"
-                value={formik.values.code}
-                onChange={(value) => formik.setFieldValue("code", value || "")}
+                value={formik.values[formikAtrributeName]}
+                onChange={(value) => formik.setFieldValue(formikAtrributeName, value || "")}
                 theme="vs-dark"
                 options={{
                     fontSize: 14,

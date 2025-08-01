@@ -5,42 +5,34 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
 import Tooltip from '@mui/material/Tooltip'
-
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Grid from '@mui/material/Grid';
 
 import { Container, Typography, Button, styled } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import CheckSharpIcon from '@mui/icons-material/CheckSharp';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 
-import Editor from "@monaco-editor/react";
 import FormError from "./message_system/FormError";
 
 import { useFormik } from "formik";
 import * as Yup from "yup"
-import HalGenerator from './editors/HalGenerator';
 
+import HalGenerator from './editors/HalGenerator';
+import UploadFileButton from "./buttons/UploadFileButton";
+
+import { getCookie } from "../helpers/cookie";
 import ExerciseRouter from "../helpers/ExerciseRouter"
 
 function CreateExerciseForm() {
-
-  const [availableNodes, setAvailableNodes] = useState([]);
-  const [selectedNodes, setSelectedNodes] = useState([])
-  const [isNodeSelected, setIsNodeSelected] = useState(true)
 
   const [responseMsg, setResponseMsg] = useState('');
   
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isGenarating, setIsGenerating] = useState(false)
-  const [isWorldFile, setIsWorldFile] = useState(false)
+
   const [isCheckingExerciseName, setIsCheckingExerciseName] = useState(false)
   const [isCheckingUniverseName, setIsCheckingUniverseName] = useState(false)
 
@@ -79,63 +71,13 @@ function CreateExerciseForm() {
 
       } catch (error) {
         //console.log("ERRO: "+error)
-        setResponseMsg(`❌ It was not possible to saves exercise (FRONT END). Please try reload or contact suport`);
+        setResponseMsg(`❌ Fail to create exercise. Please contact suport`);
       }finally{
         setIsSaving(false)
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     },
   })
-
-  const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-  });
-
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        for (let cookie of document.cookie.split(';')) {
-            cookie = cookie.trim();
-            if (cookie.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-  }
-  
-
-  // GETS NODES TYPES'S LIST FROM DATABASE
-  useEffect(() => {
-    const csrfToken = getCookie("csrftoken")
-    const fetchNodeTypes = async () => {
-      try {
-        const response = await fetch(`${serverBase}/api/v1/node`, {
-          method: 'GET',
-          headers: {
-            'X-CSRFToken': csrfToken
-          },
-        });
-
-        const data = await response.json();
-        setAvailableNodes(data)
-
-      } catch (error) {
-        setResponseMsg("Error to find nodes types. Please contact suport")
-      }
-    };
-
-    fetchNodeTypes();
-  }, []);
 
   // CASE FORM VALIDATION FAILS, AUTO SCROLLS PAGE TO TOP
   useEffect(() => {
@@ -161,65 +103,6 @@ function CreateExerciseForm() {
     if (!invalidChars.test(name)) 
         formik.setFieldValue("universeName", name);
   };
-  
-
-  // INSERT .WORLD FILE IN FORMIK VARIABLE WORLDFILE
-  const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-
-    if (selectedFile && selectedFile.name.endsWith('.world')) {
-      formik.setFieldValue("worldFile", selectedFile)
-      setIsWorldFile(true)
-    } else {
-      setIsWorldFile(false)
-      alert("Only .world file is allowed.");
-    }
-  };
-
-  //HANDLE TO CHANGE SELECTED NODES
-  const toggleNode = (node_id) => {
-    if (selectedNodes.includes(node_id)) {
-      setSelectedNodes(selectedNodes.filter((n) => n !== node_id))
-    } else {
-      setSelectedNodes([...selectedNodes, node_id])
-    }
-  };
-
-  const handleGenerate = async () => {
-    if (selectedNodes.length == 0){
-      setIsNodeSelected(false)
-      formik.setFieldValue("code", "")
-    }
-    else {
-      try {
-        setIsNodeSelected(true)
-        setIsGenerating(true);
-
-        const csrfToken = getCookie("csrftoken")
-        const res = await fetch(`${serverBase}/api/v1/hal/`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': csrfToken
-          },
-          body: JSON.stringify({ nodes_ids: selectedNodes}),
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-          formik.setFieldValue("code", data.code)
-        } else {
-          setResponseMsg("Error on generate code (API). please contact suport");
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      } catch (error) {
-        setResponseMsg("Error on generate code (FRONT END). please contact suport");
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }finally{
-        setIsGenerating(false);
-      }
-    }
-    
-  };
 
   const handleCheckExerciseName = async (e) => {
     const name = formik.values.exerciseName
@@ -242,7 +125,7 @@ function CreateExerciseForm() {
           setResponseMsg(`❌ ${result.data.error}`)
       
     }catch(error){
-      setResponseMsg(`✅ Exercise name is available`);
+      setResponseMsg(`❌ Fail to verivy exercise name avalability, contact suport`);
     }finally{
       setIsCheckingExerciseName(false)
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -288,37 +171,37 @@ function CreateExerciseForm() {
     }
   }
 
-  // const handleDelete = async (e) => {
-  //   const name = formik.values.exerciseName
-  //   if (!name) {
-  //     setResponseMsg('❌ Digite um nome de exercício para deletar');
-  //     window.scrollTo({ top: 0, behavior: 'smooth' });
-  //     return;
-  //   }
-  //   setIsDeleting(true)
-  //   try {
-  //     const csrfToken = getCookie("csrftoken")
-  //     const res = await fetch(`${serverBase}/api/v1/exercise/${encodeURIComponent(name)}/`, {
-  //       method: 'DELETE',
-  //       headers: {
-  //         'X-CSRFToken': csrfToken
-  //       },
-  //     });
+  const handleDelete = async (e) => {
+    const name = formik.values.exerciseName
+    if (!name) {
+      setResponseMsg('❌ Digite um nome de exercício para deletar');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    setIsDeleting(true)
+    try {
+      const csrfToken = getCookie("csrftoken")
+      const res = await fetch(`${serverBase}/api/v1/exercise/${encodeURIComponent(name)}/`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRFToken': csrfToken
+        },
+      });
 
-  //     const data = await res.json();
+      const data = await res.json();
 
-  //     if (res.ok) 
-  //       setResponseMsg(`✅ ${data.message}`);
-  //     else
-  //       setResponseMsg(`❌ ${data.error}`)
-  //   } catch (error) {
-  //     console.log(error)
-  //     setResponseMsg("Error on deleting (FRONT END). please contact suport");
-  //   }finally{
-  //     setIsDeleting(false);
-  //     window.scrollTo({ top: 0, behavior: 'smooth' });
-  //   }
-  // }
+      if (res.ok) 
+        setResponseMsg(`✅ ${data.message}`);
+      else
+        setResponseMsg(`❌ ${data.error}`)
+    } catch (error) {
+      //console.log(error)
+      setResponseMsg("Error on deleting (FRONT END). please contact suport");
+    }finally{
+      setIsDeleting(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
 
   return(
     <Box sx={{
@@ -429,48 +312,21 @@ function CreateExerciseForm() {
               </Grid>
 
               {/* UPLOAD BUTTON */}
-              <Box sx={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
-                  mt: 2,
-                  mb: 2
-              }}>
-                <Button
-                  component="label"
-                  variant="contained"
-                  disabled={isGenarating || isSaving || isDeleting}
-                  startIcon={!isWorldFile ? <CloudUploadIcon /> : <CheckSharpIcon />}
-                  sx={{
-                    width:"50ch",
-                    bgcolor: !isWorldFile ? "primary.main" : "#4CAF50",
-                    color: "#fff",
-                    '&:hover': {
-                      backgroundColor: !isWorldFile ? "primary.dark" : "#388E3C",
-                    }
-                  }}
-                >
-                  {!isWorldFile ? "Upload world file" : "File received"}
-                  <VisuallyHiddenInput
-                    type="file"
-                    onChange={handleFileChange}
-                    accept=".world"
-                  />
-                </Button>
-                <FormError 
-                  inputName="worldFile" 
-                  errors={formik.errors} 
-                  touched={formik.touched}
-                  divStyle={{height: "1.2rem", marginTop: "8px", marginLeft: "8px"}}
-                />
-              </Box>
+              <UploadFileButton
+                formik={formik}
+                formikAtrributeName="worldFile"
+                fileType=".world"
+                isDisable={isGenarating || isSaving || isDeleting}
+                setMessageFunction={(message) => {setResponseMsg(message)}}
+              />
 
               <HalGenerator
                 formik={formik}
-                availableNodes={availableNodes}
-                selectedNodes={selectedNodes}
-                isNodeSelected={isNodeSelected}
-                handleGenerate={handleGenerate}
-                toggleNode={toggleNode}
+                formikAtrributeName="code"
+                isLoading={isGenarating}
+                setIsLoading={(bool)=> {setIsGenerating(bool)}}
+                isDisable={isSaving || isDeleting}
+                setMessageFunction={(message) => {setResponseMsg(message)}}
               />
 
               {/* SAVE AND DELETE BUTTONS */}
