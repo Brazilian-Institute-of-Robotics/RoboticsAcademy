@@ -34,6 +34,9 @@ services:
         - type: bind
           source: "${INFRASTRUCTURE_ABSOLUTE_PATH}"
           target: /Infrastructure
+        - type: bind
+          source: "${GUIDE_PAGES_ABSOLUTE_PATH}"
+          target: /GuidePages
         - /var/run/docker.sock:/var/run/docker.sock
       tty: true
       stdin_open: true

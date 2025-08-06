@@ -20,15 +20,21 @@ def create_exercise(request):
     universe_name = request.POST.get('universe_name').strip()
     hal_code = request.POST.get('halCode')
     world_file = request.FILES.get('worldFile')
+    teaser_image_file = request.FILES.get('teaser_image_file')
+    category_id = request.POST.get('category_id')
 
     if not exercise_name:
-        return JsonResponse({'error': 'Exercise name is required.'}, status=400)
+      return JsonResponse({'error': 'Exercise name is required.'}, status=400)
     if not universe_name:
-        return JsonResponse({'error': 'Universe name is required.'}, status=400)
+      return JsonResponse({'error': 'Universe name is required.'}, status=400)
     if not world_file:
-        return JsonResponse({'error': 'World file is required.'}, status=400)
+      return JsonResponse({'error': 'World file is required.'}, status=400)
     if not hal_code:
-       return JsonResponse({'error': 'HAL code is required.'}, status=400)
+      return JsonResponse({'error': 'HAL code is required.'}, status=400)
+    if not teaser_image_file:
+      return JsonResponse({'error': 'Teaser image file is required.'}, status=400)
+    if not category_id:
+      return JsonResponse({'error': 'Category id is required.'}, status=400)
     
     exercise_id = exercise_name.lower().replace(" ", "_")
     launcher_name = universe_name.lower().replace(" ", "_")
@@ -36,7 +42,7 @@ def create_exercise(request):
     print("ADD EXERCISE TO DATABASE")
     exerciseDB = ExerciseUtils.createExerciseDatabase(
        exercise_id, exercise_name, exercise_description,
-       universe_name, launcher_name
+       universe_name, launcher_name, category_id
     )
     if exerciseDB["success"] == 0:
       printError(
@@ -47,7 +53,7 @@ def create_exercise(request):
       return JsonResponse({'error': exerciseDB["error"]}, status=400)
 
     print("CREATE EXERCISE'S TEMPLATES FILES")
-    template = ExerciseUtils.createExerciseTemplate(exercise_id)
+    template = ExerciseUtils.createExerciseTemplate(exercise_id, category_id)
     if template["success"] == 0:
         
         rollback_result = creationRollback(exercise_id)
@@ -62,7 +68,7 @@ def create_exercise(request):
         return JsonResponse({'error': 'Fail to create exercise'}, status=400)
     
     print("CREATE EXERCISE'S STATIC FILES")
-    static = ExerciseUtils.createExerciseStatic(exercise_id, hal_code)
+    static = ExerciseUtils.createExerciseStatic(exercise_id, hal_code, teaser_image_file)
     if static["success"] == 0:
         
         rollback_result = creationRollback(exercise_id)

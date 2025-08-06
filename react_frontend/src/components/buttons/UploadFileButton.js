@@ -6,7 +6,7 @@ import CheckSharpIcon from '@mui/icons-material/CheckSharp';
 import { Box, Button, styled } from "@mui/material";
 import FormError from "../message_system/FormError";
 
-const UploadFileButton = ({formik, formikAtrributeName, fileType, isDisable, setMessageFunction}, props) => {
+const UploadFileButton = ({formik, formikAtrributeName, title, successTitle, width, fileType, isDisable, setMessageFunction}, props) => {
 
     const [isWorldFile, setIsWorldFile] = useState(false)
 
@@ -36,19 +36,14 @@ const UploadFileButton = ({formik, formikAtrributeName, fileType, isDisable, set
     });
 
     return (
-        <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            mt: 2,
-            mb: 2
-        }}>
+        <div>
           <Button
             component="label"
             variant="contained"
             disabled={isDisable}
             startIcon={!isWorldFile ? <CloudUploadIcon /> : <CheckSharpIcon />}
             sx={{
-              width:"50ch",
+              width: {width},
               bgcolor: !isWorldFile ? "primary.main" : "#4CAF50",
               color: "#fff",
               '&:hover': {
@@ -56,7 +51,7 @@ const UploadFileButton = ({formik, formikAtrributeName, fileType, isDisable, set
               }
             }}
           >
-            {!isWorldFile ? "Upload world file" : "File received"}
+            {!isWorldFile ? title : successTitle}
             <VisuallyHiddenInput
               type="file"
               onChange={handleFileChange}
@@ -69,7 +64,7 @@ const UploadFileButton = ({formik, formikAtrributeName, fileType, isDisable, set
             touched={formik.touched}
             divStyle={{height: "1.2rem", marginTop: "8px", marginLeft: "8px"}}
           />
-        </Box>
+        </div>
     )
 }
 

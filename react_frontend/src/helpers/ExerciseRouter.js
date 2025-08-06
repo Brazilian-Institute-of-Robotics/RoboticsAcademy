@@ -1,7 +1,10 @@
 import { getCookie } from "./cookie"
 
 const ExerciseRouter = {
-  create: async (exerciseName, description, universeName, worldFile, halCode, serverBase) => {
+  create: async (
+    exerciseName, description, universeName, 
+    worldFile, halCode, categoryId, teaserImageFile, serverBase) => {
+
       try{
         const csrfToken = getCookie("csrftoken")
 
@@ -11,6 +14,8 @@ const ExerciseRouter = {
         formData.append('universe_name', universeName.trim())
         formData.append('worldFile', worldFile)
         formData.append('halCode', halCode)
+        formData.append('category_id', categoryId)
+        formData.append('teaser_image_file', teaserImageFile)
 
         const res = await fetch(`${serverBase}/api/v1/exercise/`, {
           method: 'POST',

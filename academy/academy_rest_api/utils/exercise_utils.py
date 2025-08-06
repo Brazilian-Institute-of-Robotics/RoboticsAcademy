@@ -1,16 +1,17 @@
 import os
 import shutil
-from exercises.models import Exercise, Universe, World, Robot
+from exercises.models import Exercise, Universe, World, Robot, GuidePageCategory
 from django.db import transaction
 from django.conf import settings
 
 
 def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
-       universe_name, launcher_name):
+       universe_name, launcher_name, category_id):
     try:
         exercise_exists = Exercise.objects.filter(exercise_id=exercise_id).exists()
         universe_exists = Universe.objects.filter(name=universe_name).exists()
         world_exists = World.objects.filter(name=universe_name).exists()
+        guide_category = GuidePageCategory.objects.filter(id=category_id).first()
 
         if exercise_exists:
             return {'success': 0, 'exists': 1, 'error': 'There is a exercise with this name', 'details': 'There is a exercise with this name'}
@@ -18,6 +19,8 @@ def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
             return {'success': 0, 'exists': 1, 'error': 'There is a universe with this name', 'details': 'There is a universe with this name'}
         if world_exists:
             return {'success': 0, 'exists': 1, 'error': 'There is a world with this name', 'details': 'There is a world with this name'}
+        if guide_category == None:
+            return {'success': 0, 'exists': 0, 'error': 'There is no category with this id', 'details': 'There is no category with this id'}
         
         with transaction.atomic():
             world = World.objects.create(
@@ -49,6 +52,7 @@ def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
                 tags='{"tags": "ROS2"}',
                 status="ACTIVE",
                 template=f"RoboticsAcademy/exercises/static/exercises/{exercise_id}/python_template/",
+                guide_page_category=guide_category,
             )
 
             exercise.universes.add(universe)
@@ -59,7 +63,17 @@ def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
 
 
 
-def createExerciseTemplate(exercise_id):
+def createExerciseTemplate(exercise_id, category_id):
+
+    category = None
+
+    try:
+        category = GuidePageCategory.objects.filter(id=category_id).first()
+        if category == None:
+            return {'success': 0, 'error': 'There is no find guide page category with this id', 'details': 'There is no find guide page category with this id'}
+    except Exception as e:
+        return {'success': 0, 'error': 'Fail to find guide page category', 'details': f'{str(e)}'}
+
     template_base_path = '/RoboticsAcademy/exercises/templates'
     exercises_dir = os.path.join(template_base_path, 'exercises')
     new_exercise_path = os.path.join(exercises_dir, exercise_id)
@@ -93,6 +107,7 @@ def createExerciseTemplate(exercise_id):
             content = file.read()
         
         content = content.replace('!EXERCISE_NAME!', exercise_id)
+        content = content.replace('!EXERCISE_GUIDE_PATH!', f'/{category.category_identify}/{exercise_id}')
         
         with open(destination_template, 'w') as file:
             file.write(content)
@@ -101,7 +116,7 @@ def createExerciseTemplate(exercise_id):
     
     return {'success': 1,}
 
-def createExerciseStatic(exercise_id, hal_code):
+def createExerciseStatic(exercise_id, hal_code, teaser_img_file):
     try:
         static_base_path = '/RoboticsAcademy/exercises/static'
         exercises_dir = os.path.join(static_base_path, 'exercises')
@@ -136,6 +151,15 @@ def createExerciseStatic(exercise_id, hal_code):
         hal_path = os.path.join(python_code_path, 'HAL.py')
         with open(hal_path, "w") as f:
             f.write(hal_code)
+        
+        #Exercise teaser image
+        img_teaser_path = os.path.join(exercises_dir, "assets", "img", f'{exercise_id}_teaser.png')
+        if os.path.isfile(img_teaser_path):
+            os.remove(img_teaser_path)
+
+        with open(img_teaser_path, 'wb+') as dest:
+            for chunk in teaser_img_file.chunks():
+                dest.write(chunk)
 
         return {'success': 1,}
     except OSError as e:
@@ -209,6 +233,7 @@ def deleteExercise(exercise_name):
         original_paths = {
             'template': os.path.join('/RoboticsAcademy/exercises/templates', 'exercises', exercise_name),
             'static': os.path.join('/RoboticsAcademy/exercises/static', 'exercises', exercise_name),
+            'teaser_image': os.path.join('/RoboticsAcademy/exercises/static', 'exercises', 'assets', 'img', f'{exercise.exercise_id}_teaser.png'),
         }
 
         # Add all launchers and worlds files associated with exercises on original_paths
@@ -275,7 +300,7 @@ def deleteExercise(exercise_name):
                     'details': str(e)
                 }
 
-        print(e)
+        #print(e)
         return {
             'success': 0,
             'exists': 1,

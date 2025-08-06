@@ -7,7 +7,7 @@
 {% block react-content %}
     {% react_component exercise/!EXERCISE_NAME!_newmanager/ReactParentComponent %}
         {% react_component components/wrappers/MaterialBox id="exercise-container" %}
-            {% react_component components/layout_components/MainAppBar exerciseName="!EXERCISE_NAME!" url="/MobileRobots/model_exercises"%} 
+            {% react_component components/layout_components/MainAppBar exerciseName="!EXERCISE_NAME!" url="!EXERCISE_GUIDE_PATH!"%} 
             {% react_component components/visualizers/WorldSelector %} {% end_react_component %}  
             {% end_react_component %} 
         {% react_component components/wrappers/MaterialBox id="content" %}

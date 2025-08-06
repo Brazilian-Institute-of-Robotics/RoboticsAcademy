@@ -7,7 +7,7 @@ import Paper from '@mui/material/Paper';
 import Tooltip from '@mui/material/Tooltip'
 import Grid from '@mui/material/Grid';
 
-import { Container, Typography, Button, styled } from "@mui/material";
+import { Container, Typography, Button, styled, Select, MenuItem, InputLabel, FormControl } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -26,6 +26,7 @@ import { getCookie } from "../helpers/cookie";
 import ExerciseRouter from "../helpers/ExerciseRouter"
 
 function CreateExerciseForm() {
+  const [categoryList, setCategoryList] = useState([])
 
   const [responseMsg, setResponseMsg] = useState('');
   
@@ -46,6 +47,8 @@ function CreateExerciseForm() {
       universeName: "",
       worldFile: null,
       code: "",
+      categoryId: null,
+      teaserImageFile: null,
     },
     validationSchema: Yup.object({
       exerciseName: Yup.string().trim().required("Exercise's name is required").max(40, "Max length is 40 characters"),
@@ -53,6 +56,8 @@ function CreateExerciseForm() {
       universeName: Yup.string().trim().required("Universes's name is required").max(100, "Max length is 100 characters"),
       worldFile: Yup.mixed().required("World's file is required"),
       code: Yup.string().required("HAL's code is required"),
+      categoryId: Yup.number().required("Category is required"),
+      teaserImageFile: Yup.mixed().required("Teaser image file is required")
     }),
     onSubmit: async (values, {setSubmitting}) => {
 
@@ -60,8 +65,9 @@ function CreateExerciseForm() {
       try{
         const result = await ExerciseRouter.create(
           values.exerciseName, values.description, 
-          values.universeName, values.worldFile, 
-          values.code, serverBase
+          values.universeName, values.worldFile,
+          values.code, values.categoryId, values.teaserImageFile,
+          serverBase
         )
 
         if (result.success == 1) 
@@ -78,6 +84,27 @@ function CreateExerciseForm() {
       }
     },
   })
+
+  // GETS EXERCISE GUIDE PAGE CATEGORY
+  useEffect(() => {
+    const csrfToken = getCookie("csrftoken")
+    const fetchGuideCategories = async () => {
+        try {
+          const response = await fetch(`${serverBase}/api/v1/guideCategory/findAll`, {
+              method: 'GET',
+              headers: {'X-CSRFToken': csrfToken},
+          });
+
+          const data = await response.json();
+          setCategoryList(data)
+
+        } catch (error) {
+          setResponseMsg("❌ Error to exercise category. Please contact suport")
+        }
+    };
+
+    fetchGuideCategories();
+  }, []);
 
   // CASE FORM VALIDATION FAILS, AUTO SCROLLS PAGE TO TOP
   useEffect(() => {
@@ -310,15 +337,36 @@ function CreateExerciseForm() {
                   </LoadingButton>
                 </Grid>
               </Grid>
-
-              {/* UPLOAD BUTTON */}
-              <UploadFileButton
-                formik={formik}
-                formikAtrributeName="worldFile"
-                fileType=".world"
-                isDisable={isGenarating || isSaving || isDeleting}
-                setMessageFunction={(message) => {setResponseMsg(message)}}
-              />
+              
+              <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  mt: 2,
+                  mb: 2,
+                  gap: 2,
+              }}>
+                <UploadFileButton
+                  formik={formik}
+                  formikAtrributeName="worldFile"
+                  title={"Upload World File"}
+                  successTitle={"World file received"}
+                  width={"30ch"}
+                  fileType=".world"
+                  isDisable={isGenarating || isSaving || isDeleting}
+                  setMessageFunction={(message) => {setResponseMsg(message)}}
+                />
+                
+                <UploadFileButton
+                    formik={formik}
+                    formikAtrributeName="teaserImageFile"
+                    title={"Upload teaser image"}
+                    successTitle={"Teaser image received"}
+                    width={"30ch"}
+                    fileType=".png"
+                    isDisable={isGenarating || isSaving || isDeleting}
+                    setMessageFunction={(message) => {setResponseMsg(message)}}
+                  />
+              </Box>
 
               <HalGenerator
                 formik={formik}
@@ -328,6 +376,38 @@ function CreateExerciseForm() {
                 isDisable={isSaving || isDeleting}
                 setMessageFunction={(message) => {setResponseMsg(message)}}
               />
+
+              <Typography variant="h6" gutterBottom sx={{mt: 2}}>
+                  Create exercise guide page
+              </Typography>
+            
+              <FormControl sx={{ width:"30ch" }}>
+                <InputLabel sx={{ m: 1}} id="category-label">Exercise category</InputLabel>
+                <Select
+                  labelId="label"
+                  name="categoryId"
+                  label="Exercise category"
+                  value={formik.values.categoryId}
+                  onChange={(e) => {
+                    formik.setFieldValue("categoryId", e.target.value);
+                  }}
+                  sx={{ m: 1 }}
+                  //inputProps={{ maxLength: 40 }}
+                  variant="filled"
+                  fullWidth
+                >
+                  {categoryList.map((category) => (
+                    <MenuItem value={category.id}>{category.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormError
+                inputName="categoryId" 
+                errors={formik.errors} 
+                touched={formik.touched}
+                divStyle={{ height: "1.2rem", marginTop: "4px", marginLeft: "8px" }}
+              />
+               
 
               {/* SAVE AND DELETE BUTTONS */}
               <LoadingButton 

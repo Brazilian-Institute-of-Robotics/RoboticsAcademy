@@ -34,6 +34,15 @@ UniverseType = (
 
 RosVersion = (("ROS", "ROS"), ("ROS2", "ROS2"))
 
+class GuidePageCategory(models.Model):
+    name = models.CharField(max_length=40, blank=False, unique=True)
+    category_identify = models.CharField(max_length=40, blank=False, unique=True)
+
+    def __str__(self):
+        return str(self.name)
+
+    class Meta:
+        db_table = '"guide_page_categories"'
 
 class Robot(models.Model):
     """
@@ -118,6 +127,9 @@ class Exercise(models.Model):
         Universe, default=None, db_table='"exercises_universes"'
     )
     template = models.CharField(max_length=200, blank=True, default="")
+    guide_page_category = models.OneToOneField(
+        GuidePageCategory, default=None, on_delete=models.CASCADE, db_column='"guide_page_categories_id"'
+    )
 
     def __str__(self):
         return str(self.name)
