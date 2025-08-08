@@ -130,13 +130,13 @@ export default function HalGenerator({
             }}>
                 <Button 
                     variant="contained" 
-                    sx={{ width:"50ch"}}
-                    loading={isLoading}
+                    sx={{ width:"30ch", textTransform: "none"}}
+                    loading={isLoading ? true : undefined}
                     loadingIndicator="Loading..."
                     disabled={isDisable}
                     onClick={handleGenerate}
                 >
-                    Generate HAL. py
+                    Generate HAL.py
                 </Button>
                 {
                     isNodeSelected ? "" : ( <div style={{ height: "1.2rem", marginTop: "16px", marginLeft:"16px"}}>

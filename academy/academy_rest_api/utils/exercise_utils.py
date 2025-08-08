@@ -4,7 +4,6 @@ from exercises.models import Exercise, Universe, World, Robot, GuidePageCategory
 from django.db import transaction
 from django.conf import settings
 
-
 def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
        universe_name, launcher_name, category_id):
     try:
@@ -215,6 +214,99 @@ def createExerciseWorld(world_name, world_file):
         return {'success': 1,}
     except Exception as e:
         return {'success': 0, 'exists': 1, 'error': 'Unexpected problem', 'details': f'{e}'}
+
+def createExerciseGuidePage(
+        exercise_id, exercise_name, exercise_description, category_id, 
+        guide_page_files, guide_page_code, teaser_img_file):
+    try:
+
+        #CREATE FOLDER TO GUIDE PAGE IMAGES
+        exercise_guide_files_dir = os.path.join('/GuidePages/assets/images/exercises', f'{exercise_id}')
+        os.makedirs(exercise_guide_files_dir, exist_ok=False)
+
+        #COPY FILES ON NEW IMAGE FOLDER
+        for file in guide_page_files:
+            file_path = os.path.join(exercise_guide_files_dir, file.name)
+            with open(file_path, 'wb+') as destination:
+                for chunk in file.chunks():
+                    destination.write(chunk)
+
+        #COPY TEASER IMAGE ON NEW FOLDER
+        img_teaser_path = os.path.join(exercise_guide_files_dir, f'{exercise_id}_teaser.png')
+        with open(img_teaser_path, 'wb+') as dest:
+            for chunk in teaser_img_file.chunks():
+                dest.write(chunk)
+        
+        category = GuidePageCategory.objects.filter(id=category_id).first()
+        
+        #ADD NEW EXERCISE ON MARKDOWN FILE THAT CONTAINS LIST OF EXERCISES
+        addExerciseOnGuideList(exercise_id, exercise_name, exercise_description, category)
+
+        #CREATE EXERCISE GUIDE PAGE FILE
+        markdown_path = os.path.join(f'/GuidePages/_pages/exercises/{category.category_identify}', f'{exercise_id}.md')
+
+        if os.path.isfile(markdown_path):
+            os.remove(markdown_path)
+        
+        with open(markdown_path, "w") as f:
+            f.write(guide_page_code)
+
+
+        return {'success': 1,}
+    except Exception as e:
+        return {'success': 0, 'exists': 1, 'error': 'Failt to create guide page', 'details': f'{e}'}
+
+#LOCAL FUNCTION
+def addExerciseOnGuideList(exercise_id, exercise_name, exercise_description, category):
+    image_path = f'/assets/images/exercises/{exercise_id}/{exercise_id}_teaser.png'
+    guide_page_path = f'/exercises/{category.category_identify}/{exercise_id}/'
+
+    new_entry = (
+        "\n" + f"  - image_path: {image_path}" + 
+        "\n" + f"    alt: {exercise_name}" +
+        "\n" + f"    title: {exercise_name}" +
+        "\n" + f"    excerpt: {exercise_description}" +
+        "\n" + f"    url: {guide_page_path}" +
+        "\n" +  '    btn_class: "btn--danger"' +
+        "\n" +  '    btn_label: "Go!"' +
+        "\n" +  '    version_label: "btn--success"' +
+        "\n" +  '    status: "running"' +
+        "\n" +  '    order: 0;'
+    )
+
+    exercise_list_page_path = "/GuidePages/_pages/exercises.md"
+
+    with open(exercise_list_page_path, 'r') as file:
+        content = file.read()
+    
+    # Encontra o início do bloco feature_row
+    feature_row_index = content.find("feature_row:")
+    if feature_row_index == -1:
+        raise ValueError("feature_row not found in the markdown file.")
+
+    # Divide o conteúdo antes e depois do feature_row
+    before = content[:feature_row_index]
+    after = content[feature_row_index:]
+
+    # Localiza o final do front matter (---) se houver
+    end_of_front_matter = after.find('---', 3)
+    if end_of_front_matter != -1:
+        feature_rows = after[:end_of_front_matter]
+        body = after[end_of_front_matter:]
+    else:
+        feature_rows = after
+        body = ""
+
+    # Adiciona o novo bloco
+    updated_feature_rows = feature_rows.rstrip() + '\n' + new_entry + '\n'
+
+    # Reconstroi o conteúdo final
+    new_content = before + updated_feature_rows + body
+
+    # Salva de volta
+    with open(exercise_list_page_path, 'w', encoding='utf-8') as f:
+        f.write(new_content)
+
 
 def deleteExercise(exercise_name):
 

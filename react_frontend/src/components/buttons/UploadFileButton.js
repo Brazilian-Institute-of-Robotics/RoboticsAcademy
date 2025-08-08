@@ -43,6 +43,7 @@ const UploadFileButton = ({formik, formikAtrributeName, title, successTitle, wid
             disabled={isDisable}
             startIcon={!isWorldFile ? <CloudUploadIcon /> : <CheckSharpIcon />}
             sx={{
+              textTransform: "none",
               width: {width},
               bgcolor: !isWorldFile ? "primary.main" : "#4CAF50",
               color: "#fff",

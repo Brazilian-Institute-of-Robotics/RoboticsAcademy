@@ -16,12 +16,14 @@ def create_exercise(request):
     #exercise_name_id = request.POST.get('exerciseId')
 
     exercise_name = request.POST.get('exerciseName').strip()
-    exercise_description = request.POST.get('description').strip()
+    exercise_description = request.POST.get('description').strip() or ""
     universe_name = request.POST.get('universe_name').strip()
     hal_code = request.POST.get('halCode')
     world_file = request.FILES.get('worldFile')
     teaser_image_file = request.FILES.get('teaser_image_file')
     category_id = request.POST.get('category_id')
+    guide_page_files = request.FILES.getlist('guide_page_files')
+    guide_page_code = request.POST.get('guide_page_code')
 
     if not exercise_name:
       return JsonResponse({'error': 'Exercise name is required.'}, status=400)
@@ -35,10 +37,12 @@ def create_exercise(request):
       return JsonResponse({'error': 'Teaser image file is required.'}, status=400)
     if not category_id:
       return JsonResponse({'error': 'Category id is required.'}, status=400)
+    if not guide_page_code:
+      return JsonResponse({'error': 'Guide page code is required.'}, status=400)
     
     exercise_id = exercise_name.lower().replace(" ", "_")
     launcher_name = universe_name.lower().replace(" ", "_")
-    
+
     print("ADD EXERCISE TO DATABASE")
     exerciseDB = ExerciseUtils.createExerciseDatabase(
        exercise_id, exercise_name, exercise_description,
@@ -132,6 +136,21 @@ def create_exercise(request):
         )
         return JsonResponse({'error': 'Fail to create exercise'}, status=400)
     
+    print("ADD GUIDE PAGE")
+    guide_page = ExerciseUtils.createExerciseGuidePage(
+      exercise_id, exercise_name, exercise_description,
+      category_id, guide_page_files, guide_page_code, 
+      teaser_image_file
+    )
+    
+    if guide_page["success"] == 0:
+      printError(
+            "ERROR ON CREATE EXERCISE GUIDE PAGE",
+            "ERROR: "+guide_page["error"],
+            "DETAILS: "+guide_page["details"]
+      )
+      return JsonResponse({'error': guide_page["error"]}, status=400)
+
     return JsonResponse({'message': 'Exercise created!'})
   
   return JsonResponse({'error': 'Method not permited, must be POST.'}, status=405)

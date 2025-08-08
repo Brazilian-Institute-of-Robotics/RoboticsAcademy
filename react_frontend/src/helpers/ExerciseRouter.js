@@ -3,7 +3,8 @@ import { getCookie } from "./cookie"
 const ExerciseRouter = {
   create: async (
     exerciseName, description, universeName, 
-    worldFile, halCode, categoryId, teaserImageFile, serverBase) => {
+    worldFile, halCode, categoryId, teaserImageFile, 
+    guidePageFiles, guidePageCode, serverBase) => {
 
       try{
         const csrfToken = getCookie("csrftoken")
@@ -16,6 +17,11 @@ const ExerciseRouter = {
         formData.append('halCode', halCode)
         formData.append('category_id', categoryId)
         formData.append('teaser_image_file', teaserImageFile)
+        formData.append('guide_page_code', guidePageCode)
+
+        guidePageFiles.forEach(file => {
+          formData.append('guide_page_files', file);
+        });
 
         const res = await fetch(`${serverBase}/api/v1/exercise/`, {
           method: 'POST',
