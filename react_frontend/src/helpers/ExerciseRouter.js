@@ -39,7 +39,7 @@ const ExerciseRouter = {
 
       } catch(error){
         //console.log(error)
-        return {"success": 0, "error":"Error on create new exercise (FRONT END). please contact suport"}
+        return {"success": 0, "error":"Error on create new exercise. Check connection or contact suport"}
       }
 
   },

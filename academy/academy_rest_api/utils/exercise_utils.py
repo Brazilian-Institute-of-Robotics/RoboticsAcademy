@@ -256,7 +256,125 @@ def createExerciseGuidePage(
     except Exception as e:
         return {'success': 0, 'exists': 1, 'error': 'Failt to create guide page', 'details': f'{e}'}
 
-#LOCAL FUNCTION
+
+def deleteExercise(exercise_name):
+
+    moved_paths = []
+    exercises_md_path = "/GuidePages/_pages/exercises.md"
+    exercises_md_backup = f"{exercises_md_path}.bak"
+
+    try:
+        exercise = Exercise.objects.filter(exercise_id=exercise_name).first()
+
+        if not exercise:
+            return {
+                'success': 0,
+                'exists': 0,
+                'error': f'There is no exercise with this name ({exercise_name})',
+                'details': f'There is no exercise with this name ({exercise_name})'
+            }
+        
+        category_identify = exercise.guide_page_category.category_identify
+
+        #Object with path of all files and folders used by exercise
+        original_paths = {
+            'template': os.path.join('/RoboticsAcademy/exercises/templates/exercises', exercise.exercise_id),
+            'static': os.path.join('/RoboticsAcademy/exercises/static/exercises', exercise.exercise_id),
+            'teaser_image': os.path.join('/RoboticsAcademy/exercises/static/exercises/assets/img', f'{exercise.exercise_id}_teaser.png'),
+            'guide_images': os.path.join('/GuidePages/assets/images/exercises', exercise.exercise_id),
+            'guide_page': os.path.join('/GuidePages/_pages/exercises', category_identify, f'{exercise.exercise_id}.md'),
+        }
+
+        # Add all launchers and worlds files associated with exercises on original_paths array
+        universes = exercise.universes.select_related('world').all()
+        for universe in universes:
+            if universe.world and universe.world.launch_file_path:
+                launch_path = universe.world.launch_file_path
+                file_name = os.path.splitext(os.path.splitext(os.path.basename(launch_path))[0])[0]
+                original_paths[f'launcher__{file_name}'] = os.path.join('/Infrastructure/Launchers', f'{file_name}.launch.py')
+                original_paths[f'world__{file_name}'] = os.path.join('/Infrastructure/Worlds', f'{file_name}.world')
+        
+        # Create a temporary path to exercises files
+        TRASH_BASE = '/tmp/deleted_exercises'
+        trash_dir = os.path.join(TRASH_BASE, exercise.exercise_id)
+        os.makedirs(trash_dir, exist_ok=True)
+
+    
+        # Moves exercises files to temporary directory and test if they are deletable
+        for label, path in original_paths.items():
+            if os.path.exists(path):
+                trash_path = os.path.join(trash_dir, f"{label}__{os.path.basename(path)}")
+                shutil.move(path, trash_path)
+                moved_paths.append((trash_path, path))
+                if not test_file_deletable(trash_path):
+                    raise Exception(f"File not deletable: {trash_path}")
+        
+        # Creates a backup file of exercises.md and removes
+        # this exercises from it
+        shutil.copy2(exercises_md_path, exercises_md_backup)
+        removeExerciseOnGuideList(exercises_md_path, exercise.exercise_id)
+
+        # Make db transaction to delete exercise, universes and worlds
+        with transaction.atomic():
+            universes = exercise.universes.all()
+            for universe in universes:
+                if getattr(universe, 'world', None):
+                    universe.world.delete()
+                universe.delete()
+            exercise.delete()
+
+            # Function to delete temporary path and
+            # exercise.md backup
+            def finalize_deletion():
+                try:
+                    shutil.rmtree(trash_dir)
+                    if os.path.exists(exercises_md_backup):
+                        os.remove(exercises_md_backup)
+
+                except Exception as cleanup_error:
+                    return {
+                        'success': 0,
+                        'exists': 1,
+                        'error': f'Could not delete trash dir {trash_dir}: {cleanup_error}',
+                        'details': str(e)
+                    }
+
+                
+            # Ensure finalize_deletion() only executes if db transaction succeed
+            transaction.on_commit(finalize_deletion)
+
+        return {'success': 1}
+    
+    except Exception as e:
+
+        # Restore exercises files to original path
+        for trash_path, original_path in moved_paths:
+            try:
+                shutil.move(trash_path, original_path)
+            except Exception as restore_error:
+                return {
+                    'success': 0,
+                    'exists': 1,
+                    'error': f'Failed to restore {original_path} from trash: {restore_error}',
+                    'details': str(e)
+                }
+
+        # Restaurar exercises.md a partir do backup
+        if os.path.exists(exercises_md_backup):
+            shutil.copy2(exercises_md_backup, exercises_md_path)
+            os.remove(exercises_md_backup)
+        
+        return {
+            'success': 0,
+            'exists': 1,
+            'error': 'Aborted due to undeletable file or other error',
+            'details': str(e)
+        }
+
+
+#BELLOW HERE ARE FUNCTION TO ONLY USE IS THIS FILE
+
+# Modify exercise.md to add a new exercise
 def addExerciseOnGuideList(exercise_id, exercise_name, exercise_description, category):
     image_path = f'/assets/images/exercises/{exercise_id}/{exercise_id}_teaser.png'
     guide_page_path = f'/exercises/{category.category_identify}/{exercise_id}/'
@@ -308,97 +426,27 @@ def addExerciseOnGuideList(exercise_id, exercise_name, exercise_description, cat
         f.write(new_content)
 
 
-def deleteExercise(exercise_name):
+# Modify exercise.md to remove a exercise from list
+def removeExerciseOnGuideList(exercises_md_path, exercise_name):
 
-    moved_paths = []
+    with open(exercises_md_path, "r") as f:
+        lines = f.readlines()
 
-    try:
-        exercise = Exercise.objects.filter(exercise_id=exercise_name).first()
-        if not exercise:
-            return {
-                'success': 0,
-                'exists': 0,
-                'error': f'There is no exercise with this name ({exercise_name})',
-                'details': f'There is no exercise with this name ({exercise_name})'
-            }
+    image_path_line = f"- image_path: /assets/images/exercises/{exercise_name}/{exercise_name}_teaser.png\n"
+    new_lines = []
+    skip_count = 0
 
-        original_paths = {
-            'template': os.path.join('/RoboticsAcademy/exercises/templates', 'exercises', exercise_name),
-            'static': os.path.join('/RoboticsAcademy/exercises/static', 'exercises', exercise_name),
-            'teaser_image': os.path.join('/RoboticsAcademy/exercises/static', 'exercises', 'assets', 'img', f'{exercise.exercise_id}_teaser.png'),
-        }
+    for line in lines:
+        if skip_count > 0:
+            skip_count -= 1
+            continue
+        if line.strip() == image_path_line.strip():
+            skip_count = 9
+            continue
+        new_lines.append(line)
 
-        # Add all launchers and worlds files associated with exercises on original_paths
-        universes = exercise.universes.select_related('world').all()
-        for universe in universes:
-            if universe.world and universe.world.launch_file_path:
-                launch_path = universe.world.launch_file_path
-                file_name = os.path.splitext(os.path.splitext(os.path.basename(launch_path))[0])[0]
-                original_paths[f'launcher__{file_name}'] = os.path.join('/Infrastructure/Launchers', f'{file_name}.launch.py')
-                original_paths[f'world__{file_name}'] = os.path.join('/Infrastructure/Worlds', f'{file_name}.world')
-        
-        # Create a temporary path to exercises files
-        TRASH_BASE = '/tmp/deleted_exercises'
-        trash_dir = os.path.join(TRASH_BASE, exercise_name)
-        os.makedirs(trash_dir, exist_ok=True)
-
-    
-        # Moves exercises files to temporary directory and test if they are deletable
-        for label, path in original_paths.items():
-            if os.path.exists(path):
-                trash_path = os.path.join(trash_dir, f"{label}__{os.path.basename(path)}")
-                shutil.move(path, trash_path)
-                moved_paths.append((trash_path, path))
-                if not test_file_deletable(trash_path):
-                    raise Exception(f"File not deletable: {trash_path}")
-
-        # Make db transaction to delete exercise, universes and worlds
-        with transaction.atomic():
-            universes = exercise.universes.all()
-            for universe in universes:
-                if getattr(universe, 'world', None):
-                    universe.world.delete()
-                universe.delete()
-            exercise.delete()
-
-            #Function to delete temporary path
-            def finalize_deletion():
-                try:
-                    shutil.rmtree(trash_dir)
-                except Exception as cleanup_error:
-                    return {
-                        'success': 0,
-                        'exists': 1,
-                        'error': f'Could not delete trash dir {trash_dir}: {cleanup_error}',
-                        'details': str(e)
-                    }
-                
-            # Ensure finalize_deletion() only executes if db transaction succeed
-            transaction.on_commit(finalize_deletion)
-
-        return {'success': 1}
-    
-    except Exception as e:
-
-        # Restore exercises files to original path
-        for trash_path, original_path in moved_paths:
-            try:
-                shutil.move(trash_path, original_path)
-            except Exception as restore_error:
-                return {
-                    'success': 0,
-                    'exists': 1,
-                    'error': f'Failed to restore {original_path} from trash: {restore_error}',
-                    'details': str(e)
-                }
-
-        #print(e)
-        return {
-            'success': 0,
-            'exists': 1,
-            'error': 'Aborted due to undeletable file or other error',
-            'details': str(e)
-        }
+    with open(exercises_md_path, "w") as f:
+        f.writelines(new_lines)
 
 # Verify if file or folder in path is deletable
 def test_file_deletable(path):
