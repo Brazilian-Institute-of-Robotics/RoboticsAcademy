@@ -9,6 +9,7 @@ import { Container, Typography, Select, MenuItem, InputLabel, FormControl } from
 import { LoadingButton } from '@mui/lab';
 
 import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
 
 import FormError from "./message_system/FormError";
@@ -502,7 +503,7 @@ function CreateExerciseForm() {
                     1 - Don't change the first 5 lines of code
                   </Typography>
                   <Typography variant="h6">
-                    2 - On change exercise's name or exercise's category, the code will be reset, BE CAREFUL
+                    2 - On change exercise's name or exercise's category, the code will be reset. BE CAREFUL
                   </Typography>
                   <Typography variant="h6">
                     3 - To use upload files on code, the path is "/assets/images/exercises/{exerciseIdentify}/FILE_NAME.FORMAT"
@@ -522,7 +523,7 @@ function CreateExerciseForm() {
                 height="600px"
                 defaultLanguage="markdown"
                 value={formik.values.guidePageCode}
-                onChange={(e) => {formik.setFieldValue("guidePageCode", e.target.value);}}
+                onChange={(value) => {formik.setFieldValue("guidePageCode", value);}}
                 theme="vs-dark"
                 options={{
                     fontSize: 14,
