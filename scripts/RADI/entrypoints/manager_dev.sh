@@ -46,14 +46,9 @@ if [ -z "${DRI_NAME}" ]; then
     source set_dri_name.sh
 fi
 
+source /opt/ros/humble/setup.bash
+
 cd /home/ws
-
-# Build custom_robots package and create a tempoarary file that
-# indicates the build finished
-colcon build --packages-select custom_robots --symlink-install && \
-touch /tmp/colcon-build-finished
-
-# Ativar o ambiente compilado
 source install/setup.bash
 
 cd /

@@ -29,7 +29,7 @@ def startUserContainer(user_id):
         delete_old_container(client, container_name, network_name)
 
         #Create a exclusive network to this user's container
-        user_network = client.networks.create(network_name, driver="bridge")
+        client.networks.create(network_name, driver="bridge")
 
         #Script used on container's start
         entrypoint_file = "/manager_prod.sh" if settings.PRODUCTION == True else "/manager_dev.sh"
@@ -41,11 +41,10 @@ def startUserContainer(user_id):
 
         #Path necessary to create volumes to worlds, models and launchs
         infra_path = settings.INFRASTRUCTURE_ABSOLUTE_PATH
-        customs_robots = infra_path+"/CustomRobots"
-        jderobot_drones = infra_path+"/jderobot_drones"
         resources = infra_path+"/resources"
         launchers = infra_path+"/Launchers"
         worlds = infra_path+"/Worlds"
+        ws = infra_path+"/ws"
 
         #Container's expiration in hours
         expiration = settings.USER_CONTAINER_EXPIRATION
@@ -67,8 +66,7 @@ def startUserContainer(user_id):
                 'expired_at': expires_at,
             },
             "volumes": {
-                str(customs_robots): {'bind': '/home/ws/src/CustomRobots' , 'mode': 'ro'},
-                str(jderobot_drones): {'bind': '/home/ws/src/jderobot_drones' , 'mode': 'ro'},
+                str(ws): {'bind': '/home/ws' , 'mode': 'ro'},
                 str(resources): {'bind': '/resources' , 'mode': 'ro'},
                 str(launchers): {'bind': '/opt/jderobot/Launchers' , 'mode': 'ro'},
                 str(worlds): {'bind': '/opt/jderobot/Worlds' , 'mode': 'ro'},
@@ -79,13 +77,6 @@ def startUserContainer(user_id):
             "tty": True,
             "stdin_open": True,
             "devices": ["/dev/dri"],
-            "healthcheck": {
-                "test": ["CMD-SHELL", "test -f /tmp/colcon-build-finished || exit 1"], # Test verify if file colcon-build-finished exists
-                "interval": 5_000_000_000,  # How many nanoseconds each test is executed
-                "timeout": 3_000_000_000,   # How many nanoseconds is the waiting time for test's answer
-                "retries": 10, # How many times test is executed
-                "start_period": 15_000_000_000,  # How many nanoseconds is the waiting time before first test
-            }
         }
 
         #Case host machine has a NVDIA GPU
@@ -127,10 +118,6 @@ def startUserContainer(user_id):
 
         # Creates a new container with random external ports
         container = client.containers.run(**container_kwargs)
-
-        #Verify if container is healthy for 80 seconds
-        wait_until_healthy(container, 80)
-        
         container.reload()
         
         # Get extenals ports assign by Docker
