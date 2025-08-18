@@ -3,7 +3,7 @@ from hal_interfaces.general.motors import MotorsNode
 #IMPORT END
 
 #CREATE START
-    motor_node = MotorsNode("/cmd_vel", 4, 0.3)
+motor_node = MotorsNode("/cmd_vel", 4, 0.3)
 #CREATE END
 
 #ADD START

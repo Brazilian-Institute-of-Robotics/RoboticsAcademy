@@ -3,7 +3,7 @@ from hal_interfaces.general.classnet import NeuralNetwork
 #IMPORT END
 
 #CREATE START
-    neural_network = NeuralNetwork()
+neural_network = NeuralNetwork()
 #CREATE END
 
 #ADD START

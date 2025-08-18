@@ -3,11 +3,11 @@ from hal_interfaces.general.camera import CameraNode
 #IMPORT END
 
 #CREATE START
-    camera_node = CameraNode("TOPIC_NAME_HERE")
+camera_node = CameraNode("TOPIC_NAME_HERE")
 #CREATE END
 
 #ADD START
-    executor.add_node(camera_node)
+executor.add_node(camera_node)
 #ADD END
 
 #FUNCTION START

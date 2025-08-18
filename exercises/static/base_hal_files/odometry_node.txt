@@ -3,11 +3,11 @@ from hal_interfaces.general.odometry import OdometryNode
 #IMPORT END
 
 #CREATE START
-    odometry_node = OdometryNode("/odom")
+odometry_node = OdometryNode("/odom")
 #CREATE END
 
 #ADD START
-    executor.add_node(odometry_node)
+executor.add_node(odometry_node)
 #ADD END
 
 #FUNCTION START

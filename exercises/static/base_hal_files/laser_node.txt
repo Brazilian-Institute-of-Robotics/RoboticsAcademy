@@ -3,11 +3,11 @@ from hal_interfaces.general.laser import LaserNode
 #IMPORT END
 
 #CREATE START
-    laser_node = LaserNode("TOPIC_NAME_HERE")
+laser_node = LaserNode("TOPIC_NAME_HERE")
 #CREATE END
 
 #ADD START
-    executor.add_node(laser_node)
+executor.add_node(laser_node)
 #ADD END
 
 #FUNCTION START
