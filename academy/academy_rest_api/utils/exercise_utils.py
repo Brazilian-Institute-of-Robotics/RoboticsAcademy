@@ -62,14 +62,17 @@ def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
 
 
 
-def createExerciseTemplate(exercise_id, category_id):
+def createExerciseTemplate(exercise_id, category_id, uses_camera):
 
     category = None
 
     try:
         category = GuidePageCategory.objects.filter(id=category_id).first()
         if category == None:
-            return {'success': 0, 'error': 'There is no find guide page category with this id', 'details': 'There is no find guide page category with this id'}
+            return {
+                'success': 0, 'error': 
+                'There is no find guide page category with this id', 'details': 'There is no find guide page category with this id'
+            }
     except Exception as e:
         return {'success': 0, 'error': 'Fail to find guide page category', 'details': f'{str(e)}'}
 
@@ -77,7 +80,7 @@ def createExerciseTemplate(exercise_id, category_id):
     exercises_dir = os.path.join(template_base_path, 'exercises')
     new_exercise_path = os.path.join(exercises_dir, exercise_id)
 
-    # Verificar se template base existe
+    # Verify if template base path exists
     if not os.path.exists(template_base_path):
         return {'success': 0, 'error': 'Template base path not found.' ,'details': 'Template base path not found.'}
 
@@ -85,37 +88,45 @@ def createExerciseTemplate(exercise_id, category_id):
     if os.path.exists(new_exercise_path):
         shutil.rmtree(new_exercise_path)
 
-    # Create new folder
+    # Create new folder for exercise
     try:
         os.makedirs(new_exercise_path, exist_ok=False)
     except OSError as e:
         return {'success': 0, 'error': 'Fail to create exercise template directory', 'details': f'{str(e)}'}
 
-    template_base_path = os.path.join(exercises_dir, 'base.html')
+    # What base template will be use, case exercise's robot uses camera, than base_with_camera.html,
+    # otherwise, base.html
+    template_file_name = "base_with_camera.html" if uses_camera == True else "base.html"
+
+    template_base_path = os.path.join(exercises_dir, template_file_name)
     destination_template = os.path.join(new_exercise_path, 'exercise.html')
 
-    # Copy base.html on exercise template directory as exercise.html
+    # Copy template base file on exercise template directory as exercise.html
     try:
         shutil.copyfile(template_base_path, destination_template)
     except IOError as e:
-        return {'success': 0, 'error': 'Fail to copy base.html to exercise template directory', 'details': f'{str(e)}'}
+        return {'success': 0, 'error': f'Fail to copy {template_base_path} to exercise template directory', 'details': f'{str(e)}'}
 
     # Changes contents inside exercise.html
     try:
         with open(destination_template, 'r') as file:
             content = file.read()
         
+        # Find on file the string '!EXERCISE_NAME!' and replace for exercise_id
         content = content.replace('!EXERCISE_NAME!', exercise_id)
+
+        # Find on file the string '!EXERCISE_GUIDE_PATH!' and replace for /{category_identify}/{exercise_id}
         content = content.replace('!EXERCISE_GUIDE_PATH!', f'/{category.category_identify}/{exercise_id}')
         
         with open(destination_template, 'w') as file:
             file.write(content)
+    
     except IOError as e:
         return {'success': 0, 'error': 'Fail to change exercise.html', 'details': f'{str(e)}'}
     
     return {'success': 1,}
 
-def createExerciseStatic(exercise_id, hal_code, teaser_img_file):
+def createExerciseStatic(exercise_id, hal_code, teaser_img_file, uses_camera):
     try:
         static_base_path = '/RoboticsAcademy/exercises/static'
         exercises_dir = os.path.join(static_base_path, 'exercises')
@@ -130,6 +141,7 @@ def createExerciseStatic(exercise_id, hal_code, teaser_img_file):
         if os.path.exists(new_exercise_path):
             shutil.rmtree(new_exercise_path)
 
+        # Create directories
         os.makedirs(new_exercise_path, exist_ok=False)
         os.makedirs(python_code_path, exist_ok=False)
         os.makedirs(react_code_path, exist_ok=False)
@@ -145,7 +157,23 @@ def createExerciseStatic(exercise_id, hal_code, teaser_img_file):
         base_template = os.path.join(static_base_path, 'ReactParentComponent.css')
         destination_template = os.path.join(react_code_path, 'css', 'ReactParentComponent.css')
         shutil.copyfile(base_template, destination_template)
+
+        # Case exercise uses camera, component responsible for show camera's image is copy
+        # on exercise static folder
+        if uses_camera == True:
+            image_canvas_component = os.path.join(static_base_path, 'ImageCanvas.js')
+            destination = os.path.join(react_code_path, 'ImageCanvas.js')
+            shutil.copyfile(image_canvas_component, destination)
+            
+            image_canvas_css = os.path.join(static_base_path, 'Canvas.css')
+            destination = os.path.join(css_path, 'Canvas.css')
+            shutil.copyfile(image_canvas_css, destination)
         
+        #GUI.py
+        base_gui_path = os.path.join(static_base_path, 'base_gui_files', 'base_gui.py')
+        destination = os.path.join(python_code_path, 'GUI.py')
+        shutil.copyfile(base_gui_path, destination)
+
         #HAL.py
         hal_path = os.path.join(python_code_path, 'HAL.py')
         with open(hal_path, "w") as f:
