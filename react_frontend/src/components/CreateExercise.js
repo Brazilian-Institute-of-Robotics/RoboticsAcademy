@@ -200,10 +200,10 @@ function CreateExerciseForm() {
 
     try{
       setIsCheckingExerciseName(true)
-      const result = await ExerciseRouter.findByName(name, serverBase)
+      const result = await ExerciseRouter.checkNameAvalability(name, serverBase)
 
       if (result.success == 1)
-        if (result.data.exercise == null)
+        if (result.data.exists == 0)
           setResponseMsg(`✅ Exercise name is available`);
         else
           setResponseMsg(`❌ Exercise name is not available`)
@@ -547,7 +547,7 @@ function CreateExerciseForm() {
               SAVE
             </LoadingButton>
 
-            {/* <LoadingButton
+            <LoadingButton
               loading={isDeleting}
               loadingIndicator="Loading..."
               startIcon={<DeleteIcon/>}
@@ -564,7 +564,7 @@ function CreateExerciseForm() {
               onClick={handleDelete}
             >
               DELETE
-            </LoadingButton> */}
+            </LoadingButton>
           </form>
       </Container>
     </Box>

@@ -6,63 +6,63 @@ const ExerciseRouter = {
     worldFile, halCode, categoryId, teaserImageFile, 
     guidePageFiles, guidePageCode, serverBase) => {
 
-      try{
-        const csrfToken = getCookie("csrftoken")
+    try{
+      const csrfToken = getCookie("csrftoken")
 
-        const formData = new FormData()
-        formData.append('exerciseName', exerciseName.trim())
-        formData.append('description', description)
-        formData.append('universe_name', universeName.trim())
-        formData.append('worldFile', worldFile)
-        formData.append('halCode', halCode)
-        formData.append('category_id', categoryId)
-        formData.append('teaser_image_file', teaserImageFile)
-        formData.append('guide_page_code', guidePageCode)
+      const formData = new FormData()
+      formData.append('exerciseName', exerciseName.trim())
+      formData.append('description', description)
+      formData.append('universe_name', universeName.trim())
+      formData.append('worldFile', worldFile)
+      formData.append('halCode', halCode)
+      formData.append('category_id', categoryId)
+      formData.append('teaser_image_file', teaserImageFile)
+      formData.append('guide_page_code', guidePageCode)
 
-        guidePageFiles.forEach(file => {
-          formData.append('guide_page_files', file);
-        });
+      guidePageFiles.forEach(file => {
+        formData.append('guide_page_files', file);
+      });
 
-        const res = await fetch(`${serverBase}/api/v1/exercise/`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': csrfToken
-          },
-          body: formData,
-        });
-    
-        const data = await res.json();
-        if (res.ok) 
-          return {"success": 1, "data":data}
-        else 
-          return {"success": 0, "error":data.error}
+      const res = await fetch(`${serverBase}/api/v1/exercise/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken
+        },
+        body: formData,
+      });
+  
+      const data = await res.json();
+      if (res.ok) 
+        return {"success": 1, "data":data}
+      else 
+        return {"success": 0, "error":data.error}
 
-      } catch(error){
-        //console.log(error)
-        return {"success": 0, "error":"Error on create new exercise. Check connection or contact suport"}
-      }
+    } catch(error){
+      //console.log(error)
+      return {"success": 0, "error":"Error on create new exercise. Check connection or contact suport"}
+    }
 
   },
-  findByName: async (name, serverBase) => {
-      try {
-          const csrfToken = getCookie("csrftoken")
-          const res = await fetch(`${serverBase}/api/v1/exercise/findByName/${encodeURIComponent(name)}/`, {
-            method: 'GET',
-            headers: {
-              'X-CSRFToken': csrfToken
-            },
-          });
-    
-          const data = await res.json();
-    
-          if (res.ok){
-              return {"success": 1, "data":data}
-          }else
-            return {"success": 0, "error":data.error}
-        } catch (error) {
-          console.log(error)
-          return {"success": 0, "error":"Error on check exercise name (FRONT END). please contact suport"}
-        }
+  checkNameAvalability: async (name, serverBase) => {
+    try {
+      const csrfToken = getCookie("csrftoken")
+      const res = await fetch(`${serverBase}/api/v1/exercise/checkNameAvalability/${encodeURIComponent(name)}/`, {
+        method: 'GET',
+        headers: {
+          'X-CSRFToken': csrfToken
+        },
+      });
+
+      const data = await res.json();
+
+      if (res.ok)
+        return {"success": 1, "data":data}
+      else
+        return {"success": 0, "error":data.error}
+    } catch (error) {
+      //console.log(error)
+      return {"success": 0, "error":"Error on check exercise name. Check connection or contact suport"}
+    }
   }
 }
 

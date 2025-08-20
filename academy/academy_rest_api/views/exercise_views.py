@@ -8,6 +8,7 @@ import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from django.http import JsonResponse
+from django.db.models.functions import Lower
 from academy.academy_rest_api.utils import exercise_utils as ExerciseUtils 
 from colorama import Fore
 from rest_framework.decorators import api_view
@@ -198,19 +199,21 @@ def delete_exercise(request, exercise_name):
   return JsonResponse({'error': 'Method not permited, must be DELETE.'}, status=405)
 
 
-def find_by_name(request, name):
-   if request.method == "GET":
-      if not name:
-        return JsonResponse({'error': 'Exercise name is required.'}, status=400)
+def check_name_availability(request, name):
+  if request.method == "GET":
+    if not name:
+      return JsonResponse({'error': 'Exercise name is required.'}, status=400)
+    
+    try:
+      #Verify if exercise with give name exists, the search is case insensitive
+      exercise_exists = Exercise.objects.filter(name__iexact=name).exists()
       
-      try:
-        exercise = Exercise.objects.filter(name=name).values().first()
-        return JsonResponse({'message': 'Exercise found.', 'exercise': exercise})
-      except Exception as e:
-         return JsonResponse({'error': 'Fail to find exercise by name.'}, status=500)
-  
-   else:
-      return JsonResponse({'error': 'Method not permited, must be GET.'}, status=405)
+      return JsonResponse({'message': 'Exercise found.', 'exists': exercise_exists})
+    except Exception as e:
+        return JsonResponse({'error': 'Fail to find exercise by name.'}, status=500)
+
+  else:
+    return JsonResponse({'error': 'Method not permited, must be GET.'}, status=405)
 
 
 # BELLOW HERE IS LOCAL FUNCTION

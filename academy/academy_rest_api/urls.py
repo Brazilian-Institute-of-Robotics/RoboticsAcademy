@@ -32,7 +32,7 @@ urlpatterns = [
 
     path('exercise/', exercise_views.create_exercise),
     path('exercise/<str:exercise_name>/', exercise_views.delete_exercise),
-    path('exercise/findByName/<str:name>/', exercise_views.find_by_name),
+    path('exercise/checkNameAvalability/<str:name>/', exercise_views.check_name_availability),
 
     path('universe/findByName/<str:name>/', universe_views.find_by_name),
 
