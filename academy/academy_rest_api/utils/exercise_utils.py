@@ -8,8 +8,11 @@ def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
        universe_name, launcher_name, category_id):
     try:
         exercise_exists = Exercise.objects.filter(exercise_id=exercise_id).exists()
-        universe_exists = Universe.objects.filter(name=universe_name).exists()
-        world_exists = World.objects.filter(name=universe_name).exists()
+
+        #case insensitive search
+        universe_exists = Universe.objects.filter(name__iexact=universe_name).exists()
+        world_exists = World.objects.filter(name__iexact=universe_name).exists()
+
         guide_category = GuidePageCategory.objects.filter(id=category_id).first()
 
         if exercise_exists:

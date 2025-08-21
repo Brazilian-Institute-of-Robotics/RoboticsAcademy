@@ -22,6 +22,8 @@ import UploadFileButton from "./buttons/UploadFileButton";
 
 import { getCookie } from "../helpers/cookie";
 import ExerciseRouter from "../helpers/ExerciseRouter"
+import UniverseRouter from "../helpers/UniverseRouter";
+
 import MutipleFileUploader from "./uploads/MutipleFileUploader";
 import { Editor } from "@monaco-editor/react";
 
@@ -161,6 +163,7 @@ function CreateExerciseForm() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [formik.errors, formik.submitCount]);
+  
 
   // FILTER INVALID CHARACTERS EXERCISE NAME
   const handleChangeExerciseName = (name) => {
@@ -228,28 +231,18 @@ function CreateExerciseForm() {
 
     setIsCheckingUniverseName(true)
     try {
-      const csrfToken = getCookie("csrftoken")
-      const res = await fetch(`${serverBase}/api/v1/universe/findByName/${encodeURIComponent(universeName)}/`, {
-        method: 'GET',
-        headers: {
-          'X-CSRFToken': csrfToken
-        },
-      });
-
-      const data = await res.json();
-
-      if (res.ok){
-        if (data.universe == null)
+      const result = await UniverseRouter.checkNameAvalability(universeName, serverBase)
+      if (result.success == 1)
+        if (result.data.exists == 0)
           setResponseMsg(`✅ Universe name is available`);
         else
           setResponseMsg(`❌ Universe name is not available`)
+      else
+          setResponseMsg(`❌ ${result.data.error}`)
 
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }else
-        setResponseMsg(`❌ ${data.error}`)
     } catch (error) {
-      //console.log(error)
-      setResponseMsg("Error on check universe name (FRONT END). please contact suport");
+      console.log(error)
+      setResponseMsg(`❌ Fail to verify universe name avalability. Check connection or contact suport`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }finally{
       setIsCheckingUniverseName(false)

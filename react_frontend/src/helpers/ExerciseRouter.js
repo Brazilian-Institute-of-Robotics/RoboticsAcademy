@@ -46,7 +46,7 @@ const ExerciseRouter = {
   checkNameAvalability: async (name, serverBase) => {
     try {
       const csrfToken = getCookie("csrftoken")
-      const res = await fetch(`${serverBase}/api/v1/exercise/checkNameAvalability/${encodeURIComponent(name)}/`, {
+      const res = await fetch(`${serverBase}/api/v1/exercise/checkNameAvailability/${encodeURIComponent(name)}/`, {
         method: 'GET',
         headers: {
           'X-CSRFToken': csrfToken
