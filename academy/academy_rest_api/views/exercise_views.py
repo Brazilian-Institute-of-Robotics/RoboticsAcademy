@@ -157,7 +157,10 @@ def delete_exercise(request, exercise_name):
 
     try:
       print("REMOVING EXERCISE")
+
+      #This function already have a rollback inside
       exercise_removal = ExerciseUtils.deleteExercise(exercise_name)
+
       if exercise_removal["success"] == 0:
         printError(
           "ERROR ON REMOVE EXERCISE",
@@ -172,7 +175,7 @@ def delete_exercise(request, exercise_name):
       rebuild_response = rebuild_frontend()
       if rebuild_response["success"] == 0:
         return JsonResponse(
-          {'error': 'Fail to delete exercise. Problem on rebuild frontend, please contact API suport'}, 
+          {'error': 'Exercise was deleted, but rebuild on frontend fail.'}, 
           status=500
         )
 
@@ -184,17 +187,11 @@ def delete_exercise(request, exercise_name):
         "ERROR: Unexpected problem",
         "DETAILS: "+str(e),
       )
-      rollback_result = creationRollback(exercise_name)
-      if rollback_result.get("success") == 0:
-        return JsonResponse(
-          {'error': 'Fail to delete exercise AND fail to rollback. Please contact admin.'}, 
-          status=500
-        )
-      else:
-        return JsonResponse(
-          {'error': 'Fail to delete exercise, unexpected problem on API'}, 
-          status=500
-        )
+      
+      return JsonResponse(
+        {'error': 'Fail to delete exercise. Unexpected problem on API, please contact suport '},
+        status=500
+      )
   
   return JsonResponse({'error': 'Method not permited, must be DELETE.'}, status=405)
 
@@ -323,12 +320,12 @@ def exercise_utils_executor(util_function, exercise_id, error_header):
       "DETAILS: "+result["details"]
     )
 
-    return JsonResponse({'error': 'Fail to create exercise AND to rollback. Please contact suport.'}, status=500)
+    return JsonResponse({'error': 'Fail to create exercise. Please contact suport.'}, status=500)
   else:
     return None
 
 def creationRollback(exercise_name):
-  delete_result = ExerciseUtils.deleteExercise(exercise_name)
+  delete_result = ExerciseUtils.createExerciseRollback(exercise_name)
   if delete_result["success"] == 0:
     printError(
       "ERROR ON CLEANUP AFTER CREATE FAILURE",

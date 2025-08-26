@@ -289,7 +289,86 @@ def createExerciseGuidePage(
         return {'success': 1,}
     except Exception as e:
         return {'success': 0, 'exists': 1, 'error': 'Failt to create guide page', 'details': f'{e}'}
+        
 
+def createExerciseRollback(exercise_name):
+
+    exercises_md_path = "/GuidePages/_pages/exercises.md"
+
+    try:
+        exercise = Exercise.objects.filter(exercise_id=exercise_name).first()
+
+        if not exercise:
+            return {
+                'success': 0,
+                'exists': 0,
+                'error': f'There is no exercise with this name ({exercise_name})',
+                'details': f'There is no exercise with this name ({exercise_name})'
+            }
+        
+        category_identify = exercise.guide_page_category.category_identify
+
+        #Object with path of all files and folders used by exercise
+        original_paths = {
+            'template': os.path.join('/RoboticsAcademy/exercises/templates/exercises', exercise.exercise_id),
+            'static': os.path.join('/RoboticsAcademy/exercises/static/exercises', exercise.exercise_id),
+            'teaser_image': os.path.join('/RoboticsAcademy/exercises/static/exercises/assets/img', f'{exercise.exercise_id}_teaser.png'),
+            'guide_images': os.path.join('/GuidePages/assets/images/exercises', exercise.exercise_id),
+            'guide_page': os.path.join('/GuidePages/_pages/exercises', category_identify, f'{exercise.exercise_id}.md'),
+        }
+
+        # Add all launchers and worlds files associated with exercises on original_paths array
+        universes = exercise.universes.select_related('world').all()
+        for universe in universes:
+            if universe.world and universe.world.launch_file_path:
+                launch_path = universe.world.launch_file_path
+                file_name = os.path.splitext(os.path.splitext(os.path.basename(launch_path))[0])[0]
+                original_paths[f'launcher__{file_name}'] = os.path.join('/Infrastructure/Launchers', f'{file_name}.launch.py')
+                original_paths[f'world__{file_name}'] = os.path.join('/Infrastructure/Worlds', f'{file_name}.world')
+        
+        # Removes this exercises from exercises.md list
+        removeExerciseOnGuideList(exercises_md_path, exercise.exercise_id)
+
+        # Make db transaction to delete exercise, universes and worlds
+        with transaction.atomic():
+            universes = exercise.universes.all()
+            for universe in universes:
+                if getattr(universe, 'world', None):
+                    universe.world.delete()
+                universe.delete()
+            exercise.delete()
+
+            
+            # Function to delete all files related to this exercise
+            def finalize_deletion():
+                try:
+                    for label, path in original_paths.items():
+                        if os.path.exists(path):
+                            if os.path.isdir(path):
+                                shutil.rmtree(path)
+                            else:
+                                os.remove(path)
+                except Exception as cleanup_error:
+                    return {
+                        'success': 0,
+                        'exists': 1,
+                        'error': f'Could not delete dir: {path}',
+                        'details': str(cleanup_error)
+                    }
+
+                
+            # Ensure finalize_deletion() only executes if db transaction succeed
+            transaction.on_commit(finalize_deletion)
+
+        return {'success': 1}
+    
+    except Exception as e:
+        return {
+            'success': 0,
+            'exists': 1,
+            'error': 'Aborted due to undeletable file or other error',
+            'details': str(e)
+        }
 
 def deleteExercise(exercise_name):
 
