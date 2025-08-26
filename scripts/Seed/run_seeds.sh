@@ -2,7 +2,7 @@
 
 APP_DIR="RoboticsAcademy"
 FIXTURE_DIR="RoboticsAcademy/exercises/fixtures"
-DJANGO_MANAGER="RoboticsAcademy/manager.py"
+DJANGO_MANAGER="RoboticsAcademy/manage.py"
 SEED_PREFIX="Seed_"
 LAST_SEED_TRACKER="RoboticsAcademy/exercises/fixtures/personalSeedTracker/last_seed_executed.txt"
 
