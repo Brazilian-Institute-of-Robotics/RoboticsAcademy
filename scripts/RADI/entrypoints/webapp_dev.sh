@@ -48,17 +48,20 @@ fi
 
 cd /
 
-# Executar migrações do Django
+# Execute django's migrations
 python3 /RoboticsAcademy/manage.py migrate
+
+# Execute db's seeds
+bash /RoboticsAcademy/scripts/Seed/run_seeds.sh
 
 cd /RoboticsAcademy
 
-# Executar collectstatic
+# Execute collectstatic
 python3 /RoboticsAcademy/manage.py collectstatic --noinput --verbosity 0 > /dev/null
 
 cd /
 
-# Iniciar Redis em segundo plano
+# Start Redis in second plane
 redis-server &
 
 if [ $btstudio == true ]; then

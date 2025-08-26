@@ -1,0 +1,22 @@
+[
+    {
+        "model": "exercises.guidePageCategory",
+        "fields": {"name": "Autonomous Driving", "category_identify": "AutonomousCars"}
+    },
+    {
+        "model": "exercises.guidePageCategory",
+        "fields": {"name": "Service Robots", "category_identify": "MobileRobots"}
+    },
+    {
+        "model": "exercises.guidePageCategory",
+        "fields": {"name": "Drones", "category_identify": "Drones"}
+    },
+    {
+        "model": "exercises.guidePageCategory",
+        "fields": {"name": "Computer Vision", "category_identify": "ComputerVision"}
+    },
+    {
+        "model": "exercises.guidePageCategory",
+        "fields": {"name": "Industrial Robots", "category_identify": "IndustrialRobots"}
+    }
+]

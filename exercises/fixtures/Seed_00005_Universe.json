@@ -1,0 +1,138 @@
+[
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Vacuums House", "world": ["Vacuums House"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "City Large", "world": ["City Large"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Rescue Default", "world": ["Rescue Default"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Warehouse 1", "world": ["Warehouse 1"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Simple Circuit", "world": ["Simple Circuit"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Montreal Circuit", "world": ["Montreal Circuit"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Follow Person", "world": ["Follow Person"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Follow Person Teleop", "world": ["Follow Person Teleop"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Autoparking Simple: In line", "world": ["Autoparking Simple: In line"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Obstacle Avoidance Default", "world": ["Obstacle Avoidance Default"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "City Large Followcam", "world": ["City Large Followcam"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "3d Reconstruction", "world": ["3d Reconstruction"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Autoparking Simple: In battery", "world": ["Autoparking Simple: In battery"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Autoparking Gas Station: In line", "world": ["Autoparking Gas Station: In line"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Autoparking Gas Station: In battery", "world": ["Autoparking Gas Station: In battery"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Autoparking Gas Station: Parking lot", "world": ["Autoparking Gas Station: Parking lot"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Warehouse 1 Ackermann", "world": ["Warehouse 1 Ackermann"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Warehouse 2 Ackermann", "world": ["Warehouse 2 Ackermann"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Warehouse 2", "world": ["Warehouse 2"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Montmelo Circuit", "world": ["Montmelo Circuit"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Nurburgring Circuit", "world": ["Nurburgring Circuit"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Nurburgring Ackermann Circuit", "world": ["Nurburgring Ackermann Circuit"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Montmelo Ackermann Circuit", "world": ["Montmelo Ackermann Circuit"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Montreal Ackermann Circuit", "world": ["Montreal Ackermann Circuit"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Simple Ackermann Circuit", "world": ["Simple Ackermann Circuit"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Autoparking Lidar Simple: In line", "world": ["Autoparking Lidar Simple: In line"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Vacuums House Roof", "world": ["Vacuums House Roof"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Restaurant", "world": ["Restaurant"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Vacuums House Markers", "world": ["Vacuums House Markers"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Laser Mapping Warehouse", "world": ["Laser Mapping Warehouse"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Rescue People Harmonic", "world": ["Rescue People Harmonic"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Follow Road Harmonic", "world": ["Follow Road Harmonic"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Universe Teste 01", "world": ["World Test 01"], "robot": ["None"]}
+    },
+    {
+        "model": "exercises.universe",
+        "fields": {"name": "Universe empty world", "world": ["Empty World"], "robot": ["None"]}
+    }
+]

@@ -134,3 +134,5 @@ staticfiles/*
 ssl/*
 
 RoboticsAcademy/
+
+exercises/fixtures/personalSeedTracker/last_seed_executed.txt

@@ -419,34 +419,7 @@ COPY public.django_migrations (id, app, name, applied) FROM stdin;
 15	auth	0010_alter_group_name_max_length	2024-10-30 19:36:43.685206+00
 16	auth	0011_update_proxy_permissions	2024-10-30 19:36:43.691542+00
 17	auth	0012_alter_user_first_name_max_length	2024-10-30 19:36:43.699874+00
-18	exercises	0001_initial	2024-10-30 19:36:43.708262+00
-19	exercises	0002_alter_exercise_language	2024-10-30 19:36:43.712058+00
-20	exercises	0003_alter_exercise_language	2024-10-30 19:36:43.716132+00
-21	exercises	0004_alter_exercise_language	2024-10-30 19:36:43.719912+00
-22	exercises	0005_alter_exercise_language	2024-10-30 19:36:43.723571+00
-23	exercises	0006_alter_exercise_language	2024-10-30 19:36:43.727353+00
-24	exercises	0007_alter_exercise_language	2024-10-30 19:36:43.730991+00
-25	exercises	0008_alter_exercise_language	2024-10-30 19:36:43.734589+00
-26	exercises	0009_alter_exercise_language	2024-10-30 19:36:43.738376+00
-27	exercises	0010_alter_exercise_language	2024-10-30 19:36:43.742202+00
-28	exercises	0011_remove_exercise_compute_load_remove_exercise_gui_and_more	2024-10-30 19:36:43.755998+00
-29	exercises	0012_auto_20220309_1104	2024-10-30 19:36:43.763468+00
-30	exercises	0013_alter_exercise_id	2024-10-30 19:36:43.770412+00
-31	exercises	0014_exercise_tags	2024-10-30 19:36:43.775135+00
-32	exercises	0015_exercise_status	2024-10-30 19:36:43.779562+00
-33	exercises	0014_add_exercise_config	2024-10-30 19:36:43.783598+00
-34	exercises	0016_merge_20230116_2136	2024-10-30 19:36:43.786432+00
-35	exercises	0017_exercise_visualization	2024-10-30 19:36:43.790651+00
-36	exercises	0018_alter_exercise_visualization	2024-10-30 19:36:43.794278+00
-37	exercises	0019_alter_exercise_visualization	2024-10-30 19:36:43.798092+00
-38	exercises	0020_exercise_launch_file_exercise_model_folders_and_more	2024-10-30 19:36:43.806045+00
-39	exercises	0021_remove_exercise_launch_file_exercise_launch_files_and_more	2024-10-30 19:36:43.816621+00
-40	exercises	0022_alter_exercise_resource_folders	2024-10-30 19:36:43.821406+00
-41	exercises	0023_alter_exercise_world	2024-10-30 19:36:43.825209+00
-42	exercises	0024_remove_exercise_assets_remove_exercise_model_folders_and_more	2024-10-30 19:36:43.831135+00
-43	exercises	0025_world_remove_exercise_configuration_and_more	2024-10-30 19:36:43.847705+00
-44	exercises	0026_exercise_template	2024-10-30 19:36:43.852495+00
-45	sessions	0001_initial	2024-10-30 19:36:43.859673+00
+18	sessions	0001_initial	2024-10-30 19:36:43.859673+00
 \.
 
 

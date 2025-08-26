@@ -1,0 +1,272 @@
+[
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "follow_line",
+            "name": "Follow Line",
+            "description": "The goal of this exercise is to perform a PID reactive control capable of following the line painted on the racing circuit.",
+            "tags": "{\"tags\": [\"ROS2\", \"AUTONOMOUS DRIVING\"]}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/follow_line/python_template/",
+            "guide_page_category": ["Autonomous Driving"],
+            "universes": [
+                ["Simple Circuit"],
+                ["Montreal Circuit"],
+                ["Montmelo Circuit"],
+                ["Nurburgring Circuit"],
+                ["Nurburgring Ackermann Circuit"],
+                ["Montmelo Ackermann Circuit"],
+                ["Montreal Ackermann Circuit"],
+                ["Simple Ackermann Circuit"]
+            ]
+            
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "vacuum_cleaner",
+            "name": "Vacum Cleaner",
+            "description": "Vacuum Cleaner exercise using React and RAM.",
+            "tags": "{\"tags\": \"ROS2\"}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/vacuum_cleaner/python_template/",
+            "guide_page_category": ["Service Robots"],
+            "universes": [
+                ["Vacuums House"]
+            ]
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "autoparking",
+            "name": "Autoparking",
+            "description": "Autoparking exercise testing.",
+            "tags": "{\"tags\": [\"AUTONOMOUS DRIVING\", \"SERVICE ROBOTS\", \"ROS2\"]}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/autoparking/python_template/",
+            "guide_page_category": ["Autonomous Driving"],
+            "universes": [
+                ["Autoparking Simple: In line"],
+                ["Autoparking Simple: In battery"],
+                ["Autoparking Gas Station: In line"],
+                ["Autoparking Gas Station: In battery"],
+                ["Autoparking Gas Station: Parking lot"]
+            ]
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "follow_person",
+            "name": "Follow person",
+            "description": "Follow a person with kobuki robot.",
+            "tags": "{\"tags\": \"ROS2\"}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/follow_person/python_template/",
+            "guide_page_category": ["Service Robots"],
+            "universes": [
+                ["Follow Person"],
+                ["Follow Person Teleop"]
+            ]
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "vacuum_cleaner_loc",
+            "name": "Localized Vacuum Cleaner",
+            "description": "Localiized vacuum cleaner.",
+            "tags": "{\"tags\": [\"ROS2\", \"MOBILE ROBOTS\", \"SERVICE ROBOTS\"]}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/vacuum_cleaner_loc/python_template/",
+            "guide_page_category": ["Service Robots"],
+            "universes": [
+                ["Vacuums House"]
+            ]
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "global_navigation",
+            "name": "Global Navigation",
+            "description": "Global navigation exercise using REACT and RAM.",
+            "tags": "{\"tags\": \"ROS2\"}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/global_navigation/python_template/",
+            "guide_page_category": ["Autonomous Driving"],
+            "universes": [
+                ["City Large"]
+            ]
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "rescue_people",
+            "name": "Rescue People",
+            "description": "Rescue People exercise.",
+            "tags": "{\"tags\": \"ROS2\"}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/rescue_people/python_template/",
+            "guide_page_category": ["Drones"],
+            "universes": [
+                ["Rescue People Harmonic"]
+            ]
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "3d_reconstruction",
+            "name": "3D Reconstruction",
+            "description": "3D Reconstruction exercise using React and RAM.",
+            "tags": "{\"tags\": [\"COMPUTER VISION\", \"ROS2\"]}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/3d_reconstruction/python_template/",
+            "guide_page_category": ["Computer Vision"],
+            "universes": [
+                ["3d Reconstruction"]
+            ]
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "amazon_warehouse",
+            "name": "Amazon Warehouse",
+            "description": "Control an amazon-like robot to organize a warehouse.",
+            "tags": "{\"tags\": \"ROS2\"}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/amazon_warehouse/python_template/",
+            "guide_page_category": ["Service Robots"],
+            "universes": [
+                ["Warehouse 1"],
+                ["Warehouse 1 Ackermann"],
+                ["Warehouse 2 Ackermann"],
+                ["Warehouse 2"]
+                
+            ]
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "montecarlo_laser_loc",
+            "name": "Montecarlo Laser Loc",
+            "description": "Calculate the position of the robot based on the.",
+            "tags": "{\"tags\": \"ROS2\"}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/montecarlo_laser_loc/python_template/",
+            "guide_page_category": ["Service Robots"],
+            "universes": [
+                ["Vacuums House"]
+            ]
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "montecarlo_visual_loc",
+            "name": "Montecarlo Visual Loc",
+            "description": "Calculate the position of the robot based on the.",
+            "tags": "{\"tags\": \"ROS2\"}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/montecarlo_visual_loc/python_template/",
+            "guide_page_category": ["Computer Vision"],
+            "universes": [
+                ["Vacuums House Roof"]
+            ]
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "marker_visual_loc",
+            "name": "Marker Visual Loc",
+            "description": "Calculate the position of the robot based on the.",
+            "tags": "{\"tags\": \"ROS2\"}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/marker_visual_loc/python_template/",
+            "guide_page_category": ["Computer Vision"],
+            "universes": [
+                ["Vacuums House Markers"]
+            ]
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "laser_mapping",
+            "name": "Laser Mapping",
+            "description": "Build a map based on sensor readings.",
+            "tags": "{\"tags\": \"ROS2\"}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/laser_mapping/python_template/",
+            "guide_page_category": ["Service Robots"],
+            "universes": [
+                ["Laser Mapping Warehouse"]
+            ]
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "basic_computer_vision",
+            "name": "Basic Computer Vision",
+            "description": "Basic Computer Vision exercise using React and RAM.",
+            "tags": "{\"tags\": \"ROS2\"}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/basic_computer_vision/python_template/",
+            "guide_page_category": ["Computer Vision"],
+            "universes": []
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "follow_road",
+            "name": "Follow Road",
+            "description": "Follow Road exercise.",
+            "tags": "{\"tags\": \"ROS2\"}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/follow_road/python_template/",
+            "guide_page_category": ["Drones"],
+            "universes": [
+                ["Follow Road Harmonic"]
+            ]
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "model_exercise",
+            "name": "Model Exercise",
+            "description": "Exercise's model.",
+            "tags": "{\"tags\": \"ROS2\"}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/model_exercise/python_template/",
+            "guide_page_category": ["Service Robots"],
+            "universes": [
+                ["Universe Teste 01"]
+            ]
+        }
+    },
+    {
+        "model": "exercises.exercise",
+        "fields": {
+            "exercise_id": "empty_world",
+            "name": "Empty World",
+            "description": "Void world.",
+            "tags": "{\"tags\": \"ROS2\"}",
+            "status": "ACTIVE",
+            "template": "RoboticsAcademy/exercises/static/exercises/empty_world/python_template/",
+            "guide_page_category": ["Service Robots"],
+            "universes": [
+                ["Universe empty world"]
+            ]
+        }
+    }
+]

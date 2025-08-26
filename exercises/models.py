@@ -3,6 +3,7 @@ models.py
 """
 
 import json
+from exercises.models_helper import ExerciseHelper, UniverseHelper, WorldHelper, RobotHelper, GuidePageCategoryHelper
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 import subprocess
@@ -40,9 +41,13 @@ class GuidePageCategory(models.Model):
 
     def __str__(self):
         return str(self.name)
+    
+    objects = GuidePageCategoryHelper()
+    def natural_key(self):
+        return (self.name,)
 
     class Meta:
-        db_table = '"guide_page_categories"'
+        db_table = 'guide_page_categories'
 
 class Robot(models.Model):
     """
@@ -54,9 +59,13 @@ class Robot(models.Model):
 
     def __str__(self):
         return str(self.name)
+    
+    objects = RobotHelper()
+    def natural_key(self):
+        return (self.name,)
 
     class Meta:
-        db_table = '"robots"'
+        db_table = 'robots'
 
 
 class World(models.Model):
@@ -85,9 +94,13 @@ class World(models.Model):
 
     def __str__(self):
         return str(self.name)
+    
+    objects = WorldHelper()
+    def natural_key(self):
+        return (self.name,)
 
     class Meta:
-        db_table = '"worlds"'
+        db_table = 'worlds'
 
 
 class Universe(models.Model):
@@ -97,17 +110,21 @@ class Universe(models.Model):
 
     name = models.CharField(max_length=100, blank=False, unique=True)
     world = models.OneToOneField(
-        World, default=None, on_delete=models.CASCADE, db_column='"world_id"'
+        World, default=None, on_delete=models.CASCADE, db_column='world_id'
     )
-    robot = models.OneToOneField(
-        Robot, default=None, on_delete=models.CASCADE, db_column='"robot_id"'
+    robot = models.ForeignKey(
+        Robot, default=None, on_delete=models.PROTECT, db_column='robot_id'
     )
 
     def __str__(self):
         return str(self.name)
 
+    objects = UniverseHelper()
+    def natural_key(self):
+        return (self.name,)
+
     class Meta:
-        db_table = '"universes"'
+        db_table = 'universes'
 
 
 # Create your models here.
@@ -124,15 +141,19 @@ class Exercise(models.Model):
     tags = models.CharField(max_length=2000, default=json.dumps({"tags": ""}))
     status = models.CharField(max_length=20, choices=StatusChoice, default="ACTIVE")
     universes = models.ManyToManyField(
-        Universe, default=None, db_table='"exercises_universes"'
+        Universe, default=None, db_table='exercises_universes'
     )
     template = models.CharField(max_length=200, blank=True, default="")
-    guide_page_category = models.OneToOneField(
-        GuidePageCategory, default=None, on_delete=models.CASCADE, db_column='"guide_page_categories_id"'
+    guide_page_category = models.ForeignKey(
+        GuidePageCategory, default=None, on_delete=models.PROTECT, db_column='guide_page_categories_id'
     )
 
     def __str__(self):
         return str(self.name)
+    
+    objects = ExerciseHelper()
+    def natural_key(self):
+        return (self.exercise_id,)
 
     @property
     def context(self):
@@ -219,7 +240,7 @@ class Exercise(models.Model):
         return context
 
     class Meta:
-        db_table = '"exercises"'
+        db_table = 'exercises'
 
 class NodeType(models.Model):
     """
@@ -236,4 +257,4 @@ class NodeType(models.Model):
         return str(self.name)
 
     class Meta:
-        db_table = '"nodes_types"'
+        db_table = 'nodes_types'

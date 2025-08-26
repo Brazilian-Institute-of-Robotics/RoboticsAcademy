@@ -1,8 +1,12 @@
 import os
 import shutil
+import json
 from exercises.models import Exercise, Universe, World, Robot, GuidePageCategory
 from django.db import transaction
 from django.conf import settings
+from django.apps import apps
+from django.core import serializers
+
 
 def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
        universe_name, launcher_name, category_id):
@@ -38,7 +42,7 @@ def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
             robot = Robot.objects.first() or Robot.objects.create(
                 name="useless",
                 model="needless",
-                ip="0.0.0.0"
+                launch_file_path=""
             )
 
             universe = Universe.objects.create(
@@ -62,7 +66,6 @@ def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
         
     except Exception as e:
         return {'success': 0, 'exists': 0, 'error': 'Fail to create exercise in database',  'details': str(e)}
-
 
 
 def createExerciseTemplate(exercise_id, category_id, uses_camera):

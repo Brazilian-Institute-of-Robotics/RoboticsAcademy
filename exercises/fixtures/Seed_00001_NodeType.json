@@ -1,0 +1,34 @@
+[
+    {
+        "model": "exercises.nodeType",
+        "fields": {"name": "bumper"}
+    },
+    {
+        "model": "exercises.nodeType",
+        "fields": {"name": "camera"}
+    },
+    {
+        "model": "exercises.nodeType",
+        "fields": {"name": "laser"}
+    },
+    {
+        "model": "exercises.nodeType",
+        "fields": {"name": "motors"}
+    },
+    {
+        "model": "exercises.nodeType",
+        "fields": {"name": "neural_network"}
+    },
+    {
+        "model": "exercises.nodeType",
+        "fields": {"name": "noisy_odometry"}
+    },
+    {
+        "model": "exercises.nodeType",
+        "fields": {"name": "odometry"}
+    },
+    {
+        "model": "exercises.nodeType",
+        "fields": {"name": "sim_time"}
+    }
+]

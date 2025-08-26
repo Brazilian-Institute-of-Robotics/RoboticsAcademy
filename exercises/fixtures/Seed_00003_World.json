@@ -1,0 +1,667 @@
+[
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "None",
+      "launch_file_path": "None",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "none",
+      "world": "none",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "3d Reconstruction",
+      "launch_file_path": "/opt/jderobot/Launchers/3d_reconstruction.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Autoparking Gas Station: In battery",
+      "launch_file_path": "/opt/jderobot/Launchers/gas_station_battery_ackermann.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Autoparking Gas Station: In line",
+      "launch_file_path": "/opt/jderobot/Launchers/gas_station_line_ackermann.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Autoparking Gas Station: Parking lot",
+      "launch_file_path": "/opt/jderobot/Launchers/gas_station_parking_ackermann.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Autoparking Lidar Simple: In line",
+      "launch_file_path": "/opt/jderobot/Launchers/prius_360_autoparking.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Autoparking Simple: In battery",
+      "launch_file_path": "/opt/jderobot/Launchers/prius_bateria.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Autoparking Simple: In line",
+      "launch_file_path": "/opt/jderobot/Launchers/prius_autoparking.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "City Large",
+      "launch_file_path": "/opt/jderobot/Launchers/taxi_navigator.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "City Large Followcam",
+      "launch_file_path": "/opt/jderobot/Launchers/taxi_navigator_followingcam.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Follow Person",
+      "launch_file_path": "/opt/jderobot/Launchers/follow_person.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Follow Person Teleop",
+      "launch_file_path": "/opt/jderobot/Launchers/follow_person_teleop.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Laser Mapping Warehouse",
+      "launch_file_path": "/opt/jderobot/Launchers/laser_mapping.launch.py",
+      "visualization_config_path": "/opt/jderobot/Launchers/visualization/laser_mapping.config",
+      "ros_version": "ROS2",
+      "visualization": "gzsim_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Montmelo Ackermann Circuit",
+      "launch_file_path": "/opt/jderobot/Launchers/montmelo_circuit_ackermann.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Montmelo Circuit",
+      "launch_file_path": "/opt/jderobot/Launchers/montmelo_circuit.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Montreal Ackermann Circuit",
+      "launch_file_path": "/opt/jderobot/Launchers/montreal_circuit_ackermann.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Montreal Circuit",
+      "launch_file_path": "/opt/jderobot/Launchers/montreal_circuit.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Nurburgring Ackermann Circuit",
+      "launch_file_path": "/opt/jderobot/Launchers/nurburgring_circuit_ackermann.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Nurburgring Circuit",
+      "launch_file_path": "/opt/jderobot/Launchers/nurburgring_circuit.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Obstacle Avoidance Default",
+      "launch_file_path": "/opt/jderobot/Launchers/simple_circuit_obstacles_followingcam.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Rescue Default",
+      "launch_file_path": "/opt/jderobot/Launchers/world.json",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "drones",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Restaurant",
+      "launch_file_path": "/opt/jderobot/Launchers/restaurant.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Simple Ackermann Circuit",
+      "launch_file_path": "/opt/jderobot/Launchers/simple_circuit_ackermann.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Simple Circuit",
+      "launch_file_path": "/opt/jderobot/Launchers/simple_circuit.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Vacuums House",
+      "launch_file_path": "/opt/jderobot/Launchers/vacuum_cleaner.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Vacuums House Markers",
+      "launch_file_path": "/opt/jderobot/Launchers/marker_visual_loc.launch.py",
+      "visualization_config_path": "/opt/jderobot/Launchers/visualization/marker_visual_loc.config",
+      "ros_version": "ROS2",
+      "visualization": "gzsim_rae",
+      "world": "gazebo",
+      "start_pose": [
+        1.0,
+        -1.5,
+        0.6,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Vacuums House Roof",
+      "launch_file_path": "/opt/jderobot/Launchers/montecarlo_visual_loc.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Warehouse 1",
+      "launch_file_path": "/opt/jderobot/Launchers/amazon_robot.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Warehouse 1 Ackermann",
+      "launch_file_path": "/opt/jderobot/Launchers/small_warehouse_with_ackermann_logistic_robot.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Warehouse 2",
+      "launch_file_path": "/opt/jderobot/Launchers/pallet_warehouse.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Warehouse 2 Ackermann",
+      "launch_file_path": "/opt/jderobot/Launchers/pallet_warehouse_with_ackermann_logistic_robot.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Rescue People Harmonic",
+      "launch_file_path": "/opt/jderobot/Launchers/rescue_people.launch.py",
+      "visualization_config_path": "/opt/jderobot/Launchers/visualization/rescue_people.config",
+      "ros_version": "ROS2",
+      "visualization": "gzsim_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Follow Road Harmonic",
+      "launch_file_path": "/opt/jderobot/Launchers/follow_road.launch.py",
+      "visualization_config_path": "/opt/jderobot/Launchers/visualization/follow_road.config",
+      "ros_version": "ROS2",
+      "visualization": "gzsim_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "World Test 01",
+      "launch_file_path": "/opt/jderobot/Launchers/teste_01.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  {
+    "model": "exercises.world",
+    "fields": {
+      "name": "Empty World",
+      "launch_file_path": "/opt/jderobot/Launchers/empty_world.launch.py",
+      "visualization_config_path": "None",
+      "ros_version": "ROS2",
+      "visualization": "gazebo_rae",
+      "world": "gazebo",
+      "start_pose": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  }
+]

@@ -1,0 +1,9 @@
+[
+    {
+        "model": "exercises.robot",
+        "fields": {
+            "name": "None",
+            "launch_file_path": "None"
+        }
+    }
+]

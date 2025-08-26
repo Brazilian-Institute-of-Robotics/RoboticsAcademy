@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                 ("launch_file_path", models.CharField(max_length=200)),
             ],
             options={
-                "db_table": '"robots"',
+                "db_table": 'robots',
             },
         ),
         migrations.CreateModel(
@@ -99,7 +99,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "db_table": '"worlds"',
+                "db_table": 'worlds',
             },
         ),
         migrations.CreateModel(
@@ -118,7 +118,7 @@ class Migration(migrations.Migration):
                 (
                     "robot",
                     models.OneToOneField(
-                        db_column='"robot_id"',
+                        db_column='robot_id',
                         default=None,
                         on_delete=django.db.models.deletion.CASCADE,
                         to="exercises.robot",
@@ -127,7 +127,7 @@ class Migration(migrations.Migration):
                 (
                     "world",
                     models.OneToOneField(
-                        db_column='"world_id"',
+                        db_column='world_id',
                         default=None,
                         on_delete=django.db.models.deletion.CASCADE,
                         to="exercises.world",
@@ -135,7 +135,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "db_table": '"universes"',
+                "db_table": 'universes',
             },
         ),
         migrations.CreateModel(
@@ -170,14 +170,14 @@ class Migration(migrations.Migration):
                 (
                     "universes",
                     models.ManyToManyField(
-                        db_table='"exercises_universes"',
+                        db_table='exercises_universes',
                         default=None,
                         to="exercises.universe",
                     ),
                 ),
             ],
             options={
-                "db_table": '"exercises"',
+                "db_table": 'exercises',
             },
         ),
     ]
