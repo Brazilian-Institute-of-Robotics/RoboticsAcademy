@@ -7,6 +7,9 @@ from django.conf import settings
 from django.apps import apps
 from django.core import serializers
 
+from academy.academy_rest_api.utils import exercise_seed_utils as ExerciseSeedUtils
+from academy.academy_rest_api.utils import seed_tracker_utils as SeedTrackerUtils
+
 
 def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
        universe_name, launcher_name, category_id):
@@ -62,6 +65,9 @@ def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
             )
 
             exercise.universes.add(universe)
+
+            #If this function raises a exception, transaction.atomic() rollback database
+            ExerciseSeedUtils.writeCreationSeed(exercise, universe, world, robot, guide_category)
             return {'success': 1, 'exists': 0}
         
     except Exception as e:
@@ -97,7 +103,7 @@ def createExerciseTemplate(exercise_id, category_id, uses_camera):
     # Create new folder for exercise
     try:
         os.makedirs(new_exercise_path, exist_ok=False)
-    except OSError as e:
+    except Exception as e:
         return {'success': 0, 'error': 'Fail to create exercise template directory', 'details': f'{str(e)}'}
 
     # What base template will be use, case exercise's robot uses camera, than base_with_camera.html,
@@ -355,6 +361,16 @@ def createExerciseRollback(exercise_name):
                         'error': f'Could not delete dir: {path}',
                         'details': str(cleanup_error)
                     }
+                try:
+                   SeedTrackerUtils.rollbackSeed()
+                except Exception as e:
+                    return {
+                        'success': 0,
+                        'exists': 1,
+                        'error': f'Could not rollback seed',
+                        'details': str(e)
+                    }
+                
 
                 
             # Ensure finalize_deletion() only executes if db transaction succeed
