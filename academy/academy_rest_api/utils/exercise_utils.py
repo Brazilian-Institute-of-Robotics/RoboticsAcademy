@@ -199,7 +199,7 @@ def createExerciseStatic(exercise_id, hal_code, teaser_img_file, uses_camera):
         with open(img_teaser_path, 'wb+') as dest:
             for chunk in teaser_img_file.chunks():
                 dest.write(chunk)
-
+        
         return {'success': 1,}
     except OSError as e:
         return {'success': 0, 'error': 'Fail to create directory', 'details': f'{str(e)}'}
@@ -235,7 +235,7 @@ def createExerciseLauncher(launcher_name):
             return {'success': 0, 'error': f'Fail to change {launcher_name}.launch.py', 'details': f'{str(e)}'}
         
         return {'success': 1,}
-
+    
     except Exception as e:
         return {'success': 0, 'exists': 1, 'error': 'Unexpected problem', 'details': f'{e}'}
 
@@ -250,7 +250,7 @@ def createExerciseWorld(world_name, world_file):
         with open(exercise_world_path, 'wb+') as dest:
             for chunk in world_file.chunks():
                 dest.write(chunk)
-
+    
         return {'success': 1,}
     except Exception as e:
         return {'success': 0, 'exists': 1, 'error': 'Unexpected problem', 'details': f'{e}'}
@@ -345,8 +345,18 @@ def createExerciseRollback(exercise_name):
             exercise.delete()
 
             
-            # Function to delete all files related to this exercise
+            # Function to delete current seed and all files related to this exercise
             def finalize_deletion():
+                try:
+                    SeedTrackerUtils.rollbackSeed()
+                except Exception as e:
+                    return {
+                        'success': 0,
+                        'exists': 1,
+                        'error': 'Fail to remove creation exercise seed',
+                        'details': str(e)
+                    }
+                
                 try:
                     for label, path in original_paths.items():
                         if os.path.exists(path):
@@ -361,16 +371,6 @@ def createExerciseRollback(exercise_name):
                         'error': f'Could not delete dir: {path}',
                         'details': str(cleanup_error)
                     }
-                try:
-                   SeedTrackerUtils.rollbackSeed()
-                except Exception as e:
-                    return {
-                        'success': 0,
-                        'exists': 1,
-                        'error': f'Could not rollback seed',
-                        'details': str(e)
-                    }
-                
 
                 
             # Ensure finalize_deletion() only executes if db transaction succeed
@@ -391,6 +391,9 @@ def deleteExercise(exercise_name):
     moved_paths = []
     exercises_md_path = "/GuidePages/_pages/exercises.md"
     exercises_md_backup = f"{exercises_md_path}.bak"
+
+    new_seed_path = ""
+    ExercisesUniverses = Exercise.universes.through
 
     try:
         exercise = Exercise.objects.filter(exercise_id=exercise_name).first()
@@ -445,38 +448,39 @@ def deleteExercise(exercise_name):
 
         # Make db transaction to delete exercise, universes and worlds
         with transaction.atomic():
+            universes_deleted = []
+            words_deleted = []
+
             universes = exercise.universes.all()
+
             for universe in universes:
-                if getattr(universe, 'world', None):
+                #How many exercises uses this universe
+                exercises_count = ExercisesUniverses.objects.filter(universe_id=universe.id).count()
+
+                #Only exercise to be deleted uses this universe
+                if exercises_count == 1: 
+                    universes_deleted.append(universe)
+                    words_deleted.append(universe.world)
+
                     universe.world.delete()
-                universe.delete()
+                    universe.delete()
+            
             exercise.delete()
+            new_seed_path = ExerciseSeedUtils.writeDeletionSeed(exercise, universes_deleted, words_deleted)
 
-            # Function to delete temporary path and
-            # exercise.md backup
-            def finalize_deletion():
-                try:
-                    shutil.rmtree(trash_dir)
-                    if os.path.exists(exercises_md_backup):
-                        os.remove(exercises_md_backup)
-
-                except Exception as cleanup_error:
-                    return {
-                        'success': 0,
-                        'exists': 1,
-                        'error': f'Could not delete trash dir {trash_dir}: {cleanup_error}',
-                        'details': str(e)
-                    }
-
-                
-            # Ensure finalize_deletion() only executes if db transaction succeed
-            transaction.on_commit(finalize_deletion)
-
+            shutil.rmtree(trash_dir)
+            if os.path.exists(exercises_md_backup):
+                os.remove(exercises_md_backup)
+        
         return {'success': 1}
     
     except Exception as e:
 
-        # Restore exercises files to original path
+        #Case true, means that a new seed was created and must be deleted
+        if new_seed_path != "":
+            SeedTrackerUtils.rollbackSeed()
+
+        # Restores exercises files to original path
         for trash_path, original_path in moved_paths:
             try:
                 shutil.move(trash_path, original_path)
@@ -488,11 +492,11 @@ def deleteExercise(exercise_name):
                     'details': str(e)
                 }
 
-        # Restaurar exercises.md a partir do backup
+        # Restores exercises.md using backup
         if os.path.exists(exercises_md_backup):
             shutil.copy2(exercises_md_backup, exercises_md_path)
             os.remove(exercises_md_backup)
-        
+
         return {
             'success': 0,
             'exists': 1,

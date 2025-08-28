@@ -22,6 +22,7 @@ def updateTrackerFile(seed_name):
     with open(TRACKER_FILE_PATH, "w", encoding="utf-8") as f:
         f.writelines(lines)
 
+#Delete newest seed and update tracker file to previous seed
 def rollbackSeed():
     current_seed_name = getLastSeedExecuted()
     current_seed_path = f'{SEEDS_PATH}/{current_seed_name}'

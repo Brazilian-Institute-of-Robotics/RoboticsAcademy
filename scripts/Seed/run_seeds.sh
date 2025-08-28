@@ -52,10 +52,28 @@ fi
 echo "[run_seeds] Seeds to execute:"
 printf '  - %s\n' "${TO_RUN[@]}"
 
+is_delete_seed() {
+  local name
+  name="$(basename "$1")"
+  [[ "$name" == *_delete.json ]]
+}
+
 for f in "${TO_RUN[@]}"; do
   echo "[seed] Django loaddata: $f"
-  python "$DJANGO_MANAGER" loaddata "$f"
   base="$(basename "$f")"
+
+  if is_delete_seed "$f"; then
+    if ! python "$DJANGO_MANAGER" apply_delete_seed "$f"; then
+      err "Failed delete seed $base. Stopping."
+      exit 1
+    fi
+  else
+    if ! python "$DJANGO_MANAGER" loaddata "$f"; then
+      err "Failed insert seed $base. Stopping to preserve order."
+      exit 1
+    fi
+  fi
+  
   printf '%s\n' "$base" > "$LAST_SEED_TRACKER"
   echo "[run_seeds] Seed executed: $base"
 done
