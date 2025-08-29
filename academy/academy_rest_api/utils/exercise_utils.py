@@ -9,6 +9,7 @@ from django.core import serializers
 
 from academy.academy_rest_api.utils import exercise_seed_utils as ExerciseSeedUtils
 from academy.academy_rest_api.utils import seed_tracker_utils as SeedTrackerUtils
+from academy.academy_rest_api.utils import exercise_file_path_utils as ExercisesFilePathUtils
 
 
 def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
@@ -138,6 +139,7 @@ def createExerciseTemplate(exercise_id, category_id, uses_camera):
     
     return {'success': 1,}
 
+
 def createExerciseStatic(exercise_id, hal_code, teaser_img_file, uses_camera):
     try:
         static_base_path = '/RoboticsAcademy/exercises/static'
@@ -206,6 +208,7 @@ def createExerciseStatic(exercise_id, hal_code, teaser_img_file, uses_camera):
     except Exception as e:
         return {'success': 0, 'error': 'Unexpected problem', 'details': f'{str(e)}'}
 
+
 def createExerciseLauncher(launcher_name):
     try:
         launchers_path = '/Infrastructure/Launchers'
@@ -239,6 +242,7 @@ def createExerciseLauncher(launcher_name):
     except Exception as e:
         return {'success': 0, 'exists': 1, 'error': 'Unexpected problem', 'details': f'{e}'}
 
+
 def createExerciseWorld(world_name, world_file):
     try:
         exercise_world_path = os.path.join('/Infrastructure/Worlds', f'{world_name}.world')
@@ -254,6 +258,7 @@ def createExerciseWorld(world_name, world_file):
         return {'success': 1,}
     except Exception as e:
         return {'success': 0, 'exists': 1, 'error': 'Unexpected problem', 'details': f'{e}'}
+
 
 def createExerciseGuidePage(
         exercise_id, exercise_name, exercise_description, category_id, 
@@ -280,7 +285,7 @@ def createExerciseGuidePage(
         category = GuidePageCategory.objects.filter(id=category_id).first()
         
         #ADD NEW EXERCISE ON MARKDOWN FILE THAT CONTAINS LIST OF EXERCISES
-        addExerciseOnGuideList(exercise_id, exercise_name, exercise_description, category)
+        ExercisesFilePathUtils.addExerciseOnGuideList(exercise_id, exercise_name, exercise_description, category)
 
         #CREATE EXERCISE GUIDE PAGE FILE
         markdown_path = os.path.join(f'/GuidePages/_pages/exercises/{category.category_identify}', f'{exercise_id}.md')
@@ -312,28 +317,13 @@ def createExerciseRollback(exercise_name):
                 'details': f'There is no exercise with this name ({exercise_name})'
             }
         
-        category_identify = exercise.guide_page_category.category_identify
-
-        #Object with path of all files and folders used by exercise
-        original_paths = {
-            'template': os.path.join('/RoboticsAcademy/exercises/templates/exercises', exercise.exercise_id),
-            'static': os.path.join('/RoboticsAcademy/exercises/static/exercises', exercise.exercise_id),
-            'teaser_image': os.path.join('/RoboticsAcademy/exercises/static/exercises/assets/img', f'{exercise.exercise_id}_teaser.png'),
-            'guide_images': os.path.join('/GuidePages/assets/images/exercises', exercise.exercise_id),
-            'guide_page': os.path.join('/GuidePages/_pages/exercises', category_identify, f'{exercise.exercise_id}.md'),
-        }
-
-        # Add all launchers and worlds files associated with exercises on original_paths array
         universes = exercise.universes.select_related('world').all()
-        for universe in universes:
-            if universe.world and universe.world.launch_file_path:
-                launch_path = universe.world.launch_file_path
-                file_name = os.path.splitext(os.path.splitext(os.path.basename(launch_path))[0])[0]
-                original_paths[f'launcher__{file_name}'] = os.path.join('/Infrastructure/Launchers', f'{file_name}.launch.py')
-                original_paths[f'world__{file_name}'] = os.path.join('/Infrastructure/Worlds', f'{file_name}.world')
-        
+
+        # Find path of all files related to exercise
+        files_paths = ExercisesFilePathUtils.getExercisesFilesPath(exercise, universes)
+
         # Removes this exercises from exercises.md list
-        removeExerciseOnGuideList(exercises_md_path, exercise.exercise_id)
+        ExercisesFilePathUtils.removeExerciseOnGuideList(exercises_md_path, exercise.exercise_id)
 
         # Make db transaction to delete exercise, universes and worlds
         with transaction.atomic():
@@ -352,13 +342,13 @@ def createExerciseRollback(exercise_name):
                 except Exception as e:
                     return {
                         'success': 0,
-                        'exists': 1,
+                        'exists': 0,
                         'error': 'Fail to remove creation exercise seed',
                         'details': str(e)
                     }
                 
                 try:
-                    for label, path in original_paths.items():
+                    for label, path in files_paths.items():
                         if os.path.exists(path):
                             if os.path.isdir(path):
                                 shutil.rmtree(path)
@@ -367,7 +357,7 @@ def createExerciseRollback(exercise_name):
                 except Exception as cleanup_error:
                     return {
                         'success': 0,
-                        'exists': 1,
+                        'exists': 0,
                         'error': f'Could not delete dir: {path}',
                         'details': str(cleanup_error)
                     }
@@ -381,10 +371,11 @@ def createExerciseRollback(exercise_name):
     except Exception as e:
         return {
             'success': 0,
-            'exists': 1,
+            'exists': 0,
             'error': 'Aborted due to undeletable file or other error',
             'details': str(e)
         }
+
 
 def deleteExercise(exercise_name):
 
@@ -406,25 +397,21 @@ def deleteExercise(exercise_name):
                 'details': f'There is no exercise with this name ({exercise_name})'
             }
         
-        category_identify = exercise.guide_page_category.category_identify
+        universes_to_delete = []
+        words_to_delete = []
+        universes = exercise.universes.all()
 
-        #Object with path of all files and folders used by exercise
-        original_paths = {
-            'template': os.path.join('/RoboticsAcademy/exercises/templates/exercises', exercise.exercise_id),
-            'static': os.path.join('/RoboticsAcademy/exercises/static/exercises', exercise.exercise_id),
-            'teaser_image': os.path.join('/RoboticsAcademy/exercises/static/exercises/assets/img', f'{exercise.exercise_id}_teaser.png'),
-            'guide_images': os.path.join('/GuidePages/assets/images/exercises', exercise.exercise_id),
-            'guide_page': os.path.join('/GuidePages/_pages/exercises', category_identify, f'{exercise.exercise_id}.md'),
-        }
-
-        # Add all launchers and worlds files associated with exercises on original_paths array
-        universes = exercise.universes.select_related('world').all()
         for universe in universes:
-            if universe.world and universe.world.launch_file_path:
-                launch_path = universe.world.launch_file_path
-                file_name = os.path.splitext(os.path.splitext(os.path.basename(launch_path))[0])[0]
-                original_paths[f'launcher__{file_name}'] = os.path.join('/Infrastructure/Launchers', f'{file_name}.launch.py')
-                original_paths[f'world__{file_name}'] = os.path.join('/Infrastructure/Worlds', f'{file_name}.world')
+            #How many exercises uses this universe
+            exercises_count = ExercisesUniverses.objects.filter(universe_id=universe.id).count()
+
+            #Only exercise to be deleted uses this universe
+            if exercises_count == 1: 
+                universes_to_delete.append(universe)
+                words_to_delete.append(universe.world)
+
+        # Find path of all files related to exercise
+        original_files_paths = ExercisesFilePathUtils.getExercisesFilesPath(exercise, universes_to_delete)
         
         # Create a temporary path to exercises files
         TRASH_BASE = '/tmp/deleted_exercises'
@@ -433,45 +420,34 @@ def deleteExercise(exercise_name):
 
     
         # Moves exercises files to temporary directory and test if they are deletable
-        for label, path in original_paths.items():
+        for label, path in original_files_paths.items():
             if os.path.exists(path):
                 trash_path = os.path.join(trash_dir, f"{label}__{os.path.basename(path)}")
                 shutil.move(path, trash_path)
                 moved_paths.append((trash_path, path))
-                if not test_file_deletable(trash_path):
+                if not _test_file_deletable(trash_path):
                     raise Exception(f"File not deletable: {trash_path}")
         
         # Creates a backup file of exercises.md and removes
         # this exercises from it
         shutil.copy2(exercises_md_path, exercises_md_backup)
-        removeExerciseOnGuideList(exercises_md_path, exercise.exercise_id)
+        ExercisesFilePathUtils.removeExerciseOnGuideList(exercises_md_path, exercise.exercise_id)
 
         # Make db transaction to delete exercise, universes and worlds
         with transaction.atomic():
-            universes_deleted = []
-            words_deleted = []
-
-            universes = exercise.universes.all()
-
-            for universe in universes:
-                #How many exercises uses this universe
-                exercises_count = ExercisesUniverses.objects.filter(universe_id=universe.id).count()
-
-                #Only exercise to be deleted uses this universe
-                if exercises_count == 1: 
-                    universes_deleted.append(universe)
-                    words_deleted.append(universe.world)
-
-                    universe.world.delete()
-                    universe.delete()
+            for universe in universes_to_delete:
+                universe.world.delete()
+                universe.delete()
             
             exercise.delete()
-            new_seed_path = ExerciseSeedUtils.writeDeletionSeed(exercise, universes_deleted, words_deleted)
+            new_seed_path = ExerciseSeedUtils.writeDeletionSeed(exercise, universes_to_delete, words_to_delete)
 
+            #Delete backup files and directories
+            #Always put this lines at the end of transaction
             shutil.rmtree(trash_dir)
             if os.path.exists(exercises_md_backup):
                 os.remove(exercises_md_backup)
-        
+            
         return {'success': 1}
     
     except Exception as e:
@@ -507,82 +483,8 @@ def deleteExercise(exercise_name):
 
 #BELLOW HERE ARE FUNCTION TO ONLY USE IS THIS FILE
 
-# Modify exercise.md to add a new exercise
-def addExerciseOnGuideList(exercise_id, exercise_name, exercise_description, category):
-    image_path = f'/assets/images/exercises/{exercise_id}/{exercise_id}_teaser.png'
-    guide_page_path = f'/exercises/{category.category_identify}/{exercise_id}/'
-
-    new_entry = (
-        "\n" + f"  - image_path: {image_path}" + 
-        "\n" + f"    alt: {exercise_name}" +
-        "\n" + f"    title: {exercise_name}" +
-        "\n" + f"    excerpt: {exercise_description}" +
-        "\n" + f"    url: {guide_page_path}" +
-        "\n" +  '    btn_class: "btn--danger"' +
-        "\n" +  '    btn_label: "Go!"' +
-        "\n" +  '    version_label: "btn--success"' +
-        "\n" +  '    status: "running"' +
-        "\n" +  '    order: 0;'
-    )
-
-    exercise_list_page_path = "/GuidePages/_pages/exercises.md"
-
-    with open(exercise_list_page_path, 'r') as file:
-        content = file.read()
-    
-    # Encontra o início do bloco feature_row
-    feature_row_index = content.find("feature_row:")
-    if feature_row_index == -1:
-        raise ValueError("feature_row not found in the markdown file.")
-
-    # Divide o conteúdo antes e depois do feature_row
-    before = content[:feature_row_index]
-    after = content[feature_row_index:]
-
-    # Localiza o final do front matter (---) se houver
-    end_of_front_matter = after.find('---', 3)
-    if end_of_front_matter != -1:
-        feature_rows = after[:end_of_front_matter]
-        body = after[end_of_front_matter:]
-    else:
-        feature_rows = after
-        body = ""
-
-    # Adiciona o novo bloco
-    updated_feature_rows = feature_rows.rstrip() + '\n' + new_entry + '\n'
-
-    # Reconstroi o conteúdo final
-    new_content = before + updated_feature_rows + body
-
-    # Salva de volta
-    with open(exercise_list_page_path, 'w', encoding='utf-8') as f:
-        f.write(new_content)
-
-
-# Modify exercise.md to remove a exercise from list
-def removeExerciseOnGuideList(exercises_md_path, exercise_name):
-
-    with open(exercises_md_path, "r") as f:
-        lines = f.readlines()
-
-    image_path_line = f"- image_path: /assets/images/exercises/{exercise_name}/{exercise_name}_teaser.png\n"
-    new_lines = []
-    skip_count = 0
-
-    for line in lines:
-        if skip_count > 0:
-            skip_count -= 1
-            continue
-        if line.strip() == image_path_line.strip():
-            skip_count = 9
-            continue
-        new_lines.append(line)
-
-    with open(exercises_md_path, "w") as f:
-        f.writelines(new_lines)
-
 # Verify if file or folder in path is deletable
-def test_file_deletable(path):
+def _test_file_deletable(path):
     try:
         if os.path.isdir(path):
             os.listdir(path)
