@@ -203,10 +203,17 @@ def check_name_availability(request, name):
       return JsonResponse({'error': 'Exercise name is required.'}, status=400)
     
     try:
+      exercise_id = name.lower().replace(" ", "_")
+
       #Verify if exercise with give name exists, the search is case insensitive
-      exercise_exists = Exercise.objects.filter(name__iexact=name).exists()
+      exercise_name_exists = Exercise.objects.filter(name__iexact=name).exists()
+
+      #Verify if exercise with give exercise_id, the search is case insensitive
+      exercise_exercise_id_exists = Exercise.objects.filter(exercise_id__iexact=exercise_id).exists()
+
+      exists = exercise_name_exists or exercise_exercise_id_exists
       
-      return JsonResponse({'message': 'Exercise found.', 'exists': exercise_exists})
+      return JsonResponse({'message': 'Exercise found.', 'exists': exists})
     except Exception as e:
         return JsonResponse({'error': 'Fail to find exercise by name.'}, status=500)
 

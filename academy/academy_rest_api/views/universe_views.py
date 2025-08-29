@@ -7,17 +7,22 @@ def check_name_availability(request,name):
         if not name:
             return JsonResponse({'error': 'Universe name is required.'}, status=400)
         try:
-            #Verify if universe and world with give name exists, the search is case insensitive
             universe_exists = Universe.objects.filter(name__iexact=name).exists()
-            world_exists = World.objects.filter(name__iexact=name).exists()
+            if universe_exists:
+                return JsonResponse({'message': 'Check universe name realized.', 'exists': universe_exists})
             
-            #Both are verify because on exercise creation, universe's name is used
-            #as world name too
-            exists = universe_exists or world_exists
+            world_name_exits = World.objects.filter(name__iexact=name).exists()
+            if world_name_exits:
+                return JsonResponse({'message': 'Check universe realized.', 'exists': world_name_exits})
 
-            return JsonResponse({'message': 'Universe found.', 'exists': exists})
+            launcher_path = f'/opt/jderobot/Launchers/{name.lower().replace(" ", "_")}.launch.py'
+            world_launcher_exits = World.objects.filter(launch_file_path=launcher_path).exists()
+            if world_launcher_exits:
+                return JsonResponse({'message': 'Check universe realized.', 'exists': world_launcher_exits})
+            
+            return JsonResponse({'message': 'Check universe realized.', 'exists': False})
+        
         except Exception as e:
-            print(e)
             return JsonResponse({'error': 'Fail to find universe by name.'}, status=500)
     else:
         return JsonResponse({'error': 'Method not permited, must be GET.'}, status=405)
