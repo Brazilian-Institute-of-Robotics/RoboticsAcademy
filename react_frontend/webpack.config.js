@@ -2,6 +2,32 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const BundleTrackerPlugin = require("webpack-bundle-tracker");
 const path = require("path");
 const glob = require("glob");
+const Dotenv = require('dotenv-webpack');
+
+const getEnvVariables = () => {
+  try {
+    const fs = require('fs');
+    const envPath = path.resolve(__dirname, '../.env');
+    
+    if (fs.existsSync(envPath)) {
+      const envFile = fs.readFileSync(envPath, 'utf8');
+      const envVars = {};
+      
+      envFile.split('\n').forEach(line => {
+        const match = line.match(/^([^=]+)=(.*)$/);
+        if (match) {
+          envVars[match[1]] = match[2];
+        }
+      });
+      
+      return envVars;
+    }
+  } catch (error) {
+    console.warn('Fail to load env variables .env:', error.message);
+  }
+  
+  return {};
+};
 
 const aliases = () => {
   const aliasConfig = {
@@ -29,71 +55,85 @@ const aliases = () => {
   return aliasConfig;
 };
 
-module.exports = {
-  entry: {
+module.exports = () => {
+  const envVariables = getEnvVariables()
+  const isProduction = envVariables.PRODUCTION === 'True';
+
+  console.log("---------------------------------")
+  console.log(`--------${isProduction}-----------`)
+  console.log("---------------------------------")
+
+  let entries = {
     index: "./src/index.js",
     exercise: "./src/exercise-index.js",
     login: './src/login.js', 
-    create_exercise: './src/create_exercise.js'
-  },
-  output: {
-    filename: "js/[name].[contenthash:8].js",
-    clean: true,
-  },
-  resolve: {
-    alias: aliases(),
-    modules: ["node_modules", path.resolve(__dirname, "node_modules")],
-  },
-  module: {
-    rules: [
-      {
-        test: /\.(s*)css$/,
-        use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-          },
-          {
-            loader: "css-loader",
-            options: {
-              url: false,
-              sourceMap: true,
+  }
+
+  //Create's exercise page only usable in development
+  if (!isProduction)
+    entries.create_exercise = './src/create_exercise.js';
+
+  return {
+    entry: entries,
+    output: {
+      filename: "js/[name].[contenthash:8].js",
+      clean: true,
+    },
+    resolve: {
+      alias: aliases(),
+      modules: ["node_modules", path.resolve(__dirname, "node_modules")],
+    },
+    module: {
+      rules: [
+        {
+          test: /\.(s*)css$/,
+          use: [
+            {
+              loader: MiniCssExtractPlugin.loader,
             },
-          },
-          "sass-loader",
-        ],
-      },
-      {
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: "babel-loader",
-            options: {
-              presets: [
-                "@babel/preset-env",
-                ["@babel/preset-react", { runtime: "automatic" }],
-              ],
+            {
+              loader: "css-loader",
+              options: {
+                url: false,
+                sourceMap: true,
+              },
             },
-          },
-        ],
-      },
-      {
-        test: /\.(png|svg|jpg|gif)$/,
-        type: "asset/resource",
-      },
-      {
-        test: /\.(zip)$/,
-        use: "binary-loader",
-      },
+            "sass-loader",
+          ],
+        },
+        {
+          test: /\.(js|jsx)$/,
+          exclude: /node_modules/,
+          use: [
+            {
+              loader: "babel-loader",
+              options: {
+                presets: [
+                  "@babel/preset-env",
+                  ["@babel/preset-react", { runtime: "automatic" }],
+                ],
+              },
+            },
+          ],
+        },
+        {
+          test: /\.(png|svg|jpg|gif)$/,
+          type: "asset/resource",
+        },
+        {
+          test: /\.(zip)$/,
+          use: "binary-loader",
+        },
+      ],
+    },
+    plugins: [
+      new BundleTrackerPlugin({
+        filename: "./webpack-stats.json",
+      }),
+      new MiniCssExtractPlugin({
+        filename: "css/[name].css",
+      }),
     ],
-  },
-  plugins: [
-    new BundleTrackerPlugin({
-      filename: "./webpack-stats.json",
-    }),
-    new MiniCssExtractPlugin({
-      filename: "css/[name].css",
-    }),
-  ],
-  devtool: "inline-source-map",
+    devtool: "inline-source-map",
+  }
 };
