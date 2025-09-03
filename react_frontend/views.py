@@ -26,3 +26,14 @@ def create_exercise(request):
   return render(request, "react_frontend/create_exercise.html",{
      'django_env_json': json.dumps(django_env)
   })
+
+def password_reset_request(request):
+   return render(request, 'react_frontend/password_reset_request.html',{
+     'django_env_json': json.dumps(django_env)
+  })
+
+def password_reset_confirm(request, uid, token):
+   return render(request, 'react_frontend/password_reset_confirm.html',{
+     'django_env_json': json.dumps(django_env),
+     'password_reset_json': json.dumps({'uid': uid, 'token': token})
+  })

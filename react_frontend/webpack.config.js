@@ -59,14 +59,12 @@ module.exports = () => {
   const envVariables = getEnvVariables()
   const isProduction = envVariables.PRODUCTION === 'True';
 
-  console.log("---------------------------------")
-  console.log(`--------${isProduction}-----------`)
-  console.log("---------------------------------")
-
   let entries = {
     index: "./src/index.js",
     exercise: "./src/exercise-index.js",
     login: './src/login.js', 
+    password_reset_request: './src/password_reset_request.js',
+    password_reset_confirm: './src/password_reset_confirm.js'
   }
 
   //Create's exercise page only usable in development

@@ -33,7 +33,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure--(47x6f9ah3wi=x-wuryrzl^&$
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() in ('true', '1', 't')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = not PRODUCTION
+DEBUG = not PRODUCTION 
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1'] if PRODUCTION else ['*']
 STATIC_URL = '/static/'
@@ -247,4 +247,14 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Reload SESSION_COOKIE_AGE timeout when a request is made
 SESSION_SAVE_EVERY_REQUEST = True
+
+# Configuration to email responsible to send password recovery link
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = os.getenv('EMAIL_HOST','smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', default=587))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER','barretto.smtp@gmail.com')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'fiye titx nqrm qltq')
+PASSWORD_RESET_TIMEOUT = int(os.getenv('PASSWORD_RESET_TIMEOUT', default=1800))
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = "no-reply@seu-dominio.com"
 

@@ -29,6 +29,9 @@ urlpatterns = [
     path('', include(router.urls)),
     path('login/', auth_views.user_login),
     path('logout/', auth_views.user_logout),
+    path('passwordRecovery/', auth_views.generate_password_recovery_link ),
+    path('passwordRecoveryConfirm/<str:uid>/<str:token>/', auth_views.confirm_password_recovery ),
+    path('checkPasswordConfirmToken/<str:uid>/<str:token>/', auth_views.check_password_confirm_token),
 
     path('exercise/', exercise_views.create_exercise),
     path('exercise/<str:exercise_name>/', exercise_views.delete_exercise),

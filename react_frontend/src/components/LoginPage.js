@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { TextField, Button, Paper, Typography, Box } from "@mui/material";
-import { saveContainerManagerPorts, deleteContainerManagerPorts } from  '../helpers/storeManager'
+import { TextField, Paper, Typography, Box, Link} from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import { login } from '../helpers/auth';
+
+import PasswordVisibilityButton from './buttons/PasswordVisibilityButton';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false)
+    const [showPassword, setShowPassword] =  useState(false)
 
     const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
     const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
@@ -45,10 +47,18 @@ const LoginPage = () => {
               <TextField
                 fullWidth
                 margin="normal"
-                label="Senha"
-                type="password"
+                label="Password"
+                type= {showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                InputProps={{
+                  endAdornment: (
+                    <PasswordVisibilityButton 
+                      isVisible={showPassword} 
+                      handleIsVisible={() => setShowPassword(!showPassword)}
+                    />
+                  )
+                }}
               />
               <LoadingButton
                 fullWidth
@@ -57,11 +67,12 @@ const LoginPage = () => {
                 type="submit"
                 variant="contained"
                 color="primary"
-                sx={{ marginTop: 2 }}
+                sx={{ marginTop: 2, marginBottom: 2 }}
               >
                 Enter
               </LoadingButton>
             </form>
+            <Link  href="/password-reset-request">Forget password?</Link>
           </Paper>
         </Box>
     );
