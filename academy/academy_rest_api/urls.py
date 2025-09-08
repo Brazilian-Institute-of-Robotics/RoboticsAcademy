@@ -34,6 +34,7 @@ urlpatterns = [
     path('checkPasswordConfirmToken/<str:uid>/<str:token>/', auth_views.check_password_confirm_token),
 
     path('exercise/', exercise_views.create_exercise),
+    path('exerciseList/', exercise_views.get_exercise_list),
     path('exercise/<str:exercise_name>/', exercise_views.delete_exercise),
     path('exercise/checkNameAvailability/<str:name>/', exercise_views.check_name_availability),
 

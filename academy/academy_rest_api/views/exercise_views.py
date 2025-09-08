@@ -17,6 +17,7 @@ from academy.academy_rest_api.utils import frontend_utils as FrontendUtils
 
 from exercises.models import Exercise
 
+@api_view(["POST"])
 def create_exercise(request):
   if request.method == 'POST':
 
@@ -195,6 +196,45 @@ def delete_exercise(request, exercise_name):
       )
   
   return JsonResponse({'error': 'Method not permited, must be DELETE.'}, status=405)
+
+@api_view(["GET"])
+def get_exercise_list(request):
+  if request.method == "GET":
+    try:
+      exercises = Exercise.objects.all()\
+        .select_related('guide_page_category')\
+        .prefetch_related('universes')
+      
+
+      data = []
+      for exercise in exercises:
+          exercise_data = {
+              'id': exercise.id,
+              'exercise_id': exercise.exercise_id,
+              'name': exercise.name,
+              'description': exercise.description,
+              'tags': exercise.tags,
+              'status': exercise.status,
+              'template': exercise.template,
+              'guide_page_category': {
+                  'id': exercise.guide_page_category.id,
+                  'name': exercise.guide_page_category.name
+              },
+              'universes': [
+                  {
+                      'id': universe.id,
+                      'name': universe.name
+                  } for universe in exercise.universes.all()
+              ]
+          }
+          data.append(exercise_data)
+
+      return  JsonResponse(data, safe=False, status=200)
+    except Exception as e:
+       print(e)
+       return JsonResponse({'error': 'Fail to find to get list of exercises.'}, status=500)
+  else:
+    return JsonResponse({'error': 'Method not permited, must be GET.'}, status=405)
 
 
 def check_name_availability(request, name):

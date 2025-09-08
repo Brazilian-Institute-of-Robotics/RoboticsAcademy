@@ -67,9 +67,11 @@ module.exports = () => {
     password_reset_confirm: './src/password_reset_confirm.js'
   }
 
-  //Create's exercise page only usable in development
-  if (!isProduction)
+  //Pages inside this block are only usable in development
+  if (!isProduction){
     entries.create_exercise = './src/create_exercise.js';
+    entries.exercise_list_crud = './src/exercise_list_crud.js'
+  }
 
   return {
     entry: entries,

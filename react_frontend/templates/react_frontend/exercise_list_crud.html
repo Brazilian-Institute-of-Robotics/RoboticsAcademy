@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load render_bundle from webpack_loader %}
+
+{% block content %}
+  {% csrf_token %}
+  <div id="exercise-list-crud-root"></div>
+{% endblock %}
+
+{% block before_end_body %}
+    {{ block.super }}
+    {% render_bundle 'exercise_list_crud' 'js' %}
+    <style>
+      body {
+          background-color: #696969;
+          margin: 0;
+          padding: 0;
+      }
+  </style>
+{% endblock %}
