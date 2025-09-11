@@ -9,7 +9,7 @@ from functools import partial
 from threading import Thread
 
 from academy.academy_rest_api.utils import exercise_utils as ExerciseUtils 
-from academy.academy_rest_api.utils.coord_and_locks import RebuildCoordinator
+from academy.academy_rest_api.utils.rebuild_coordinator import RebuildCoordinator
 
 from exercises.models import Exercise
 
