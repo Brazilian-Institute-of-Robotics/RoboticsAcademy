@@ -1,19 +1,15 @@
-import json
 import sys
 import os
-import subprocess
-import re
-import tempfile
-import time
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from functools import partial
+from threading import Thread
 
 from academy.academy_rest_api.utils import exercise_utils as ExerciseUtils 
-from academy.academy_rest_api.utils import frontend_utils as FrontendUtils
+from academy.academy_rest_api.utils.coord_and_locks import RebuildCoordinator
 
 from exercises.models import Exercise
 
@@ -86,16 +82,7 @@ def create_exercise(request):
       )
       if static_result is not None:
         return static_result
-      
-      print("REBUILD EXERCISES WEB FILES")
-      rebuild_response = FrontendUtils.rebuild()
-      if rebuild_response.get("success") == 0:
-        rollback_result = _creationRollback(exercise_id)
-        if rollback_result.get("success") == 0:
-          return JsonResponse({'error': 'Fail to create exercise AND fail to rollback. Please contact admin.'}, status=500)
-        else:
-          return JsonResponse({'error': 'Fail to create exercise.'}, status=500)
-     
+    
       print("CREATE LAUNCHER FILE")
       create_launcher = partial(ExerciseUtils.createExerciseLauncher,launcher_name)
       launcher_result = _exercise_utils_executor(
@@ -131,6 +118,9 @@ def create_exercise(request):
       )
       if guide_page_result is not None:
         return guide_page_result
+      
+      print("REBUILDING FRONTEND")
+      RebuildCoordinator.trigger()
 
       return JsonResponse({'message': 'Exercise created!'})
     
@@ -151,17 +141,17 @@ def create_exercise(request):
 
 
 @api_view(["DELETE"])
-def delete_exercise(request, exercise_name):
+def delete_exercise(request, id):
   if request.method == "DELETE":
 
-    if not exercise_name:
-        return JsonResponse({'error': 'Exercise name is required.'}, status=400)
+    if not id:
+      return JsonResponse({'error': 'Exercise name is required.'}, status=400)
 
     try:
       print("REMOVING EXERCISE")
 
-      #This function already have a rollback inside
-      exercise_removal = ExerciseUtils.deleteExercise(exercise_name)
+      id = int(id)
+      exercise_removal = ExerciseUtils.deleteExercise(id)
 
       if exercise_removal["success"] == 0:
         _printError(
@@ -169,17 +159,12 @@ def delete_exercise(request, exercise_name):
           "ERROR: "+exercise_removal["error"],
           "DETAILS: "+exercise_removal["details"],
         )
-        message =  "There is no exercise with this name" if exercise_removal["exists"] == 0 else "Fail to delete exercise, contact API suport"
+        message =  "There is no exercise with this id" if exercise_removal["exists"] == 0 else "Fail to delete exercise, contact API suport"
         http_status = 400 if exercise_removal["exists"] == 0 else 500
         return JsonResponse({'error': f'{message}'}, status=http_status)
       
       print("REBUILDING FRONTEND")
-      rebuild_response = FrontendUtils.rebuild()
-      if rebuild_response["success"] == 0:
-        return JsonResponse(
-          {'error': 'Exercise was deleted, but rebuild on frontend fail.'}, 
-          status=500
-        )
+      RebuildCoordinator.trigger()
 
       return JsonResponse({'message': 'Exercise deleted!'})
     

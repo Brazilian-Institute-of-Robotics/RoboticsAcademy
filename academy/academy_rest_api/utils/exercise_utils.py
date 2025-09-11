@@ -377,7 +377,7 @@ def createExerciseRollback(exercise_name):
         }
 
 
-def deleteExercise(exercise_name):
+def deleteExercise(id):
 
     moved_paths = []
     exercises_md_path = "/GuidePages/_pages/exercises.md"
@@ -387,14 +387,14 @@ def deleteExercise(exercise_name):
     ExercisesUniverses = Exercise.universes.through
 
     try:
-        exercise = Exercise.objects.filter(exercise_id=exercise_name).first()
+        exercise = Exercise.objects.filter(id=id).first()
 
         if not exercise:
             return {
                 'success': 0,
                 'exists': 0,
-                'error': f'There is no exercise with this name ({exercise_name})',
-                'details': f'There is no exercise with this name ({exercise_name})'
+                'error': f'There is no exercise with id = {id}',
+                'details': f'There is no exercise with id {id}'
             }
         
         universes_to_delete = []
