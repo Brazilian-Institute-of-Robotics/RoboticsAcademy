@@ -11,6 +11,7 @@ import { LoadingButton } from '@mui/lab';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import FormError from "./message_system/FormError";
 
@@ -82,8 +83,12 @@ function CreateExerciseForm() {
           values.guidePageFiles, values.guidePageCode, serverBase
         )
 
-        if (result.success == 1) 
-          setResponseMsg(`✅ Exercise created!`);
+        if (result.success == 1){
+          setResponseMsg(`✅ Exercise created. Redirecting to list page...`);
+          setTimeout(() => {
+              window.location.href = `${serverBase}/exerciseListCrud/`;
+          }, 5000);
+        }
         else 
           setResponseMsg(`❌ ${result.error}`);
 
@@ -543,20 +548,16 @@ function CreateExerciseForm() {
             <LoadingButton
               loading={isDeleting}
               loadingIndicator="Loading..."
-              startIcon={<DeleteIcon/>}
+              startIcon={<ArrowBackIcon/>}
               disabled={isGenarating || isSaving}
               variant="contained" 
               sx={{
                 m:2, 
                 width:"25ch", 
-                bgcolor:"#eb4034",
-                '&:hover': {
-                  backgroundColor: '#eb4034',
-                },
               }} 
-              onClick={handleDelete}
+              onClick={() => { window.location.href = `${serverBase}/exerciseListCrud/`}}
             >
-              DELETE
+              BACK
             </LoadingButton>
           </form>
       </Container>

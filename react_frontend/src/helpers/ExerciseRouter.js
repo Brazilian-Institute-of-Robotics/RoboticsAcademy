@@ -32,8 +32,13 @@ const ExerciseRouter = {
       });
   
       const data = await res.json();
-      if (res.ok) 
+      if (res.ok){
+
+        // TO GIVE TIME (30s) TO FRONTEND BE REBUILD WITH NEW PAGE OF EXERCISE
+        await new Promise(resolve => setTimeout(resolve, 30000));
+
         return {"success": 1, "data":data}
+      }
       else 
         return {"success": 0, "error":data.error}
 
@@ -78,6 +83,30 @@ const ExerciseRouter = {
 
       if (res.ok)
         return {"success": 1, "data":data}
+      else
+        return {"success": 0, "error":data.error}
+    } catch (error) {
+      //console.log(error)
+      return {"success": 0, "error":"Error on find exercise's list. Check connection or contact suport"}
+    }
+  },
+  delete: async (id, serverBase) => {
+    try {
+      const csrfToken = getCookie("csrftoken")
+      const res = await fetch(`${serverBase}/api/v1/exercise/${encodeURIComponent(id)}/`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRFToken': csrfToken
+        },
+      });
+
+      const data = await res.json();
+
+      if (res.ok){
+        // TO GIVE TIME (30s) TO FRONTEND BE REBUILDED
+        await new Promise(resolve => setTimeout(resolve, 30000));
+        return {"success": 1, "data":data}
+      }
       else
         return {"success": 0, "error":data.error}
     } catch (error) {

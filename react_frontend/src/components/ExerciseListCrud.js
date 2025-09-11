@@ -2,11 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { sortDataBy } from '../helpers/tableHelper'
 import ExerciseRouter from "../helpers/ExerciseRouter";
 import {
-    Box,
-    Button,
-    CircularProgress,
     Collapse,
-    Divider,
     IconButton,
     Paper,
     Table,
@@ -32,10 +28,7 @@ import {
     AddCircle as AddCircleIcon,
     VisibilityOff as VisibilityOffIcon
 } from "@mui/icons-material";
-
-function delay(ms) {
-    return new Promise((r) => setTimeout(r, ms));
-}
+import ConfirmationModal from "./modals/ConfirmationModal";
 
 const TABLE_COLORS = {
     "name": "#8E7756",
@@ -53,6 +46,9 @@ export default function ExerciseListCrud() {
     const [order, setOrder] = React.useState("asc");
     const [orderBy, setOrderBy] = React.useState("name");
     
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+    const [exerciseToDelete, setExerciseToDelete] = useState("")
+
     const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
     const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
 
@@ -120,6 +116,28 @@ export default function ExerciseListCrud() {
             return next;
         });
     };
+
+    const handleExerciseDelete = async (e) => {
+        try{
+            const id = exerciseToDelete.id
+            const result = await ExerciseRouter.delete(id, serverBase)
+            
+            if (result.success == 1){
+              setError(`✅ Exercise deleted!`);
+              const newRows = rows.filter( exercise => { return exercise.id != id})
+              setRows(newRows)
+              setExerciseToDelete("")
+            }
+            else 
+              setError(`❌ ${result.error}`);
+    
+          } catch (error) {
+            //console.log("ERRO: "+error)
+            setError(`❌ Fail to Delete exercise. Verify connection or contact suport`);
+          }finally{
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+    }
     
 
     return (
@@ -150,7 +168,7 @@ export default function ExerciseListCrud() {
                     <IconButton
                         size="large"
                         sx={{ p: 0,}}
-                        onClick={() => { window.location.href = 'createExercise/' }}
+                        onClick={() => { window.location.href = `${serverBase}/createExercise/`}}
                     >
                         <AddCircleIcon sx={{ color: "#3ec922", fontSize: 40 }} />
                     </IconButton>
@@ -217,7 +235,7 @@ export default function ExerciseListCrud() {
 
                         {/* TABLE DATA */}
                         {sortedRows.map((ex) => {
-                            const isOpen = expanded.has(ex.id);
+                            const isColapseOpen = expanded.has(ex.id);
                             return (
                                 <React.Fragment key={ex.id}>
                                     <TableRow 
@@ -231,7 +249,7 @@ export default function ExerciseListCrud() {
                                                     sx={{bgcolor:"white"}}
                                                     onClick={() => handleToggle(ex.id)}
                                                 >
-                                                    {isOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                                                    {isColapseOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                                                 </IconButton>
                                             </Tooltip>
                                         </TableCell>
@@ -266,7 +284,10 @@ export default function ExerciseListCrud() {
                                                         color="error"
                                                         size="small"
                                                         sx={{ p: 0 }}
-                                                        onClick={() => { window.location.href = 'createExercise/' }}
+                                                        onClick={() => { 
+                                                            setExerciseToDelete(ex)
+                                                            setIsDeleteModalOpen(true)
+                                                        }}
                                                     >
                                                         <DeleteIcon sx={{ fontSize: 30 }} />
                                                     </IconButton>
@@ -278,7 +299,7 @@ export default function ExerciseListCrud() {
                                     {/* UNIVERSE TABLE */}
                                     <TableRow sx={{ bgcolor: "#A9A9A9"}}>
                                         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6} sx={{ p: 0 }}>
-                                            <Collapse in={isOpen} timeout="auto" unmountOnExit>
+                                            <Collapse in={isColapseOpen} timeout="auto" unmountOnExit>
                                                 <UniverseTable exercise={ex}/>
                                             </Collapse>
                                         </TableCell>
@@ -299,6 +320,13 @@ export default function ExerciseListCrud() {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <ConfirmationModal
+                modalTitle={`Delete exercise (${exerciseToDelete.name})`}
+                buttonTitle="DELETE"
+                open={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={() => handleExerciseDelete()}
+            />
         </div>
     );
 }
