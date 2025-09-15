@@ -152,6 +152,50 @@ def writeDeletionSeed(exercise, universes_list, world_lists):
         #raise exception to trigger transaction.atomic() rollback
         raise Exception(str(e)) from e
 
+def writeUpdateActivity(exercise):
+
+    date_hour = datetime.now().strftime("%Y%m%d_%H%M%S")
+    new_seed_name = f"Seed_{date_hour}_{exercise.exercise_id}_{exercise.status}.json"
+
+    fixtures_dir = os.path.join("exercises", "fixtures")
+    new_seed_path = os.path.join(fixtures_dir, new_seed_name)
+
+    guide_category = exercise.guide_page_category
+
+    items = []
+    items.append({
+        "model": f"{exercise._meta.app_label}.{exercise._meta.model_name}",
+        "fields": {
+            "exercise_id": exercise.exercise_id,
+            "name": exercise.name,
+            "description": exercise.description,
+            "tags": exercise.tags,
+            "status": exercise.status,
+            "template": exercise.template,
+            "guide_page_category": _nk(guide_category),
+        },
+    })
+
+    try:
+        #Garantees seed folder exists
+        os.makedirs(fixtures_dir, exist_ok=True)
+
+        #Creates new seed file
+        with open(new_seed_path, "w", encoding="utf-8") as f:
+            json.dump(items, f, ensure_ascii=False, indent=2)
+        
+        #Update seed tracker file with new seed
+        SeedTrackerUtils.updateTrackerFile(new_seed_name)
+
+        return new_seed_path
+
+    except Exception as e:
+        exists_seed_file = os.path.isfile(new_seed_path)
+        if exists_seed_file:
+            SeedTrackerUtils.rollbackSeed()
+
+        #raise exception to trigger transaction.atomic() rollback
+        raise Exception("Fail to write update activity exercise seed") from e
     
 
     

@@ -480,6 +480,80 @@ def deleteExercise(id):
             'details': str(e)
         }
 
+def changeActivity(id):
+    exercises_md_path = "/GuidePages/_pages/exercises.md"
+    exercises_md_backup = f"{exercises_md_path}.bak"
+
+    try:
+        new_seed_path = ""
+        exercise = Exercise.objects.filter(id=id).select_related('guide_page_category').first()
+
+        if not exercise:
+            return {
+                'success': 0,
+                'exists': 0,
+                'error': f'There is no exercise with id = {id}',
+                'details': f'There is no exercise with id {id}'
+            }
+        
+        oldStatus = exercise.status
+        if oldStatus == "ACTIVE":
+            newStatus = "INACTIVE"
+        else:
+            newStatus = "ACTIVE"
+
+        with transaction.atomic():
+            exercise.status = newStatus
+            category_identify = exercise.guide_page_category.category_identify
+            exercise.save()
+
+            #Change status on exercises's guide page list
+            def finalize_change():
+                try:
+                    # Creates a backup file of exercises.md and removes
+                    shutil.copy2(exercises_md_path, exercises_md_backup)
+                    
+                    exercise_id = exercise.exercise_id
+                    isActive = True if newStatus == "ACTIVE" else False
+                    ExercisesFilePathUtils.changeActivityExerciseOnGuideList(exercises_md_path, exercise_id, category_identify, isActive)
+
+                    # Deleting backup file
+                    os.remove(exercises_md_backup)
+                except Exception as e:
+                    # Restores exercises.md using backup
+                    if os.path.exists(exercises_md_backup):
+                        shutil.copy2(exercises_md_backup, exercises_md_path)
+                        os.remove(exercises_md_backup)
+
+                    return {
+                        'success': 0,
+                        'exists': 0,
+                        'error': 'Fail to change markdown file',
+                        'details': str(e)
+                    }
+
+                
+            # Ensure finalize_change() only executes if db transaction succeed
+            transaction.on_commit(finalize_change)
+            
+            #Create a new seed that update exercise activity
+            new_seed_path = ExerciseSeedUtils.writeUpdateActivity(exercise)
+
+            return {'success': 1, 'newStatus': newStatus}
+
+
+    except Exception as e:
+        #Case true, means that a new seed was created and must be deleted
+        if new_seed_path != "":
+            SeedTrackerUtils.rollbackSeed()
+        
+        return {
+            'success': 0,
+            'exists': 1,
+            'error': 'Aborted due to undeletable file or other error',
+            'details': str(e)
+        }
+
 
 #BELLOW HERE ARE FUNCTION TO ONLY USE IS THIS FILE
 

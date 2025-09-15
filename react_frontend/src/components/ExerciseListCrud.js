@@ -33,7 +33,8 @@ import ConfirmationModal from "./modals/ConfirmationModal";
 const TABLE_COLORS = {
     "name": "#8E7756",
     "head": "#B39283",
-    "data": "#D9C8B4"
+    "data_active": "#D9C8B4",
+    "data_inactive": "#FFCC99"
 }
 
 export default function ExerciseListCrud() {
@@ -47,7 +48,10 @@ export default function ExerciseListCrud() {
     const [orderBy, setOrderBy] = React.useState("name");
     
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+    const [isChangeStatusModalOpen, setIsChangeStatusModalOpen] = useState(false)
+
     const [exerciseToDelete, setExerciseToDelete] = useState("")
+    const [exerciseToChangeStatus, setExerciseToChangeStatus] = useState("")
 
     const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
     const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
@@ -134,6 +138,29 @@ export default function ExerciseListCrud() {
           } catch (error) {
             //console.log("ERRO: "+error)
             setError(`❌ Fail to Delete exercise. Verify connection or contact suport`);
+          }finally{
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+    }
+
+    const handleExerciseChangeStatus = async (e) => {
+        try{
+            const id = exerciseToChangeStatus.id
+            const result = await ExerciseRouter.changeStatus(id, serverBase)
+            
+            if (result.success == 1){
+              setError(`✅ Exercise status changed!`);
+              const exerciseIndex = rows.findIndex((ex) => {return ex.id == id})
+              rows[exerciseIndex].status = result.newStatus
+              setRows(rows)
+              setExerciseToChangeStatus("")
+            }
+            else 
+              setError(`❌ ${result.error}`);
+    
+          } catch (error) {
+            //console.log("ERRO: "+error)
+            setError(`❌ Error on change exercise. Verify connection or contact suport`);
           }finally{
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }
@@ -239,7 +266,7 @@ export default function ExerciseListCrud() {
                             return (
                                 <React.Fragment key={ex.id}>
                                     <TableRow 
-                                        sx={{ bgcolor: TABLE_COLORS.data }} 
+                                        sx={{ bgcolor: ex.status == "ACTIVE" ? TABLE_COLORS.data_active : TABLE_COLORS.data_inactive }}
                                         hover
                                     >
                                         <TableCell>
@@ -269,14 +296,21 @@ export default function ExerciseListCrud() {
                                                         <EditIcon sx={{ fontSize: 30 }} />
                                                     </IconButton>
                                                 </Tooltip>
-                                                <Tooltip title="Inactivate">
+                                                <Tooltip title={ex.status == "ACTIVE" ? "Inactivate" : "Activate"}>
                                                     <IconButton
                                                         color="warning"
                                                         size="small"
                                                         sx={{ p: 0 }}
-                                                        onClick={() => { window.location.href = 'createExercise/' }}
+                                                        onClick={() => { 
+                                                            setExerciseToChangeStatus(ex)
+                                                            setIsChangeStatusModalOpen(true)
+                                                        }}
                                                     >
-                                                        <VisibilityOffIcon sx={{ fontSize: 30 }}/>
+                                                        {
+                                                            ex.status == "ACTIVE" ? 
+                                                                (<VisibilityOffIcon sx={{ fontSize: 30 }}/>) :
+                                                                (<VisibilityIcon sx={{ fontSize: 30 }}/>)
+                                                        }
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="Delete">
@@ -327,6 +361,13 @@ export default function ExerciseListCrud() {
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={() => handleExerciseDelete()}
             />
+            <ConfirmationModal
+                modalTitle={`Change status of exercise (${exerciseToChangeStatus.name})`}
+                buttonTitle="UPDATE"
+                open={isChangeStatusModalOpen}
+                onClose={() => setIsChangeStatusModalOpen(false)}
+                onConfirm={() => handleExerciseChangeStatus()}
+            />
         </div>
     );
 }
@@ -354,7 +395,7 @@ const UniverseTable = ({exercise}) => {
                         </TableHead>
                         <TableBody>
                             {exercise.universes.map((u) => (
-                                <TableRow sx={{bgcolor: TABLE_COLORS.data}} key={u.id} hover>
+                                <TableRow sx={{bgcolor: TABLE_COLORS.data_active}} key={u.id} hover>
                                     <TableCell align="center">{u.name}</TableCell>
                                     <TableCell align="right">
                                         <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>

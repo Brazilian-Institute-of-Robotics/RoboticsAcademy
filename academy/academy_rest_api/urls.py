@@ -37,6 +37,7 @@ urlpatterns = [
     path('exerciseList/', exercise_views.get_exercise_list),
     path('exercise/<str:id>/', exercise_views.delete_exercise),
     path('exercise/checkNameAvailability/<str:name>/', exercise_views.check_name_availability),
+    path('exercise/changeStatus/<int:id>/', exercise_views.change_activity),
 
     path('universe/checkNameAvailability/<str:name>/', universe_views.check_name_availability),
 

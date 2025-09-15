@@ -1,4 +1,7 @@
 import os
+import re
+
+from urllib.parse import urlparse, unquote
 
 # Return all path of files/directories related to this exercice
 def getExercisesFilesPath(exercise, universes_list):
@@ -98,3 +101,65 @@ def removeExerciseOnGuideList(exercises_md_path, exercise_name):
 
     with open(exercises_md_path, "w") as f:
         f.writelines(new_lines)
+
+
+
+def changeActivityExerciseOnGuideList(exercises_md_path, exercise_id, category_identify, isActive):
+
+    status = "running" if isActive else "inactive"
+    order = 0 if isActive else 1
+
+    with open(exercises_md_path, "r") as f:
+        lines = f.readlines()
+
+    image_path = _norm_path(f"/exercises/{category_identify}/{exercise_id}")
+
+    new_lines = []
+    exercise_block_found = False
+    exercise_uptade_finished = False
+
+    #This loop will find exercise block by url field
+    #When is found, the fileds status and order are updated
+    for index, line in enumerate(lines):
+        if not exercise_uptade_finished:
+            if exercise_block_found:
+
+                status_matches = re.match(r"^(\s*)status\s*:", line)
+                order_matches = re.match(r"^(\s*)order\s*:", line)
+
+                if status_matches:
+                    space = status_matches.group(1)
+                    line = f"{space}status: \"{status}\"\n"
+                if order_matches:
+                    print("Order found")
+                    space = order_matches.group(1)
+                    line = f"{space}order: {order};\n"
+                    exercise_uptade_finished = True
+
+            url_field = re.match(r"^\s*url\s*:\s*(.+?)\s*$", line)
+            if url_field:
+                path_normalize = _norm_path(url_field.group(1))
+                if (image_path in path_normalize) or (path_normalize == image_path):
+                    print("URL found")
+                    exercise_block_found = True
+        
+        new_lines.append(line)
+
+    with open(exercises_md_path, "w") as f:
+        f.writelines(new_lines)
+
+
+# LOCAL FUNCTIONS HERE
+
+#Normalize string that contain a file path to be easier to compare
+def _norm_path(u: str) -> str:
+    u = u.strip()
+    if "#" in u:  # remove comentário inline
+        u = u.split("#", 1)[0].strip()
+    u = u.rstrip(";,").strip()
+    if len(u) >= 2 and u[0] in "\"'`" and u[-1] == u[0]:
+        u = u[1:-1].strip()
+    p = urlparse(u).path or u
+    p = unquote(p)
+    p = re.sub(r"/+", "/", p).rstrip("/")
+    return p.lower()

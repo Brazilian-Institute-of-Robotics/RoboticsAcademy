@@ -245,6 +245,32 @@ def check_name_availability(request, name):
   else:
     return JsonResponse({'error': 'Method not permited, must be GET.'}, status=405)
 
+@api_view(["PATCH"])
+def change_activity(request, id):
+  if request.method == "PATCH":
+    if not id:
+      return JsonResponse({'error': 'Exercise id is required.'}, status=400)
+    
+    try:
+      result = ExerciseUtils.changeActivity(id)
+      if result.get("success") == 0:
+        _printError(
+          "ERROR ON CHANGE EXERCISE STATUS",
+          "ERROR: "+result["error"],
+          "DETAILS: "+result["details"],
+        )
+        message =  result["error"] if result["exists"] == 0 else "Fail to change exercise status, contact API suport"
+        http_status = 400 if result["exists"] == 0 else 500
+        return JsonResponse({'error': f'{message}'}, status=http_status)
+      
+      return JsonResponse({'message': 'Exercise status updated', 'newStatus': result["newStatus"]})
+    
+    except Exception as e:
+      return JsonResponse({'error': 'Fail to find exercise by name.'}, status=500)
+
+  else:
+    return JsonResponse({'error': 'Method not permited, must be .'}, status=405)
+
 
 # BELLOW HERE IS LOCAL FUNCTION
 

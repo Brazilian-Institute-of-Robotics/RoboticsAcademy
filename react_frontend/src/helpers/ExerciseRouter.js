@@ -48,6 +48,7 @@ const ExerciseRouter = {
     }
 
   },
+
   checkNameAvalability: async (name, serverBase) => {
     try {
       const csrfToken = getCookie("csrftoken")
@@ -69,6 +70,7 @@ const ExerciseRouter = {
       return {"success": 0, "error":"Error on check exercise name. Check connection or contact suport"}
     }
   },
+
   getExerciseList: async (serverBase) => {
     try {
       const csrfToken = getCookie("csrftoken")
@@ -90,6 +92,7 @@ const ExerciseRouter = {
       return {"success": 0, "error":"Error on find exercise's list. Check connection or contact suport"}
     }
   },
+
   delete: async (id, serverBase) => {
     try {
       const csrfToken = getCookie("csrftoken")
@@ -112,6 +115,27 @@ const ExerciseRouter = {
     } catch (error) {
       //console.log(error)
       return {"success": 0, "error":"Error on find exercise's list. Check connection or contact suport"}
+    }
+  },
+  changeStatus: async (id, serverBase) => {
+    try {
+      const csrfToken = getCookie("csrftoken")
+      const res = await fetch(`${serverBase}/api/v1/exercise/changeStatus/${encodeURIComponent(id)}/`, {
+        method: 'PATCH',
+        headers: {
+          'X-CSRFToken': csrfToken
+        },
+      });
+
+      const data = await res.json();
+
+      if (res.ok)
+        return {"success": 1, "newStatus":data.newStatus}
+      else
+        return {"success": 0, "error":data.error}
+    } catch (error) {
+      //console.log(error)
+      return {"success": 0, "error":"Error on change exercise. Check connection or contact suport"}
     }
   }
 }
