@@ -1,5 +1,5 @@
 #IMPORT START
-from hal_interfaces.general.odometry import OdometryNode
+from hal_interfaces.general.odometry import SimTimeNode
 #IMPORT END
 
 #CREATE START
