@@ -15,6 +15,7 @@ const UploadFileButton = ({formik, formikAtrributeName, title, successTitle, wid
         const selectedFile = event.target.files[0];
 
         if (selectedFile && selectedFile.name.endsWith(fileType)) {
+            //console.log(selectedFile)
             formik.setFieldValue(formikAtrributeName, selectedFile)
             setIsWorldFile(true)
         } else {

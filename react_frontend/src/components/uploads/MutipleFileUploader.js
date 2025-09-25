@@ -5,14 +5,21 @@ import {
   IconButton,
   Paper,
   Tooltip,
+  Modal,
 } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
+import { useFormikContext } from 'formik';
 
 const MutipleFileUploader = ({formik, formikAtrributeName, fileTypes, startText}, props) => {
 
-  const [files, setFiles] = useState([]);
+  const formikContext = formik != null ? formik : useFormikContext()
+
+  const [files, setFiles] = useState(formikContext.values[formikAtrributeName]);
+  const [previewOpen, setPreviewOpen] = React.useState(false);
+  const [previewSrc, setPreviewSrc] = React.useState(null);
+
   const fileInputRef = useRef();
 
   const handleFileChange = (e) => {
@@ -27,24 +34,37 @@ const MutipleFileUploader = ({formik, formikAtrributeName, fileTypes, startText}
       }
     });
 
+    console.log(allFiles)
     setFiles(allFiles);
-    formik.setFieldValue(formikAtrributeName, allFiles)
+    formikContext.setFieldValue(formikAtrributeName, allFiles)
   };
 
   const handleRemove = (index) => {
-    new_array = files.filter((file, i) => i !== index)
+    const new_array = files.filter((file, i) => i !== index)
 
     setFiles(new_array);
-    formik.setFieldValue(formikAtrributeName, new_array)
+    formikContext.setFieldValue(formikAtrributeName, new_array)
   };
 
   const handleClickAdd = () => {
     fileInputRef.current.click();
   };
 
+  const openPreview = (file) => {
+    const url = URL.createObjectURL(file);
+    setPreviewSrc(url);
+    setPreviewOpen(true);
+  };
+
+  const closePreview = () => {
+    if (previewSrc) URL.revokeObjectURL(previewSrc);
+    setPreviewSrc(null);
+    setPreviewOpen(false);
+  };
+
   return (
     <Box p={2}>
-      {/* hidden input */}
+
       <input
         type="file"
         accept={fileTypes}
@@ -84,7 +104,7 @@ const MutipleFileUploader = ({formik, formikAtrributeName, fileTypes, startText}
               overflowX: 'auto',
               gap: 2,
               pt: 1,
-              pb: 5, // espaço para não cobrir o botão no canto inferior
+              pb: 5,
             }}
           >
             {files.map((file, index) => (
@@ -100,8 +120,13 @@ const MutipleFileUploader = ({formik, formikAtrributeName, fileTypes, startText}
                   alignItems: 'center',
                   textAlign: 'center',
                   flexShrink: 0,
-                  backgroundColor: "#96938a"
+                  backgroundColor: "#96938a",
+                  '&:hover': {
+                    backgroundColor: '#b0aca4',
+                    transform: 'translateY(-1px)',
+                  },
                 }}
+                onClick={() => openPreview(file)}
               >
                 <InsertDriveFileIcon color="action" fontSize="large" />
                 <Typography
@@ -116,7 +141,10 @@ const MutipleFileUploader = ({formik, formikAtrributeName, fileTypes, startText}
                 </Typography>
                 <IconButton
                   size="small"
-                  onClick={() => handleRemove(index)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemove(index)
+                  }}
                   sx={{
                     position: 'absolute',
                     top: 4,
@@ -156,9 +184,46 @@ const MutipleFileUploader = ({formik, formikAtrributeName, fileTypes, startText}
             <AddIcon fontSize="small"/>
           </IconButton>
         </Tooltip>
+        <ModalImage previewOpen={previewOpen} previewSrc={previewSrc} closePreview={closePreview}/>
       </Paper>
     </Box>
   );
 };
+
+let ModalImage = ({previewOpen, previewSrc, closePreview}) => {
+  return (
+     <Modal
+        open={previewOpen}
+        onClose={closePreview}
+        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 2 }}
+      >
+        <Box
+          sx={{
+            outline: 'none',
+            maxWidth: '90vw',
+            maxHeight: '90vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+          }}
+        >
+          {previewSrc && (
+            <Box
+              component="img"
+              src={previewSrc}
+              alt="Preview"
+              sx={{
+                maxWidth: '100%',
+                maxHeight: '85vh',
+                borderRadius: 1,
+                boxShadow: 6,
+              }}
+            />
+          )}
+        </Box>
+    </Modal>
+  )
+}
 
 export default MutipleFileUploader;

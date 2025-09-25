@@ -22,11 +22,15 @@ import HalGenerator from './editors/HalGenerator';
 import UploadFileButton from "./buttons/UploadFileButton";
 
 import { getCookie } from "../helpers/cookie";
+
 import ExerciseRouter from "../helpers/ExerciseRouter"
 import UniverseRouter from "../helpers/UniverseRouter";
+import GuidePageCategoryRouter from "../helpers/GuidePageCategoryRouter";
 
 import MutipleFileUploader from "./uploads/MutipleFileUploader";
 import { Editor } from "@monaco-editor/react";
+
+
 
 function CreateExerciseForm() {
 
@@ -64,7 +68,7 @@ function CreateExerciseForm() {
     },
     validationSchema: Yup.object({
       exerciseName: Yup.string().trim().required("Exercise's name is required").max(40, "Max length is 40 characters"),
-      description: Yup.string().max(40, "Max length is 400 characters"),
+      description: Yup.string().max(400, "Max length is 400 characters"),
       universeName: Yup.string().trim().required("Universes's name is required").max(100, "Max length is 100 characters"),
       worldFile: Yup.mixed().required("World's file is required"),
       code: Yup.string().required("HAL's code is required"),
@@ -108,19 +112,21 @@ function CreateExerciseForm() {
   useEffect(() => {
     const csrfToken = getCookie("csrftoken")
 
+
     const fetchGuideCategories = async () => {
-        try {
-          const response = await fetch(`${serverBase}/api/v1/guideCategory/findAll`, {
-              method: 'GET',
-              headers: {'X-CSRFToken': csrfToken},
-          });
+      try {
+          const result = await GuidePageCategoryRouter.findAll(serverBase)
+          if (result.success == 1){
+              const list_category = result.data
+              setCategoryList(list_category)
+          }
+          else
+            setResponseMsg(`❌ ${result.error}`);
 
-          const data = await response.json();
-          setCategoryList(data)
-
-        } catch (error) {
-          setResponseMsg("❌ Error to exercise category. Check connection or contact suport")
-        }
+      } catch (error) {
+          //console.log(error)
+          setResponseMsg("❌ Error to find list of guide category. Verify connection or contact suport")
+      }
     };
 
     const fetchBaseMarkdown = async () => {
@@ -246,7 +252,7 @@ function CreateExerciseForm() {
           setResponseMsg(`❌ ${result.data.error}`)
 
     } catch (error) {
-      console.log(error)
+      //console.log(error)
       setResponseMsg(`❌ Fail to verify universe name avalability. Check connection or contact suport`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }finally{
@@ -259,38 +265,6 @@ function CreateExerciseForm() {
     const category_selected = categoryList.find(category => category.id == categoryId)
     formik.setFieldValue("categoryId", categoryId);
     setCategoryIdentify(category_selected.category_identify)
-  }
-
-  const handleDelete = async (e) => {
-    const name = formik.values.exerciseName
-    if (!name) {
-      setResponseMsg('❌ Digite um nome de exercício para deletar');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-    setIsDeleting(true)
-    try {
-      const csrfToken = getCookie("csrftoken")
-      const res = await fetch(`${serverBase}/api/v1/exercise/${encodeURIComponent(name)}/`, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRFToken': csrfToken
-        },
-      });
-
-      const data = await res.json();
-
-      if (res.ok) 
-        setResponseMsg(`✅ ${data.message}`);
-      else
-        setResponseMsg(`❌ ${data.error}`)
-    } catch (error) {
-      //console.log(error)
-      setResponseMsg("Error on deleting (FRONT END). please contact suport");
-    }finally{
-      setIsDeleting(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
   }
 
   return(
@@ -334,8 +308,8 @@ function CreateExerciseForm() {
                 />
                 <FormError
                   inputName="exerciseName" 
-                  errors={formik.errors} 
-                  touched={formik.touched}
+                  errorsList={formik.errors} 
+                  touchedList={formik.touched}
                   divStyle={{ height: "1.2rem", marginTop: "4px", marginLeft: "8px" }}
                 />
               </Grid>
@@ -368,7 +342,7 @@ function CreateExerciseForm() {
               fullWidth
               multiline
             />
-            <FormError inputName="description" errors={formik.errors} touched={formik.touched}/>
+            <FormError inputName="description" errorsList={formik.errors} touchedList={formik.touched}/>
             
             {/* UNIVERSE NAME + BUTTON */}
             <Grid container sx={{ m: 1, alignItems: "center" }}>
@@ -382,7 +356,7 @@ function CreateExerciseForm() {
                   variant="filled"
                   fullWidth
                 />
-                <FormError inputName="universeName" errors={formik.errors} touched={formik.touched}/>
+                <FormError inputName="universeName" errorsList={formik.errors} touchedList={formik.touched}/>
               </Grid>
 
               <Grid item xs={4} sx={{}}>
@@ -466,8 +440,8 @@ function CreateExerciseForm() {
             </FormControl>
             <FormError
               inputName="categoryId" 
-              errors={formik.errors} 
-              touched={formik.touched}
+              errorsList={formik.errors} 
+              touchedList={formik.touched}
               divStyle={{ height: "1.2rem", marginTop: "4px", marginLeft: "8px" }}
             />
             
@@ -512,8 +486,8 @@ function CreateExerciseForm() {
 
             <FormError
               inputName="guidePageCode"
-              errors={formik.errors} 
-              touched={formik.touched}
+              errorsList={formik.errors} 
+              touchedList={formik.touched}
               divStyle={{ height: "1.2rem", marginTop: "4px", marginLeft: "8px" }}
             />
             <Editor

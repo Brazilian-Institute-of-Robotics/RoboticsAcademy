@@ -5,11 +5,15 @@ import { Editor } from '@monaco-editor/react';
 import FormError from '../message_system/FormError';
 
 import { getCookie } from '../../helpers/cookie';
+import { useFormikContext } from 'formik';
 
 export default function HalGenerator({
     formik, formikAtrributeName, isLoading, 
-    setIsLoading, isDisable, setMessageFunction
+    setIsLoading, isDisable, setMessageFunction,
+    initialHalCode=null
 }, props) {
+
+    const formikContext = formik != null ? formik : useFormikContext()
 
     const [availableNodes, setAvailableNodes] = useState([]);
     const [selectedNodes, setSelectedNodes] = useState([])
@@ -50,10 +54,8 @@ export default function HalGenerator({
     };
 
     const handleGenerate = async () => {
-        if (selectedNodes.length == 0){
+        if (selectedNodes.length == 0)
           setIsNodeSelected(false)
-          formik.setFieldValue(formikAtrributeName, "")
-        }
         else {
           try {
             setIsNodeSelected(true)
@@ -69,13 +71,14 @@ export default function HalGenerator({
             });
     
             const data = await res.json();
-            if (res.ok) {
-              formik.setFieldValue("code", data.code)
-            } else {
+            if (res.ok)
+                formikContext.setFieldValue(formikAtrributeName, data.code)
+            else {
               setMessageFunction("❌ Error on generate code (API). please contact suport");
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }
           } catch (error) {
+            //console.log(error)
             setMessageFunction("❌ Error on generate code (FRONT END). please contact suport");
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }finally{
@@ -132,7 +135,6 @@ export default function HalGenerator({
                     variant="contained" 
                     sx={{ width:"30ch", textTransform: "none"}}
                     loading={isLoading ? true : undefined}
-                    loadingIndicator="Loading..."
                     disabled={isDisable}
                     onClick={handleGenerate}
                 >
@@ -145,16 +147,33 @@ export default function HalGenerator({
                         </p>
                 </div>)
                 }
+
             </Box>
-            <FormError inputName={formikAtrributeName} errors={formik.errors} touched={formik.touched}/>
+            {
+                initialHalCode != null ? 
+                    (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+                            <Button 
+                                variant="contained" 
+                                sx={{ width:"30ch", textTransform: "none"}}
+                                onClick={() => {formikContext.setFieldValue(formikAtrributeName, initialHalCode)}}
+                            >
+                                Reset HAL.py
+                            </Button>
+                        </Box>
+                    ) : 
+                    (null)
+            }
+                    
             
+            <FormError inputName={formikAtrributeName} errorsList={formikContext.errors} touchedList={formikContext.touched}/>
             {/* CODE EDITOR */}
             <Editor
                 name="code"
                 height="600px"
                 defaultLanguage="python"
-                value={formik.values[formikAtrributeName]}
-                onChange={(value) => formik.setFieldValue(formikAtrributeName, value || "")}
+                value={formikContext.values[formikAtrributeName]}
+                onChange={(value) => formikContext.setFieldValue(formikAtrributeName, value || "")}
                 theme="vs-dark"
                 options={{
                     fontSize: 14,
