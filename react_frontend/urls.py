@@ -8,6 +8,7 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('exerciseListCrud/', views.exercise_list_crud, name='exercise_list_crud'),
     path('createExercise/', views.create_exercise, name='create_exercise'),
+    path('updateExercise/<str:id>/', views.update_exercise, name='update_exercise'),
     path('password-reset-request/', views.password_reset_request, name='password_reset_request'),
     path('password-reset-confirm/<uid>/<token>/', views.password_reset_confirm, name='password_reset_confirm'),
 ]

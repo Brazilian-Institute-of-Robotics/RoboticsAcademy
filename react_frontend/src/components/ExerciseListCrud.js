@@ -291,7 +291,7 @@ export default function ExerciseListCrud() {
                                                         color="primary"
                                                         size="small"
                                                         sx={{ p: 0 }}
-                                                        onClick={() => { window.location.href = 'createExercise/' }}
+                                                        onClick={() => { window.location.href = `${serverBase}/updateExercise/${ex.id}/`}}
                                                     >
                                                         <EditIcon sx={{ fontSize: 30 }} />
                                                     </IconButton>

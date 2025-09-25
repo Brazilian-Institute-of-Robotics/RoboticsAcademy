@@ -27,6 +27,11 @@ def create_exercise(request):
      'django_env_json': json.dumps(django_env)
   })
 
+def update_exercise(request, id):
+  return render(request, "react_frontend/exercise_update.html",{
+     'django_env_json': json.dumps(django_env)
+  })
+
 def exercise_list_crud(request):
   return render(request, "react_frontend/exercise_list_crud.html",{
      'django_env_json': json.dumps(django_env)

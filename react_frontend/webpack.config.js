@@ -67,10 +67,11 @@ module.exports = () => {
     password_reset_confirm: './src/password_reset_confirm.js'
   }
 
-  //Pages inside this block are only usable in development
+  //Pages inside this block are only usable in development entries.exercise_update = './src/exercise_update.js'
   if (!isProduction){
     entries.create_exercise = './src/create_exercise.js';
     entries.exercise_list_crud = './src/exercise_list_crud.js'
+    entries.exercise_update = './src/exercise_update.js'
   }
 
   return {
