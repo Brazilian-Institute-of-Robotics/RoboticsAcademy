@@ -28,7 +28,7 @@ def generate_hal(request):
     nodes_names = list(NodeType.objects.filter(id__in=nodes_ids).values_list('name', flat=True))
     
     try:
-      hal_code = HalUtils.generate_hal(nodes_names)
+      hal_code = HalUtils.generateHal(nodes_names)
     except Exception as e:
       printError(
         "ERROR TO GENERATE HAL FILE",

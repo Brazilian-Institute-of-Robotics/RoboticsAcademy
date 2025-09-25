@@ -1,9 +1,22 @@
 import os
 import re
 
-__all__ = ["generate_hal"]
+def getExerciseHalContent(exercise_id):
 
-def generate_hal(nodes=None) -> str:
+    hal_path = os.path.join(
+        "/RoboticsAcademy/exercises/static/exercises", 
+        exercise_id,
+        "python_template", 
+        "ros2_humble",
+        "HAL.py"
+    )
+
+    with open(hal_path, "r") as f:
+        code = f.read()
+
+    return code
+
+def generateHal(nodes=None) -> str:
     """
     Gera uma versão personalizada do base_hal.py com os blocos substituídos,
     e retorna o código final como uma string.

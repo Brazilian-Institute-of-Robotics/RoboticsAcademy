@@ -1,15 +1,19 @@
 import sys
 import os
+import base64
+import glob
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from functools import partial
-from threading import Thread
+from django.forms.models import model_to_dict
 
 from academy.academy_rest_api.utils import exercise_utils as ExerciseUtils 
 from academy.academy_rest_api.utils.rebuild_coordinator import RebuildCoordinator
+from academy.academy_rest_api.utils import hal_utils as HalUtils
+from academy.academy_rest_api.utils import guide_page_utils as GuidePageUtils
 
 from exercises.models import Exercise
 
@@ -183,6 +187,112 @@ def delete_exercise(request, id):
   return JsonResponse({'error': 'Method not permited, must be DELETE.'}, status=405)
 
 @api_view(["GET"])
+def get_exercise_to_update(request, id):
+  if request.method == "GET":
+
+    if not id:
+      return JsonResponse({'error': 'Exercise id is required.'}, status=400)
+
+    try:
+
+      id = int(id)
+      exercise = Exercise.objects\
+        .filter(id=id)\
+        .select_related('guide_page_category')\
+        .prefetch_related('universes')\
+        .first()
+      
+      exercise_id = exercise.exercise_id
+      category_identify = exercise.guide_page_category.category_identify
+      
+      hal_content = HalUtils.getExerciseHalContent(exercise.exercise_id)
+      guide_page_content = GuidePageUtils.getContent(exercise_id, category_identify)
+
+      img_teaser_path = os.path.join(
+        f'/RoboticsAcademy/exercises/static/exercises/', 
+        "assets", 
+        "img", 
+        f'{exercise.exercise_id}_teaser.png'
+      )
+
+      image_teaser_base64 = "aa"
+
+      if os.path.exists(img_teaser_path):
+        with open(img_teaser_path, 'rb') as image_file:
+            image_data = image_file.read()
+            image_teaser_base64 = base64.b64encode(image_data).decode('utf-8')
+      
+      exercise_guide_files_dir = os.path.join('/GuidePages/assets/images/exercises', exercise.exercise_id)
+      image_extensions = ['*.png', '*.jpg', '*.jpeg', '*.gif', '*.bmp', '*.webp']
+      images_data = []
+
+
+      for extension in image_extensions:
+        pattern = os.path.join(exercise_guide_files_dir, extension)
+        for file_path in glob.glob(pattern):
+            filename = os.path.basename(file_path)
+
+            # Read file and convert to base64
+            with open(file_path, 'rb') as image_file:
+                image_content = base64.b64encode(image_file.read()).decode('utf-8')
+            
+            images_data.append({
+                'exercise_id': exercise_id,
+                'filename': filename,
+                'path': file_path,
+                'size': os.path.getsize(file_path),
+                'type': get_mime_type(filename),
+                'lastModified': int(os.path.getmtime(file_path)),
+                'content': image_content,  # Image on base64
+                'dataUrl': f"data:{get_mime_type(filename)};base64,{image_content}"
+            })
+
+      # Order files by name
+      images_data.sort(key=lambda x: x['filename'])
+
+      exercise_data = {
+          'id': exercise.id,
+          'exercise_id': exercise.exercise_id,
+          'name': exercise.name,
+          'description': exercise.description,
+          'tags': exercise.tags,
+          'status': exercise.status,
+          'template': exercise.template,
+          'code': hal_content,
+          'guide_page_content': guide_page_content,
+          'guide_page_current_images': images_data,
+          'guide_page_category': {
+              'id': exercise.guide_page_category.id,
+              'name': exercise.guide_page_category.name,
+              'category_identify':exercise.guide_page_category.category_identify
+          },
+          'universes': [
+              {
+                  'id': universe.id,
+                  'name': universe.name
+              } for universe in exercise.universes.all()
+          ],
+          'image_teaser_base64': "data:image/png;base64,"+image_teaser_base64,
+      }
+
+      return JsonResponse(exercise_data, status=200)
+    
+    except Exception as e:
+      _printError(
+        "ERROR ON DELETE EXERCISE",
+        "ERROR: Unexpected problem",
+        "DETAILS: "+str(e),
+      )
+      
+      return JsonResponse(
+        {'error': 'Fail to found exercise. Unexpected problem on API, please contact suport '},
+        status=500
+      )
+
+  else:
+    return JsonResponse({'error': 'Method not permited, must be GET.'}, status=405)
+
+@api_view(["GET"])
 def get_exercise_list(request):
   if request.method == "GET":
     try:
@@ -319,6 +429,20 @@ def _creationRollback(exercise_name):
     return {'success': 0, }
   else:
     return {'success': 1, }
+  
+def get_mime_type(filename):
+  """Determina o tipo MIME baseado na extensão do arquivo"""
+  extension = filename.lower().split('.')[-1]
+  mime_types = {
+      'png': 'image/png',
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'gif': 'image/gif',
+      'bmp': 'image/bmp',
+      'webp': 'image/webp'
+  }
+  return mime_types.get(extension, 'application/octet-stream')
+
 
 def _printError(head, error, details):
   print("--------------------------")
