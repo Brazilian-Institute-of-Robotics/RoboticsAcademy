@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import * as Yup from 'yup';
 import { Field, useFormikContext } from 'formik';
 
-import { Button, Grid, TextField, Typography } from '@mui/material';
+import { Button, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
 
@@ -10,6 +10,8 @@ import FormError from '../../message_system/FormError';
 import { LoadingButton } from '@mui/lab';
 import { Box, styled } from '@mui/system';
 import { FormStep } from '../MultiStepForm';
+
+import ExerciseRouter from '../../../helpers/ExerciseRouter';
 
 const nameInvalidChars = /[\/\\?%*:|"<>.\0:;=&#!$'`\n\r\t]/;
 
@@ -24,16 +26,26 @@ export const exerciseDataValidator = Yup.object({
                 return !nameInvalidChars.test(val);
             }
         ),
-    description: Yup.string().max(400, "Max length is 400 characters"),      
+    description: Yup.string().max(400, "Max length is 400 characters"),
+    categoryId: Yup.number().required("Category is required"),
+    teaserImageFile: Yup.mixed().required("Teaser image file is required"),
 })
 
-export default function ExerciseDataStep({exerciseOriginalData, validationSchema}) {
+/*
+    exerciseOriginalData = Case you want to edit exercise data, store in this prop
+    categoryList = List of exercises's guide page category
+    validationSchema = Yup object validator used to this step
+*/
+export default function ExerciseDataStep({exerciseOriginalData=null, categoryList=[], validationSchema}) {
 
     //formik values on initialValues
     const { values, setFieldValue, errors, touched } = useFormikContext();
 
     const [message, setMessage] = useState("")
     const [isCheckingExerciseName, setIsCheckingExerciseName] = useState(false)
+
+    const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
+    const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
     
     const VisuallyHiddenInput = styled('input')({
         clip: 'rect(0 0 0 0)',
@@ -47,7 +59,8 @@ export default function ExerciseDataStep({exerciseOriginalData, validationSchema
         width: 1,
     });
 
-    const handleCheckExerciseName = async () => {
+    const handleCheckExerciseName = async (e) => {
+        e.preventDefault();
         const name = values.name
         if (!name) {
             setMessage('❌ Write a exercise name to be checked');
@@ -55,7 +68,7 @@ export default function ExerciseDataStep({exerciseOriginalData, validationSchema
         }
 
         //Case name don't change
-        if(name == exerciseOriginalData.name){
+        if(exerciseOriginalData != null && name == exerciseOriginalData.name){
             setMessage(`✅ Exercise name is available`);
             return;
         }
@@ -73,6 +86,7 @@ export default function ExerciseDataStep({exerciseOriginalData, validationSchema
                 setMessage(`❌ ${result.data.error}`)
             
         }catch(error){
+            //console.log(error)
             setMessage(`❌ Fail to verify exercise name avalability. Check connection or contact suport`);
         }finally{
             setIsCheckingExerciseName(false)
@@ -111,9 +125,15 @@ export default function ExerciseDataStep({exerciseOriginalData, validationSchema
                 .replace(/\s+/g, '_')
             
             setFieldValue("name", name)
-            setFieldValue("identify", identify)
+            setFieldValue("exerciseIdentify", identify)
         }
     };
+
+    const handleChangeCategory = (categoryId) => {
+        const category_selected = categoryList.find(category => category.id == categoryId)
+        setFieldValue("categoryId", categoryId);
+        setFieldValue("categoryIdentify", category_selected.category_identify)
+      }
 
     return (
         <FormStep
@@ -161,6 +181,7 @@ export default function ExerciseDataStep({exerciseOriginalData, validationSchema
                     </LoadingButton>
                 </Grid>
             </Grid>
+
             <Grid container sx={{ mb:3, alignItems: "center" }}>
                 <Field name="description">
                     {({ field, meta }) => {
@@ -186,47 +207,87 @@ export default function ExerciseDataStep({exerciseOriginalData, validationSchema
                 </Field>
             </Grid>
 
-            <Box sx={{mb:2}} display="flex" flexDirection="row">
-                <Box
-                    sx={{ bgcolor:"darkgray", display:"flex",  justifyContent: "center", alignItems: "center", width: "50%",}}
-                >
-                    <img
-                        src={values.teaserImageFile}
-                        alt={values.name}
-                        style={{ maxWidth: '80%', height: '80%' }}
-                    />
-                </Box>
-                <Box
-                    sx={{
-                        bgcolor:"#D9C8B4",
-                        width: "50%",
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: 2
+            <Grid sx={{}}>
+                <Field name="categoryId">
+                    {({ field, meta, form }) => {
+                    const hasError = meta.touched && !!meta.error;
+                    return (
+                        <>
+                            <TextField
+                                select
+                                variant="filled"
+                                label="Guide's category"
+                                id="categoryId"
+                                value={field.value ?? ""}
+                                error={hasError}
+                                onChange={(e) => { handleChangeCategory(e.target.value, false);}}
+                                sx={{ bgcolor: "white", minWidth:"170px" }}
+                            >
+                                {categoryList.map((c) => (
+                                    <MenuItem key={c.id} value={String(c.id)}>
+                                        {c.name}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                            <FormError inputName="categoryId" errorsList={errors} touchedList={touched}/>
+                        </>
+                    );
                     }}
-                >
-                    <Button component="label" size="large" variant="contained">
-                        Insert new teaser image
-                        <VisuallyHiddenInput
-                            type="file"
-                            onChange={handleFileChange}
-                            accept=".png"
+                </Field>
+            </Grid>
+            
+            <Grid>
+                <Box sx={{mt:2}} display="flex" flexDirection="row" minHeight={200}>
+                    <Box
+                        sx={{ bgcolor:"darkgray", display:"flex",  justifyContent: "center", alignItems: "center", width: "70%",}}
+                    >
+                        <img
+                            src={values.teaserImageFile}
+                            alt={values.name}
+                            style={{ maxWidth: '80%', height: '80%' }}
                         />
-                    </Button>
-                    <Button 
-                        size="large" 
-                        variant="contained"
-                        onClick={() => {
-                            setFieldValue("teaserImageFile", exerciseOriginalData.image_teaser_base64)
+                    </Box>
+                    <Box
+                        sx={{
+                            bgcolor:"#D9C8B4",
+                            width: "30%",
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: 2,
                         }}
                     >
-                        Reset teaser image
-                    </Button>
+                        <Button component="label" size="large" variant="contained">
+                            Insert new teaser image
+                            <VisuallyHiddenInput
+                                type="file"
+                                onChange={handleFileChange}
+                                accept=".png"
+                            />
+                        </Button>
+                        {
+                            exerciseOriginalData != null ? (
+                                <Button 
+                                    size="large" 
+                                    variant="contained"
+                                    onClick={() => {
+                                        setFieldValue("teaserImageFile", exerciseOriginalData.image_teaser_base64)
+                                    }}
+                                >
+                                    Reset teaser image
+                                </Button>
+                            ) : (null)
+                        }
+                        
+                    </Box>
                 </Box>
-                
-            </Box>
+                <FormError 
+                    inputName="teaserImageFile" 
+                    errorsList={errors} 
+                    touchedList={touched} 
+                    divStyle={{ height: "1.2rem", marginTop: "4px", marginBottom: '10px' }}/>
+            </Grid>
         </FormStep>
     )
 }

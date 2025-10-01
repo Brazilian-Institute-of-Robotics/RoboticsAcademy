@@ -1,37 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { Field, useFormikContext } from 'formik';
+
+import { useFormikContext } from 'formik';
 import * as Yup from 'yup';
+
 import { FormStep } from '../MultiStepForm';
 import FormError from '../../message_system/FormError';
+
 import { Editor } from '@monaco-editor/react';
+
 import MutipleFileUploader from '../../uploads/MutipleFileUploader';
-import { Grid, MenuItem, TextField, Typography } from '@mui/material';
+
+import { Typography } from '@mui/material';
 import { Box } from '@mui/system';
 
 export const guidePageDataValidator = Yup.object(
     { guidePageCode: Yup.string().required("Markdown code is required")}
 )
 
-export default function GuidePageDataStep({exerciseOriginalData, validationSchema, categoryList=[]}) {
+/*
+    exerciseOriginalData = Case you want to edit exercise data, store in this prop
+    validationSchema = Yup object validator used to this step
+*/
+export default function GuidePageDataStep({exerciseOriginalData=null, validationSchema }) {
 
     const { values, setFieldValue, errors, touched } = useFormikContext();
 
-    const initialCategoryIdentify = exerciseOriginalData ? exerciseOriginalData.guide_page_category.category_identify : ""
-
-    const [ categoryIdentify, setCategoryIdentify ] = useState(initialCategoryIdentify)
+    const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
+    const serverBase = `${document.location.protocol}//${document.location.hostname}:${SERVER_PORT}`;
 
     // UPDATE MARKDOWN WHEN EXERCISE NAME OR
     // EXERCISE CATEGORY CHANGES
     useEffect(() => {
+      updatedMarkdown(
+        values.name,
+        values.exerciseIdentify,
+        values.categoryId,
+        values.categoryIdentify,
+        values.guidePageCode
+      )
+      
+    }, [values.name, values.categoryId]);
 
-      const name = values.name.trim()
-      const categoryId = values.categoryId
+    const updatedMarkdown = (name, exerciseIdentify, categoryId, categoryIdentify, currentMarkdown) => {
+      if(name.trim() != "" && categoryId != ""){
 
-      if(name != "" && categoryId != ""){
-
-        const exerciseIdentify = values.identify
-
-        const currentMarkdown = values.guidePageCode
         const frontMatterEnd = currentMarkdown.indexOf('---', 3);
 
         if (frontMatterEnd === -1) {
@@ -43,9 +55,19 @@ export default function GuidePageDataStep({exerciseOriginalData, validationSchem
 
         // Contain markdown page content
         const pageContent = currentMarkdown.substring(frontMatterEnd + 3);
+        
+        let updatedFrontMatter = frontMatter
+
+        // Case this component is used to create new exercise
+        if (exerciseOriginalData == null){
+          updatedFrontMatter = updatedFrontMatter
+            .replace(/{CATEGORY_INDENTIFY}/g, categoryIdentify)
+            .replace(/{EXERCISE_ID}/g, exerciseIdentify)
+            .replace(/{EXERCISE_NAME}/g, name);
+        }
 
         // Update on markdown the lines "permalink", "title" and "toc_label"
-        const updatedFrontMatter = frontMatter
+        updatedFrontMatter = updatedFrontMatter
           .replace(
            /(permalink:\s*\/exercises\/)[^\/\s]+\/[a-zA-Z0-9_-]*/,
             `permalink: /exercises/${categoryIdentify}/${exerciseIdentify}`
@@ -60,7 +82,7 @@ export default function GuidePageDataStep({exerciseOriginalData, validationSchem
           );
         
         // Update on markdown all lines that contain a image path
-        const imagePathRegex = /(\/assets\/images\/exercises\/)[^\/\s]+\/([^\/\s"')]+\.(png|jpg|jpeg|gif|svg|webp))/gi
+        const imagePathRegex = /(\/?assets\/images\/exercises\/)[^\/\s]+\/([^\/\s"')]+\.(png|jpg|jpeg|gif|svg|webp))/gi
         const updatedPageContent = pageContent.replace(
           imagePathRegex,
           `$1${exerciseIdentify}/$2`
@@ -68,49 +90,13 @@ export default function GuidePageDataStep({exerciseOriginalData, validationSchem
         
         setFieldValue("guidePageCode", updatedFrontMatter + updatedPageContent)
       }
-      
-    }, [values.name, values.categoryId]);
-
-    const handleChangeCategory = (categoryId) => {
-      const category_selected = categoryList.find(category => category.id == categoryId)
-      setFieldValue("categoryId", categoryId);
-      setCategoryIdentify(category_selected.category_identify)
     }
 
     return (
         <FormStep
             onSubmit={() => console.log('Step2 onSubmit')}
             validationSchema={validationSchema}
-        >
-          <Grid sx={{ mb: 0 }}>
-            <Field name="categoryId">
-                {({ field, meta, form }) => {
-                  const hasError = meta.touched && !!meta.error;
-                  return (
-                      <>
-                        <TextField
-                            select
-                            variant="filled"
-                            label="Guide's category"
-                            id="categoryId"
-                            value={field.value ?? ""}
-                            error={hasError}
-                            onChange={(e) => { handleChangeCategory(e.target.value, false);}}
-                            sx={{ bgcolor: "white" }}
-                        >
-                            {categoryList.map((c) => (
-                                <MenuItem key={c.id} value={String(c.id)}>
-                                    {c.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                        <FormError inputName="categoryId" errorsList={errors} touchedList={touched}/>
-                      </>
-                  );
-                }}
-            </Field>
-          </Grid>
-            
+        >   
             {/* GUIDE PAGES FILES */}
             <MutipleFileUploader
               formik={null}
@@ -141,7 +127,7 @@ export default function GuidePageDataStep({exerciseOriginalData, validationSchem
                     1 - Don't change the first 5 lines of code
                   </Typography>
                   <Typography variant="h6">
-                    2 - To use new images, use the path: "/assets/images/exercises/{values.identify}/FILE_NAME.FORMAT"
+                    2 - To use new images, use the path: "/assets/images/exercises/{values.exerciseIdentify}/FILE_NAME.FORMAT"
                   </Typography>
                 </Box>
               ) : (<div></div>)
@@ -149,7 +135,7 @@ export default function GuidePageDataStep({exerciseOriginalData, validationSchem
 
             <FormError inputName="guidePageCode" errorsList={errors} touchedList={touched}/>
             <Editor
-                name="code"
+                name="guidePageCode"
                 height="600px"
                 defaultLanguage="markdown"
                 value={values.guidePageCode}
