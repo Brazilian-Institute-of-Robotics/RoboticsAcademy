@@ -11,6 +11,10 @@ export const halDataValidator = Yup.object(
     { code: Yup.string().required("HAL's code is required")}
 )
 
+/*
+    exerciseOriginalData = Case you want to edit exercise data, store in this prop
+    validationSchema = Yup object validator used to this step
+*/
 export default function HalDataStep({exerciseOriginalData, validationSchema}) {
 
     const { values, setFieldValue } = useFormikContext();
@@ -32,7 +36,7 @@ export default function HalDataStep({exerciseOriginalData, validationSchema}) {
                 setIsLoading={(bool)=> {setIsGenerating(bool)}}
                 isDisable={false}
                 setMessageFunction={(message) => {setMessage(message)}}
-                initialHalCode={exerciseOriginalData.code}
+                initialHalCode={exerciseOriginalData ? exerciseOriginalData.code : null}
             />
             <Box sx={{mt:3}}></Box>
         </FormStep>

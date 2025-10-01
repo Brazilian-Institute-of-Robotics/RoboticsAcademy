@@ -56,10 +56,11 @@ export default function ExerciseUpdate() {
 
                 const initValues = {
                     name: exercise.name,
-                    identify: exercise.exercise_id,
+                    exerciseIdentify: exercise.exercise_id,
                     description: exercise.description,
                     code: exercise.code,
                     categoryId: exercise.guide_page_category.id,
+                    categoryIdentify: exercise.guide_page_category.category_identify,
                     teaserImageFile: exercise.image_teaser_base64,
                     guidePageFiles: exercise.guide_page_current_images,
                     guidePageCode: exercise.guide_page_content,
@@ -143,6 +144,7 @@ export default function ExerciseUpdate() {
                         >
                             <ExerciseDataStep
                                 exerciseOriginalData={exercise}
+                                categoryList={categoryList}
                                 validationSchema={exerciseDataValidator}
                             />
 
@@ -153,7 +155,6 @@ export default function ExerciseUpdate() {
 
                             <GuidePageDataStep
                                 exerciseOriginalData={exercise}
-                                categoryList={categoryList}
                                 validationSchema={guidePageDataValidator}
                             />
                         </MultiStepForm>
