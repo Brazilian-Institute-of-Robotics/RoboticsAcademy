@@ -41,6 +41,7 @@ urlpatterns = [
     path('exercise/changeStatus/<int:id>/', exercise_views.change_activity),
 
     path('universe/checkNameAvailability/<str:name>/', universe_views.check_name_availability),
+    path('universeList/', universe_views.get_universe_list),
 
     path('guideCategory/findAll/', guide_page_category_views.get_all),
 

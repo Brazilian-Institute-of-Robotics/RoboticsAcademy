@@ -26,3 +26,14 @@ def check_name_availability(request,name):
             return JsonResponse({'error': 'Fail to find universe by name.'}, status=500)
     else:
         return JsonResponse({'error': 'Method not permited, must be GET.'}, status=405)
+
+def get_universe_list(request):
+    if request.method == "GET":
+        try:
+            universes = list(Universe.objects.all().order_by("name").values())
+            return JsonResponse(list(universes), safe=False)
+        except Exception as e:
+            return JsonResponse({'error': 'Fail to find universe by name.'}, status=500)
+
+    else:
+        return JsonResponse({'error': 'Method not permited, must be GET.'}, status=405)
