@@ -2,6 +2,7 @@ import React, { useState, useEffect, cloneElement } from 'react';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { Button } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { margin } from '@mui/system';
 
 export function FormStep ({children}){ return children};
 
@@ -85,23 +86,25 @@ export default function MultiStepForm  ({ children, initialValues, onReturn, onS
                 alignItems: 'center' 
               }}
             >
-              <div>
+              <div style={{marginTop: "10px"}}>
                 {stepNumber > 0 ? 
                   (
-                    <Button 
+                    <LoadingButton 
                       variant="contained"
+                      disabled={formik.isSubmitting} 
                       onClick={() => previous(formik.values)}
                     >
                       Back
-                    </Button>
+                    </LoadingButton>
                   ) : 
                   (
-                    <Button 
+                    <LoadingButton 
                       variant="contained"
+                      disabled={formik.isSubmitting} 
                       onClick={onReturn}
                     >
                       Back to list
-                    </Button>
+                    </LoadingButton>
                   )
               }
               </div>
@@ -112,7 +115,7 @@ export default function MultiStepForm  ({ children, initialValues, onReturn, onS
                 disabled={formik.isSubmitting} 
                 type="submit"
               >
-                {isLastStep ? 'Submit' : 'Next'}
+                {isLastStep ? ( formik.isSubmitting ? 'Loading...' : 'Submit') : 'Next'}
               </LoadingButton>
               
             </div>
