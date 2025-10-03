@@ -1,34 +1,66 @@
 [
     {
         "model": "exercises.nodeType",
-        "fields": {"name": "bumper"}
+        "fields": {
+            "name": "bumper",
+            "description": "Detects when robot hits a object",
+            "need_topic_name": false
+        }
     },
     {
         "model": "exercises.nodeType",
-        "fields": {"name": "camera"}
+        "fields": {
+            "name": "camera",
+            "description": "Access robot's camera",
+            "need_topic_name": true
+        }
     },
     {
         "model": "exercises.nodeType",
-        "fields": {"name": "laser"}
+        "fields": {
+            "name": "laser",
+            "description": "Access robot's laser",
+            "need_topic_name": true
+        }
     },
     {
         "model": "exercises.nodeType",
-        "fields": {"name": "motors"}
+        "fields": {
+            "name": "motors",
+            "description": "Access robot's motors",
+            "need_topic_name": false
+        }
     },
     {
         "model": "exercises.nodeType",
-        "fields": {"name": "neural_network"}
+        "fields": {
+            "name": "neural_network",
+            "description": "Identify objects from a given image",
+            "need_topic_name": false
+        }
     },
     {
         "model": "exercises.nodeType",
-        "fields": {"name": "noisy_odometry"}
+        "fields": {
+            "name": "noisy_odometry",
+            "description": "Access robot's odometry. Include noisy to simulate inaccuracy",
+            "need_topic_name": false
+        }
     },
     {
         "model": "exercises.nodeType",
-        "fields": {"name": "odometry"}
+        "fields": {
+            "name": "odometry",
+            "description": "Access robot's odometry",
+            "need_topic_name": false
+        }
     },
     {
         "model": "exercises.nodeType",
-        "fields": {"name": "sim_time"}
+        "fields": {
+            "name": "sim_time",
+            "description": "Shows how munch time simulator is running",
+            "need_topic_name": false
+        }
     }
 ]

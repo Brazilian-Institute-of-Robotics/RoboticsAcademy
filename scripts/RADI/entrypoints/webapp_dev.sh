@@ -48,6 +48,9 @@ fi
 
 cd /
 
+# Create new django's migrations when necessary
+python3 /RoboticsAcademy/manage.py makemigrations
+
 # Execute django's migrations
 python3 /RoboticsAcademy/manage.py migrate
 

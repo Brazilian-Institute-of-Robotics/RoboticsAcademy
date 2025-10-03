@@ -252,6 +252,8 @@ class NodeType(models.Model):
     """
 
     name = models.CharField(max_length=40, blank=False, unique=True)
+    description = models.CharField(max_length=100, blank=False, default="")
+    need_topic_name = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.name)
