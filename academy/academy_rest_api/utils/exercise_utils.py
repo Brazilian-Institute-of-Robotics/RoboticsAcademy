@@ -13,14 +13,19 @@ from academy.academy_rest_api.utils import exercise_file_path_utils as Exercises
 
 
 def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
-       universe_name, launcher_name, category_id):
+       universe_name, universes_to_link_id, launcher_name, category_id):
     try:
         exercise_exists = Exercise.objects.filter(exercise_id=exercise_id).exists()
 
-        #case insensitive search
-        universe_exists = Universe.objects.filter(name__iexact=universe_name).exists()
-        world_exists = World.objects.filter(name__iexact=universe_name).exists()
+        universe_exists = False
+        world_exists = False
 
+        if universe_name:
+            #case insensitive search
+            universe_exists = Universe.objects.filter(name__iexact=universe_name).exists()
+            world_exists = World.objects.filter(name__iexact=universe_name).exists()
+        
+        
         guide_category = GuidePageCategory.objects.filter(id=category_id).first()
 
         if exercise_exists:
@@ -33,27 +38,6 @@ def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
             return {'success': 0, 'exists': 0, 'error': 'There is no category with this id', 'details': 'There is no category with this id'}
         
         with transaction.atomic():
-            world = World.objects.create(
-                name=universe_name,
-                launch_file_path=f"/opt/jderobot/Launchers/{launcher_name}.launch.py",
-                visualization_config_path="None",
-                ros_version="ROS2",
-                visualization="gazebo_rae",
-                world="gazebo",
-                start_pose=[0,0,0,0,0,0]
-            )
-
-            robot = Robot.objects.first() or Robot.objects.create(
-                name="useless",
-                model="needless",
-                launch_file_path=""
-            )
-
-            universe = Universe.objects.create(
-                name=universe_name,
-                world=world,
-                robot=robot
-            )
 
             exercise = Exercise.objects.create(
                 exercise_id=exercise_id,
@@ -65,10 +49,44 @@ def createExerciseDatabase(exercise_id, exercise_name, exercise_description,
                 guide_page_category=guide_category,
             )
 
-            exercise.universes.add(universe)
+            world = None
+            robot = None
+            new_universe = None
+            existing_universes = []
+
+            if universe_name and launcher_name:
+                world = World.objects.create(
+                    name=universe_name,
+                    launch_file_path=f"/opt/jderobot/Launchers/{launcher_name}.launch.py",
+                    visualization_config_path="None",
+                    ros_version="ROS2",
+                    visualization="gazebo_rae",
+                    world="gazebo",
+                    start_pose=[0,0,0,0,0,0]
+                )
+
+                robot = Robot.objects.first() or Robot.objects.create(
+                    name="useless",
+                    model="needless",
+                    launch_file_path=""
+                )
+
+                new_universe = Universe.objects.create(
+                    name=universe_name,
+                    world=world,
+                    robot=robot
+                )
+
+                exercise.universes.add(new_universe)
+            
+            if len(universes_to_link_id) > 0:
+                universes = Universe.objects.filter(id__in=universes_to_link_id)
+                for universe in universes:
+                    existing_universes.append(universe)
+                    exercise.universes.add(universe)
 
             #If this function raises a exception, transaction.atomic() rollback database
-            ExerciseSeedUtils.writeCreationSeed(exercise, universe, world, robot, guide_category)
+            ExerciseSeedUtils.writeCreationSeed(exercise, new_universe, existing_universes, world, robot, guide_category)
             return {'success': 1, 'exists': 0}
         
     except Exception as e:
@@ -317,18 +335,27 @@ def createExerciseRollback(exercise_name):
                 'details': f'There is no exercise with this name ({exercise_name})'
             }
         
-        universes = exercise.universes.select_related('world').all()
+        ExercisesUniverses = Exercise.universes.through
+        universes = exercise.universes.all()
+        universes_to_delete = []
+
+        for universe in universes:
+            #How many exercises uses this universe
+            exercises_count = ExercisesUniverses.objects.filter(universe_id=universe.id).count()
+
+            #Only exercise to be deleted uses this universe
+            if exercises_count == 1: 
+                universes_to_delete.append(universe)
 
         # Find path of all files related to exercise
-        files_paths = ExercisesFilePathUtils.getExercisesFilesPath(exercise, universes)
+        files_paths = ExercisesFilePathUtils.getExercisesFilesPath(exercise, universes_to_delete)
 
         # Removes this exercises from exercises.md list
         ExercisesFilePathUtils.removeExerciseOnGuideList(exercises_md_path, exercise.exercise_id)
 
         # Make db transaction to delete exercise, universes and worlds
         with transaction.atomic():
-            universes = exercise.universes.all()
-            for universe in universes:
+            for universe in universes_to_delete:
                 if getattr(universe, 'world', None):
                     universe.world.delete()
                 universe.delete()

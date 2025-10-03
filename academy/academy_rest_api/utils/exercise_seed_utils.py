@@ -17,8 +17,8 @@ def _nk(obj):
     
     return list(nk)
 
-#Create new seed of creation new exercise
-def writeCreationSeed(exercise, universe, world, robot, guide_category):
+# Create new seed of creation new exercise
+def writeCreationSeed(exercise, new_universe, existing_universes, world, robot, guide_category):
 
     date_hour = datetime.now().strftime("%Y%m%d_%H%M%S")
     new_seed_name = f"Seed_{date_hour}_{exercise.exercise_id}.json"
@@ -27,39 +27,50 @@ def writeCreationSeed(exercise, universe, world, robot, guide_category):
     new_seed_path = os.path.join(fixtures_dir, new_seed_name)
 
     items = []
-
+    universes_to_link = []
+    
     # WORLD
-    items.append({
-        "model": f"{world._meta.app_label}.{world._meta.model_name}",
-        "fields": {
-            "name": world.name,
-            "launch_file_path": world.launch_file_path,
-            "visualization_config_path": world.visualization_config_path,
-            "ros_version": world.ros_version,
-            "visualization": world.visualization,
-            "world": world.world,
-            "start_pose": world.start_pose,
-        },
-    })
+    if world:
+        items.append({
+            "model": f"{world._meta.app_label}.{world._meta.model_name}",
+            "fields": {
+                "name": world.name,
+                "launch_file_path": world.launch_file_path,
+                "visualization_config_path": world.visualization_config_path,
+                "ros_version": world.ros_version,
+                "visualization": world.visualization,
+                "world": world.world,
+                "start_pose": world.start_pose,
+            },
+        })
+
 
     # ROBOT
-    items.append({
-        "model": f"{robot._meta.app_label}.{robot._meta.model_name}",
-        "fields": {
-            "name": robot.name,
-            "launch_file_path": robot.launch_file_path,
-        },
-    })
+    if robot:
+        items.append({
+            "model": f"{robot._meta.app_label}.{robot._meta.model_name}",
+            "fields": {
+                "name": robot.name,
+                "launch_file_path": robot.launch_file_path,
+            },
+        })
 
-    # UNIVERSE
-    items.append({
-        "model": f"{universe._meta.app_label}.{universe._meta.model_name}",
-        "fields": {
-            "name": universe.name,
-            "world": _nk(world),
-            "robot": _nk(robot),
-        },
-    })
+    # NEW UNIVERSE
+    if new_universe:
+        items.append({
+            "model": f"{new_universe._meta.app_label}.{new_universe._meta.model_name}",
+            "fields": {
+                "name": new_universe.name,
+                "world": _nk(world),
+                "robot": _nk(robot),
+            },
+        })
+        universes_to_link.append(_nk(new_universe))
+    
+    # EXISTING UNIVERSES
+    if existing_universes:
+        for universe in existing_universes:
+            universes_to_link.append(_nk(universe))
 
     # EXERCISE
     items.append({
@@ -72,7 +83,7 @@ def writeCreationSeed(exercise, universe, world, robot, guide_category):
             "status": exercise.status,
             "template": exercise.template,
             "guide_page_category": _nk(guide_category),
-            "universes": [_nk(universe)],
+            "universes": universes_to_link,
         },
     })
 

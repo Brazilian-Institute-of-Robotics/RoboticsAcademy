@@ -31,12 +31,10 @@ def create_exercise(request):
     guide_page_files = request.FILES.getlist('guide_page_files')
     guide_page_code = request.POST.get('guide_page_code')
 
+    universes_raw_list = request.POST.getlist('universes_to_link_id') or []
+
     if not exercise_name:
       return JsonResponse({'error': 'Exercise name is required.'}, status=400)
-    if not universe_name:
-      return JsonResponse({'error': 'Universe name is required.'}, status=400)
-    if not world_file:
-      return JsonResponse({'error': 'World file is required.'}, status=400)
     if not hal_code:
       return JsonResponse({'error': 'HAL code is required.'}, status=400)
     if not teaser_image_file:
@@ -45,6 +43,21 @@ def create_exercise(request):
       return JsonResponse({'error': 'Category id is required.'}, status=400)
     if not guide_page_code:
       return JsonResponse({'error': 'Guide page code is required.'}, status=400)
+    
+    # Convert universes_raw_list to a array of ints
+    try:
+       universes_to_link_id = [
+          int(x) for x in ",".join(universes_raw_list).split(",")
+          if x.strip().isdigit()
+      ]
+    except Exception as e:
+      return JsonResponse({'error': 'Universe list to link must be a array of integers.'}, status=400)
+
+    if (not universe_name or not world_file):
+      if len(universes_to_link_id) == 0:
+        return JsonResponse({'error': 'Universe name and world file are required when list of universes to link is empty'}, status=400)
+      elif (universe_name and not world_file) or (not universe_name and world_file):
+          return JsonResponse({'error': 'Universe name and world file must send together'}, status=400)
     
     exercise_id = exercise_name.lower().replace(" ", "_")
     launcher_name = universe_name.lower().replace(" ", "_")
@@ -56,7 +69,7 @@ def create_exercise(request):
       print("ADD EXERCISE TO DATABASE")
       exerciseDB = ExerciseUtils.createExerciseDatabase(
         exercise_id, exercise_name, exercise_description,
-        universe_name, launcher_name, category_id
+        universe_name, universes_to_link_id, launcher_name, category_id
       )
       if exerciseDB["success"] == 0:
         _printError(
@@ -86,27 +99,28 @@ def create_exercise(request):
       )
       if static_result is not None:
         return static_result
-    
-      print("CREATE LAUNCHER FILE")
-      create_launcher = partial(ExerciseUtils.createExerciseLauncher,launcher_name)
-      launcher_result = _exercise_utils_executor(
-        util_function=create_launcher,
-        exercise_id=exercise_id,
-        error_header="ERROR ON CREATE EXERCISE (LAUNCHER)"
-      )
-      if launcher_result is not None:
-        return launcher_result
-      
 
-      print("CREATE WORLD FILE")
-      create_world = partial(ExerciseUtils.createExerciseWorld,launcher_name, world_file)
-      world_result = _exercise_utils_executor(
-        util_function=create_world,
-        exercise_id=exercise_id,
-        error_header="ERROR ON CREATE EXERCISE (WORLD)"
-      )
-      if world_result is not None:
-        return world_result
+      if universe_name:
+        print("CREATE LAUNCHER FILE")
+        create_launcher = partial(ExerciseUtils.createExerciseLauncher,launcher_name)
+        launcher_result = _exercise_utils_executor(
+          util_function=create_launcher,
+          exercise_id=exercise_id,
+          error_header="ERROR ON CREATE EXERCISE (LAUNCHER)"
+        )
+        if launcher_result is not None:
+          return launcher_result
+      
+      if world_file:
+        print("CREATE WORLD FILE")
+        create_world = partial(ExerciseUtils.createExerciseWorld,launcher_name, world_file)
+        world_result = _exercise_utils_executor(
+          util_function=create_world,
+          exercise_id=exercise_id,
+          error_header="ERROR ON CREATE EXERCISE (WORLD)"
+        )
+        if world_result is not None:
+          return world_result
       
       print("ADD GUIDE PAGE")
       create_guide_page = partial(
