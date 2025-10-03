@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
-import { Button, Checkbox, FormControlLabel, Grid, Typography } from '@mui/material';
+import { Button, Checkbox, FormControlLabel, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 import { Editor } from '@monaco-editor/react';
 import FormError from '../message_system/FormError';
 
 import { getCookie } from '../../helpers/cookie';
 import { useFormikContext } from 'formik';
+
+import DescriptionIcon from '@mui/icons-material/Description';
+import { bgcolor, fontSize, minHeight } from '@mui/system';
 
 export default function HalGenerator({
     formik, formikAtrributeName, isLoading, 
@@ -35,6 +38,7 @@ export default function HalGenerator({
             });
 
             const data = await response.json();
+            console.log(data)
             setAvailableNodes(data)
 
             } catch (error) {
@@ -108,17 +112,39 @@ export default function HalGenerator({
                 <Grid container spacing={2} sx={{ m: 2, p:2,}}>
                     {availableNodes.map((node) => (
                         <Grid item xs={3} key={node.id}>
-                            <FormControlLabel
-                                key={node.id}
-                                control={
-                                    <Checkbox
-                                        value={node.name}
-                                        checked={selectedNodes.includes(node.id)}
-                                        onChange={() => toggleNode(node.id)}
+                             <Grid container>
+                                <Grid item sx={{
+                                    bgcolor:"#D9C8B4", 
+                                    display: "flex", 
+                                    alignItems: "center", 
+                                    justifyContent: "center"
+                                }}> 
+                                    <FormControlLabel
+                                        key={node.id}
+                                        control={
+                                            <Checkbox
+                                                sx={{ml:2}}
+                                                value={node.name}
+                                                checked={selectedNodes.includes(node.id)}
+                                                onChange={() => toggleNode(node.id)}
+                                            />
+                                        }
+                                        label={node.name}
                                     />
-                                }
-                                label={node.name}
-                            />
+                                    <Tooltip
+                                        enterDelay={100}
+                                        title={
+                                            <Box sx={{ whiteSpace: "pre-line", maxWidth: 320, fontSize:14 }}>
+                                                {node.description}
+                                            </Box>
+                                        }
+                                    >
+                                        <IconButton aria-label={`description${node.name}`} fontSize="small">
+                                            <DescriptionIcon/>
+                                        </IconButton>
+                                    </Tooltip>
+                                </Grid>
+                            </Grid>
                         </Grid>
                     ))}
                 </Grid>
