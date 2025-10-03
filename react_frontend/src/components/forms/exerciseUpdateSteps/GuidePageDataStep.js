@@ -32,14 +32,14 @@ export default function GuidePageDataStep({exerciseOriginalData=null, validation
     // EXERCISE CATEGORY CHANGES
     useEffect(() => {
       updatedMarkdown(
-        values.name,
+        values.exerciseName,
         values.exerciseIdentify,
         values.categoryId,
         values.categoryIdentify,
         values.guidePageCode
       )
       
-    }, [values.name, values.categoryId]);
+    }, [values.exerciseName, values.categoryId]);
 
     const updatedMarkdown = (name, exerciseIdentify, categoryId, categoryIdentify, currentMarkdown) => {
       if(name.trim() != "" && categoryId != ""){
@@ -74,11 +74,11 @@ export default function GuidePageDataStep({exerciseOriginalData=null, validation
           )
           .replace(
             /title:\s*"[^"]*"/,
-            `title: "${values.name}"`
+            `title: "${values.exerciseName}"`
           )
           .replace(
             /toc_label:\s*"TOC [^"]*"/,
-            `toc_label: "TOC ${values.name}"`
+            `toc_label: "TOC ${values.exerciseName}"`
           );
         
         // Update on markdown all lines that contain a image path
@@ -108,7 +108,7 @@ export default function GuidePageDataStep({exerciseOriginalData=null, validation
             
             {/* WARNING MARKDOWN CODE */}
             {
-              values.name.trim() !== "" && values.categoryId !== "" ? (
+              values.exerciseName.trim() !== "" && values.categoryId !== "" ? (
                 <Box
                   height="100%"
                   display="flex"
@@ -145,7 +145,7 @@ export default function GuidePageDataStep({exerciseOriginalData=null, validation
                     fontSize: 14,
                     minimap: { enabled: false },
                     wordWrap: "on",
-                    readOnly: !(values.name.trim() && values.categoryId !== "")
+                    readOnly: !(values.exerciseName.trim() && values.categoryId !== "")
                 }}
             />
             <Box sx={{mt:3}}></Box>

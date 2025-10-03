@@ -18,7 +18,7 @@ import ExerciseRouter from '../../../helpers/ExerciseRouter';
 const nameInvalidChars = /[\/\\?%*:|"<>.\0:;=&#!$'`\n\r\t]/;
 
 export const exerciseDataValidator = Yup.object({
-    name: Yup.string()
+    exerciseName: Yup.string()
         .trim()
         .required('Name is required')
         .max(40, "Max length is 40 characters")
@@ -44,6 +44,7 @@ export default function ExerciseDataStep({exerciseOriginalData=null, categoryLis
     const { values, setFieldValue, errors, touched } = useFormikContext();
 
     const [message, setMessage] = useState("")
+    const [teaserImageShow, setTeaserImageShow] = useState(values.teaserImageFile)
     const [isCheckingExerciseName, setIsCheckingExerciseName] = useState(false)
 
     const SERVER_PORT = window.DJANGO_ENV.SERVER_PORT;
@@ -63,7 +64,7 @@ export default function ExerciseDataStep({exerciseOriginalData=null, categoryLis
 
     const handleCheckExerciseName = async (e) => {
         e.preventDefault();
-        const name = values.name
+        const name = values.exerciseName
         if (!name) {
             setMessage('❌ Write a exercise name to be checked');
             return;
@@ -99,13 +100,14 @@ export default function ExerciseDataStep({exerciseOriginalData=null, categoryLis
         const selectedFile = event.target.files[0];
 
         if (selectedFile && selectedFile.name.endsWith(".png")) {
+            setFieldValue("teaserImageFile", selectedFile)
             const reader = new FileReader();
         
             reader.onload = (e) => {
                 //console.log(e.target.result)
 
                 //The result will be string base64 on format: "data:image/png;base64,..."
-                setFieldValue("teaserImageFile", e.target.result)
+                setTeaserImageShow(e.target.result)
                 setMessage('');
             };
             reader.readAsDataURL(selectedFile);
@@ -126,7 +128,7 @@ export default function ExerciseDataStep({exerciseOriginalData=null, categoryLis
                 .trim()
                 .replace(/\s+/g, '_')
             
-            setFieldValue("name", name)
+            setFieldValue("exerciseName", name)
             setFieldValue("exerciseIdentify", identify)
         }
     };
@@ -148,22 +150,22 @@ export default function ExerciseDataStep({exerciseOriginalData=null, categoryLis
             
             <Grid container sx={{ mb: 2, alignItems: "center"}}>
                 <Grid item xs={7} sx={{}}>
-                    <Field name="name">
+                    <Field name="exerciseName">
                         {({ field, meta }) => {
                             const hasError = meta.touched && !!meta.error;
                             return (
                                 <>
                                     <TextField
                                         {...field}
-                                        id="name"
-                                        label="Name"
+                                        id="exerciseName"
+                                        label="Exercise name"
                                         variant="filled"
                                         onChange={(e) => handleChangeExerciseName(e.target.value)}
                                         fullWidth
                                         sx={{ bgcolor:"white" }}
                                         error={hasError}
                                     />
-                                    <FormError inputName="name" errorsList={errors} touchedList={touched} />
+                                    <FormError inputName="exerciseName" errorsList={errors} touchedList={touched} />
                                 </>
                             )
                         }}
@@ -244,8 +246,8 @@ export default function ExerciseDataStep({exerciseOriginalData=null, categoryLis
                         sx={{ bgcolor:"darkgray", display:"flex",  justifyContent: "center", alignItems: "center", width: "70%",}}
                     >
                         <img
-                            src={values.teaserImageFile}
-                            alt={values.name}
+                            src={teaserImageShow}
+                            alt={values.exerciseName}
                             style={{ maxWidth: '80%', height: '80%' }}
                         />
                     </Box>

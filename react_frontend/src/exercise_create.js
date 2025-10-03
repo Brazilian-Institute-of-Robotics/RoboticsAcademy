@@ -1,10 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import CreateExercise from './components/CreateExercise';
+import ExerciseCreation from './components/ExerciseCreation';
 import { Container, Typography } from '@mui/material';
 
-createRoot(document.getElementById('create-exercise-root')).render(
+createRoot(document.getElementById('exercise-create-root')).render(
   <React.StrictMode>
-    <CreateExercise />
+    <ExerciseCreation />
   </React.StrictMode>
 );

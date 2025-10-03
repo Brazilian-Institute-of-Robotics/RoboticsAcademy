@@ -55,7 +55,7 @@ export default function ExerciseUpdate() {
                 exercise.guide_page_current_images = blobImages
 
                 const initValues = {
-                    name: exercise.name,
+                    exerciseName: exercise.name,
                     exerciseIdentify: exercise.exercise_id,
                     description: exercise.description,
                     code: exercise.code,

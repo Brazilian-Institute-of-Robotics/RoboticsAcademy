@@ -34,7 +34,6 @@ const MutipleFileUploader = ({formik, formikAtrributeName, fileTypes, startText}
       }
     });
 
-    console.log(allFiles)
     setFiles(allFiles);
     formikContext.setFieldValue(formikAtrributeName, allFiles)
   };

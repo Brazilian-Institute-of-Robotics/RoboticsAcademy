@@ -69,7 +69,7 @@ module.exports = () => {
 
   //Pages inside this block are only usable in development entries.exercise_update = './src/exercise_update.js'
   if (!isProduction){
-    entries.create_exercise = './src/create_exercise.js';
+    entries.exercise_create = './src/exercise_create.js';
     entries.exercise_list_crud = './src/exercise_list_crud.js'
     entries.exercise_update = './src/exercise_update.js'
   }
