@@ -203,7 +203,7 @@ export default function ExerciseListCrud() {
             </Toolbar>
             
             {/* TABLE */}
-            <TableContainer component={Paper} elevation={1}>
+            <TableContainer component={Paper} elevation={1} sx={{mb:5}}>
                 <Table size="small">
 
                     {/* TABLE HEAD*/}
