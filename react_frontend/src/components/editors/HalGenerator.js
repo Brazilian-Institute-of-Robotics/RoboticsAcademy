@@ -111,10 +111,9 @@ export default function HalGenerator({
             >
                 <Grid container spacing={2} sx={{ m: 2, p:2,}}>
                     {availableNodes.map((node) => (
-                        <Grid item xs={3} key={node.id}>
-                             <Grid container>
+                        <Grid item xs={4} key={node.id}>
+                             <Grid container sx={{bgcolor:"#D9C8B4", }}>
                                 <Grid item sx={{
-                                    bgcolor:"#D9C8B4", 
                                     display: "flex", 
                                     alignItems: "center", 
                                     justifyContent: "center"
@@ -123,13 +122,13 @@ export default function HalGenerator({
                                         key={node.id}
                                         control={
                                             <Checkbox
-                                                sx={{ml:2}}
+                                                sx={{ml:2, mt:1}}
                                                 value={node.name}
                                                 checked={selectedNodes.includes(node.id)}
                                                 onChange={() => toggleNode(node.id)}
                                             />
                                         }
-                                        label={node.name}
+                                        label={<Typography sx={{mt:1}} fontSize={16} fontWeight={600}>{node.name}</Typography>}
                                     />
                                     <Tooltip
                                         enterDelay={100}
@@ -139,10 +138,22 @@ export default function HalGenerator({
                                             </Box>
                                         }
                                     >
-                                        <IconButton aria-label={`description${node.name}`} fontSize="small">
-                                            <DescriptionIcon/>
-                                        </IconButton>
+                                        <Button>Description</Button>
                                     </Tooltip>
+                                    
+                                </Grid>
+                                <Grid item sx={{}}>
+                                    { node.need_topic_name == true ?
+                                        (<p style={{
+                                            paddingLeft: "5px",
+                                            fontSize: "14px", 
+                                            color: "red", 
+                                            fontWeight: "bold" 
+                                        }}>
+                                             This node needs to receive a topic's name on code
+                                        </p>) 
+                                        : (<div></div>)
+                                    }
                                 </Grid>
                             </Grid>
                         </Grid>
