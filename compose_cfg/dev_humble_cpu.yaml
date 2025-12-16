@@ -10,8 +10,10 @@ services:
     ports:
       - "${DB_PORT}:5432"
     volumes:
-      - ./RoboticsInfrastructure/database/universes.sql:/docker-entrypoint-initdb.d/1.sql
-      - ./database/exercises/db.sql:/docker-entrypoint-initdb.d/2.sql
+      #- ./RoboticsInfrastructure/database/universes.sql:/docker-entrypoint-initdb.d/1.sql
+      #- ./database/exercises/db.sql:/docker-entrypoint-initdb.d/2.sql
+      - ./database/empty.sql:/docker-entrypoint-initdb.d/1.sql
+      - ./database/empty.sql:/docker-entrypoint-initdb.d/2.sql
       - ./database/django_auth.sql:/docker-entrypoint-initdb.d/3.sql
       - ./scripts:/scripts
     healthcheck:
