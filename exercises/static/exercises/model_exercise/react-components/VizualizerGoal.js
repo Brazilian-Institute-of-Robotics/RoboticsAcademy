@@ -6,7 +6,7 @@ import Vacuum from "../resources/images/my_robot.png";
 
 import "./css/GUICanvas.css";
 
-export default function SpecificSimpleHouse() {
+export default function VizualizerGoal() {
   const [vacuumPose, setVacuumPose] = React.useState(null)
   const [path, setPath] = React.useState("")
   var trail = [];
@@ -123,6 +123,6 @@ export default function SpecificSimpleHouse() {
   );
 }
 
-SpecificSimpleHouse.propTypes = {
+VizualizerGoal.propTypes = {
   circuit: PropTypes.string,
 };

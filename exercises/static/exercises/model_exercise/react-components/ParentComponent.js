@@ -1,9 +1,9 @@
 import * as React from "react";
 import {Fragment} from "react";
 
-import "./css/FollowLineRR.css";
+import "./css/ParentComponent.css";
 
-const FollowLineRR = (props) => {
+const ParentComponent = (props) => {
   return (
     <Fragment>
     {props.children}
@@ -11,4 +11,4 @@ const FollowLineRR = (props) => {
   );
 };
 
-export default FollowLineRR;
+export default ParentComponent;
