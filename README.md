@@ -29,7 +29,7 @@ Take a look at the [contributing](CONTRIBUTING.md) guide lines.
 - [ROS2 and superthin templates migration.][]
 - [Troubleshooting Robotics Academy][]
 
-[RASC-ACADEMY - Instructions for developers.]: ./docs/InstructionsForDevelopers.md
+[RASC-ACADEMY - Instructions for developers.]: ./docs/RascDeveloperInstructions.md
 [Instructions for developers.]: ./docs/InstructionsForDevelopers.md
 [Client side.]: ./docs/clientside.md
 [Repository Architecture.]: ./docs/RepositoryArchitecture.md
