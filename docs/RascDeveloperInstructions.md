@@ -10,6 +10,8 @@ ATTENTION: Docker is necessary to use this application
 - [Create .env on RascAcademy](#create-env-on-rascacademy)
 - [Build RascAcademy's docker images](#build-rascacademys-docker-images)
 - [Build package CustomRobots on RascInfrastructure](#build-package-customrobots-on-rascinfrastructure)
+- [Start RascAcademy](#start-rascacademy)
+- [Start RascInstructionsPage](#start-rascinstructionspage)
 
 ## Clone required repositories
 
@@ -120,7 +122,7 @@ chmod +x scripts/build_custom_robots.sh
 ./scripts/build_custom_robots.sh
 ```
 
-## Starts RascAcademy
+## Start RascAcademy
 
 On RascAcademy's root, execute command bellow and after initialized click [here](http://localhost:7164).
 
@@ -136,7 +138,7 @@ password: pass
 
 To stop application, use Ctrl + c on terminal
 
-## Starts RascInstructionsPage
+## Start RascInstructionsPage
 
 On RascInstructionsPage's roots, executes command bellow an than  click [here](http://localhost:4000/exercises/) to access page
 ```
