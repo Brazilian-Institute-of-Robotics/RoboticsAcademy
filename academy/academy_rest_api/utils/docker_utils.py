@@ -56,7 +56,7 @@ def startUserContainer(user_id):
             "image": IMAGE_NAME,
             "name": container_name,
             "network": network_name,
-            "nano_cpus": 2000000000,  # Container can only use 2 CPU'S cores from host
+            #"nano_cpus": 2000000000,  # Container can only use 2 CPU'S cores from host
             "ports": {
                 '7163/tcp': None,
                 '6080/tcp': None,
