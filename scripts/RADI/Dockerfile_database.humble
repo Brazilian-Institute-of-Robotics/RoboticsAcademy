@@ -1,0 +1,7 @@
+FROM jderobot/robotics-database:6.1.3
+
+# Remove unnecessary sql
+RUN rm -f /docker-entrypoint-initdb.d/1.sql \
+          /docker-entrypoint-initdb.d/2.sql
+
+COPY sql/fix_sequence.sql /docker-entrypoint-initdb.d/3.sql
