@@ -2,10 +2,10 @@
 
 # ================= START GPU VERIFICATION ===================================
 
-GPU_ENV_LINE="GPU_AVAILABLE="
+GPU_ENV_LINE="GPU_NVIDIA_AVAILABLE="
 GPU_ENV_FILE="$(dirname "$0")/../.env"
 
-# Remove old GPU_AVAILABLE variable on .env (if exists)
+# Remove old GPU_NVIDIA_AVAILABLE variable on .env (if exists)
 if grep -q "^$GPU_ENV_LINE" "$GPU_ENV_FILE" 2>/dev/null; then
     sed -i "/^$GPU_ENV_LINE/d" "$GPU_ENV_FILE"
 fi
@@ -21,9 +21,9 @@ fi
 if command -v nvidia-smi >/dev/null 2>&1 && \
    nvidia-smi >/dev/null 2>&1 && \
    ! nvidia-smi --query-gpu=name --format=csv,noheader | grep -q "No devices were found"; then
-    echo "GPU_AVAILABLE=1" >> "$GPU_ENV_FILE"
+    echo "GPU_NVIDIA_AVAILABLE=1" >> "$GPU_ENV_FILE"
 else
-    echo "GPU_AVAILABLE=0" >> "$GPU_ENV_FILE"
+    echo "GPU_NVIDIA_AVAILABLE=0" >> "$GPU_ENV_FILE"
 fi
 
 # ================= END GPU VERIFICATION =====================================
