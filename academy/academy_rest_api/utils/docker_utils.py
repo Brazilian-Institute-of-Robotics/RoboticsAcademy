@@ -34,18 +34,6 @@ def startUserContainer(user_id):
         #Script used on container's start
         entrypoint_file = "/manager_prod.sh" if settings.PRODUCTION == True else "/manager_dev.sh"
 
-        #Path necessary to create volume to entrypoint script
-        project_absolute_path = settings.PROJECT_ABSOLUTE_PATH
-        src_path = project_absolute_path+"/src"
-        entrypoints_path = f"{project_absolute_path}/scripts/RADI/entrypoints"
-
-        #Path necessary to create volumes to worlds, models and launchs
-        infra_path = settings.INFRASTRUCTURE_ABSOLUTE_PATH
-        resources = infra_path+"/resources"
-        launchers = infra_path+"/Launchers"
-        worlds = infra_path+"/Worlds"
-        ws = infra_path+"/ws"
-
         #Container's expiration in hours
         expiration = settings.USER_CONTAINER_EXPIRATION
 
@@ -56,7 +44,6 @@ def startUserContainer(user_id):
             "image": IMAGE_NAME,
             "name": container_name,
             "network": network_name,
-            #"nano_cpus": 2000000000,  # Container can only use 2 CPU'S cores from host
             "ports": {
                 '7163/tcp': None,
                 '6080/tcp': None,
@@ -64,13 +51,6 @@ def startUserContainer(user_id):
             },
             "labels": {
                 'expired_at': expires_at,
-            },
-            "volumes": {
-                str(ws): {'bind': '/home/ws' , 'mode': 'ro'},
-                str(resources): {'bind': '/resources' , 'mode': 'ro'},
-                str(launchers): {'bind': '/opt/jderobot/Launchers' , 'mode': 'ro'},
-                str(worlds): {'bind': '/opt/jderobot/Worlds' , 'mode': 'ro'},
-                #str(src_path): {'bind': '/RoboticsApplicationManager', 'mode': 'rw'}
             },
             "entrypoint": entrypoint_file,
             "detach": True,
@@ -80,18 +60,13 @@ def startUserContainer(user_id):
         }
 
         #Case host machine has a NVDIA GPU
-        if settings.GPU_AVAILABLE == "1":
+        if settings.GPU_NVIDIA_AVAILABLE == "1":
             container_kwargs.update({ 
                 "environment": {
                     "NVIDIA_VISIBLE_DEVICES": "all",
                     "NVIDIA_DRIVER_CAPABILITIES": "all",
                 },
-                "device_requests": [
-                    {
-                        "count": 1,
-                        "capabilities": [["gpu"]]
-                    }
-                ]
+                "device_requests": [ {"count": 1, "capabilities": [["gpu"]]} ]
             })
             
             print("---------------")
@@ -101,20 +76,15 @@ def startUserContainer(user_id):
             print("---------------")
             print("GPU NVIDIA not detected: continuing without GPU's SUPORT.")
             print("---------------")
-        
 
-        #On developemnt, this allow all changes in host's file manager_dev.sh
-        #be send to container respective file
-        if settings.PRODUCTION == False:
-            container_kwargs["volumes"][str(f"{entrypoints_path}/manager_dev.sh")] = {
-                'bind': '/opt/manager_dev.sh',
-                'mode': 'rw'
-            }
-            container_kwargs["entrypoint"] = "/opt/manager_dev.sh"
-        
-        # if settings.PRODUCTION == True:
-        #     project_name = settings.COMPOSE_PROJECT_NAME
-        #     container_kwargs["network"] = f"{project_name}_user-network"
+        #Container will receive volumes
+        if settings.PROJECT_ABSOLUTE_PATH != "" and settings.INFRASTRUCTURE_ABSOLUTE_PATH != "" :
+            setUserContainerVolumes(container_kwargs)
+            print("Volumes set")
+            print("---------------")
+        else:
+            print("No volumes set")
+            print("---------------")
 
         # Creates a new container with random external ports
         container = client.containers.run(**container_kwargs)
@@ -143,6 +113,36 @@ def startUserContainer(user_id):
             'error_type': type(e).__name__,
             'error_message': str(e)
         }
+
+def setUserContainerVolumes(container_kwargs):
+
+    #Path necessary to create volume to entrypoint script
+    project_absolute_path = settings.PROJECT_ABSOLUTE_PATH
+    entrypoints_path = f"{project_absolute_path}/scripts/RADI/entrypoints"
+
+    #Path necessary to create volumes to worlds, models and launchs
+    infra_path = settings.INFRASTRUCTURE_ABSOLUTE_PATH
+    resources = infra_path+"/resources"
+    launchers = infra_path+"/Launchers"
+    worlds = infra_path+"/Worlds"
+    ws = infra_path+"/ws"
+
+    container_kwargs["volumes"]= {
+        ws: {'bind': '/home/ws' , 'mode': 'ro'}, 
+        resources: {'bind': '/resources' , 'mode': 'ro'}, 
+        launchers: {'bind': '/opt/jderobot/Launchers' , 'mode': 'ro'}, 
+        worlds: {'bind': '/opt/jderobot/Worlds' , 'mode': 'ro'}
+    }
+
+    #On developemnt, this allow all changes in host's file manager_dev.sh
+    #be send to container respective file
+    if settings.PRODUCTION == False:
+        container_kwargs["volumes"][str(f"{entrypoints_path}/manager_dev.sh")] = {
+            'bind': '/opt/manager_dev.sh',
+            'mode': 'rw'
+        }
+        container_kwargs["entrypoint"] = "/opt/manager_dev.sh"
+
 
 def deleteUserContainer(user_id):
     try:
